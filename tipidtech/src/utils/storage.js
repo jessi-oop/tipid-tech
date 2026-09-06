@@ -155,3 +155,93 @@ export async function getTotalExpenses(userId, budgetStartDate) {
   const total = (data ?? []).reduce((sum, e) => sum + Number(e.amount), 0);
   return total;
 }
+
+// ─── Savings Goals (Phase 14) ─────────────────────────────────────
+// Completely independent of the budget Savings category.
+
+/**
+ * Fetch all savings goals for the user.
+ * Active goals come first (is_completed = false), completed goals last.
+ */
+export async function getSavingsGoals(userId) {
+  const { data, error } = await supabase
+    .from('savings_goals')
+    .select('*')
+    .eq('user_id', userId)
+    .order('is_completed', { ascending: true })
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Insert a new savings goal for the user.
+ * goalData: { name, target_amount, duration_days, start_date }
+ * Returns the inserted row.
+ */
+export async function createSavingsGoal(userId, goalData) {
+  const { data, error } = await supabase
+    .from('savings_goals')
+    .insert({ ...goalData, user_id: userId })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Insert a contribution toward a savings goal.
+ * contributionData: { amount, note? }
+ * Returns the inserted row.
+ */
+export async function addContribution(userId, goalId, contributionData) {
+  const { data, error } = await supabase
+    .from('savings_contributions')
+    .insert({ ...contributionData, user_id: userId, goal_id: goalId })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Fetch all contributions for a specific goal, newest first.
+ */
+export async function getContributions(goalId) {
+  const { data, error } = await supabase
+    .from('savings_contributions')
+    .select('*')
+    .eq('goal_id', goalId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Return the sum of all contribution amounts for a goal.
+ */
+export async function getTotalSaved(goalId) {
+  const { data, error } = await supabase
+    .from('savings_contributions')
+    .select('amount')
+    .eq('goal_id', goalId);
+
+  if (error) throw error;
+  return (data ?? []).reduce((sum, c) => sum + Number(c.amount), 0);
+}
+
+/**
+ * Mark a savings goal as completed.
+ */
+export async function markGoalCompleted(goalId) {
+  const { error } = await supabase
+    .from('savings_goals')
+    .update({ is_completed: true })
+    .eq('id', goalId);
+
+  if (error) throw error;
+}

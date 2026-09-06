@@ -24,6 +24,7 @@ import AuthScreen      from './components/AuthScreen';
 import ProtectedRoute  from './components/ProtectedRoute';
 import HistoryScreen   from './components/HistoryScreen';
 import ReportsScreen   from './components/ReportsScreen';
+import SavingsScreen   from './components/SavingsScreen';
 
 import { supabase }              from './utils/supabase';
 import { getBudget, saveBudget, deleteBudget} from './utils/storage';
@@ -291,7 +292,11 @@ export default function App() {
           path="/savings"
           element={
             <ProtectedRoute session={session}>
-              <div style={{ padding: '2rem' }}>Savings screen — coming in Phase 14</div>
+              <SavingsScreen
+                userId={session?.user?.id}
+                onLogout={handleLogout}
+                userEmail={session?.user?.email ?? ''}
+              />
             </ProtectedRoute>
           }
         />

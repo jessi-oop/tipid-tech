@@ -15,7 +15,6 @@ function getCategoryLabel(categoryKey) {
   return cat ? cat.label : 'Other';
 }
 
-// Format a Supabase timestamptz string as "Sep 1, 2:30 PM"
 function formatExpenseDateTime(isoString) {
   const date = new Date(isoString);
   const datePart = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
@@ -26,27 +25,31 @@ function formatExpenseDateTime(isoString) {
 export default function ExpenseList({ expenses }) {
   if (!expenses || expenses.length === 0) {
     return (
-      <div className="expense-list-empty">
-        <p>No expenses recorded yet.</p>
-        <p className="expense-list-hint">Add your first expense to start tracking.</p>
+      <div className="flex flex-col gap-1 py-4 text-center">
+        <p className="text-sm text-gray-400">No expenses recorded yet.</p>
+        <p className="text-xs text-gray-300">Add your first expense to start tracking.</p>
       </div>
     );
   }
 
   return (
-    <ul className="expense-list" aria-label="Recent expenses">
+    <ul className="flex flex-col gap-3" aria-label="Recent expenses">
       {expenses.map((expense) => (
-        <li key={expense.id} className="expense-item">
-          <span className="expense-emoji">{getCategoryEmoji(expense.category)}</span>
-          <span className="expense-details">
-            <span className="expense-description">
+        <li key={expense.id} className="flex items-start gap-3">
+          <span className="text-xl leading-none shrink-0 mt-0.5">
+            {getCategoryEmoji(expense.category)}
+          </span>
+          <span className="flex-1 flex flex-col gap-0.5 min-w-0">
+            <span className="text-sm font-medium text-gray-900 truncate">
               {expense.note || getCategoryLabel(expense.category)}
             </span>
-            <span className="expense-meta">
+            <span className="text-xs text-gray-400">
               {getCategoryLabel(expense.category)} · {formatExpenseDateTime(expense.created_at)}
             </span>
           </span>
-          <span className="expense-amount">−{formatPeso(expense.amount)}</span>
+          <span className="text-sm font-semibold text-red-600 shrink-0">
+            −{formatPeso(expense.amount)}
+          </span>
         </li>
       ))}
     </ul>

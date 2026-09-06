@@ -19,7 +19,7 @@ export default function AuthScreen() {
   // ── UI state ─────────────────────────────────────────────────
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
-  const [info,    setInfo]    = useState(''); // e.g. "Check your email"
+  const [info,    setInfo]    = useState('');
 
   // ─── Helpers ─────────────────────────────────────────────────
 
@@ -36,7 +36,6 @@ export default function AuthScreen() {
     setConfirmPassword('');
   }
 
-  // Map Supabase error messages to friendlier copy
   function friendlyError(msg) {
     if (!msg) return 'Something went wrong. Please try again.';
     if (msg.includes('Invalid login credentials'))
@@ -57,110 +56,108 @@ export default function AuthScreen() {
   async function handleLogin(e) {
     e.preventDefault();
     clearMessages();
-
     if (!email.trim() || !password) {
       setError('Please enter your email and password.');
       return;
     }
-
     setLoading(true);
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
     setLoading(false);
-
-    if (authError) {
-      setError(friendlyError(authError.message));
-    }
-    // On success: App.jsx onAuthStateChange fires and handles redirect
+    if (authError) setError(friendlyError(authError.message));
   }
 
   async function handleRegister(e) {
     e.preventDefault();
     clearMessages();
-
     if (!email.trim() || !password || !confirmPassword) {
       setError('Please fill in all fields.');
       return;
     }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-
     if (password.length < 6) {
       setError('Password must be at least 6 characters.');
       return;
     }
-
     setLoading(true);
     const { error: authError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
     });
     setLoading(false);
-
     if (authError) {
       setError(friendlyError(authError.message));
     } else {
-      // Supabase may send a confirmation email depending on project settings.
-      // If email confirmation is disabled, onAuthStateChange fires immediately.
       setInfo('Account created! If you were not logged in automatically, check your email to confirm your account.');
     }
   }
 
+  // ── Shared input classes ──────────────────────────────────────
+  const inputCls = 'w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-gray-900 bg-white transition-colors duration-150 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 appearance-none';
+  const labelCls = 'text-sm font-semibold text-gray-900';
+
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="screen auth-screen">
+    <div className="w-full max-w-lg mx-auto px-4 py-12 flex flex-col gap-5 min-h-dvh justify-center">
+
       {/* Brand */}
-      <div className="auth-hero">
-        <h1 className="app-title">TipidTech</h1>
-        <p className="app-tagline">Plan. Track. Understand.</p>
+      <div className="text-center pb-2">
+        <h1 className="text-5xl font-extrabold text-blue-600 tracking-tight">TipidTech</h1>
+        <p className="text-lg text-gray-500 mt-1">Plan. Track. Understand.</p>
       </div>
 
       {/* Card */}
-      <div className="card auth-card">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col gap-5 p-5">
+
         {/* Tab toggle */}
-        <div className="auth-tabs" role="tablist">
-          <button
-            role="tab"
-            aria-selected={mode === 'login'}
-            className={`auth-tab${mode === 'login' ? ' auth-tab--active' : ''}`}
-            onClick={() => switchMode('login')}
-            type="button"
-          >
-            Log In
-          </button>
-          <button
-            role="tab"
-            aria-selected={mode === 'register'}
-            className={`auth-tab${mode === 'register' ? ' auth-tab--active' : ''}`}
-            onClick={() => switchMode('register')}
-            type="button"
-          >
-            Register
-          </button>
+        <div className="flex border-b-2 border-gray-200" role="tablist">
+          {[
+            { key: 'login',    label: 'Log In' },
+            { key: 'register', label: 'Register' },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={mode === key}
+              type="button"
+              onClick={() => switchMode(key)}
+              className={`flex-1 py-3 px-4 text-base font-semibold border-b-2 -mb-0.5 transition-colors duration-150 cursor-pointer bg-transparent ${
+                mode === key
+                  ? 'text-blue-600 border-blue-600'
+                  : 'text-gray-400 border-transparent hover:text-gray-900'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Feedback messages */}
         {error && (
-          <p className="auth-error" role="alert">{error}</p>
+          <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3 leading-relaxed">
+            {error}
+          </p>
         )}
         {info && (
-          <p className="auth-info" role="status">{info}</p>
+          <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 leading-relaxed">
+            {info}
+          </p>
         )}
 
         {/* ── Login form ── */}
         {mode === 'login' && (
-          <form className="auth-form" onSubmit={handleLogin} noValidate>
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-email">Email</label>
+          <form className="flex flex-col gap-4" onSubmit={handleLogin} noValidate>
+            <div className="flex flex-col gap-2">
+              <label className={labelCls} htmlFor="login-email">Email</label>
               <input
                 id="login-email"
                 type="email"
-                className="form-input"
+                className={inputCls}
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -169,12 +166,12 @@ export default function AuthScreen() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-password">Password</label>
+            <div className="flex flex-col gap-2">
+              <label className={labelCls} htmlFor="login-password">Password</label>
               <input
                 id="login-password"
                 type="password"
-                className="form-input"
+                className={inputCls}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -185,8 +182,8 @@ export default function AuthScreen() {
 
             <button
               type="submit"
-              className="btn btn-primary btn-full"
               disabled={loading}
+              className="w-full py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
             >
               {loading ? 'Logging in…' : 'Log In'}
             </button>
@@ -195,13 +192,13 @@ export default function AuthScreen() {
 
         {/* ── Register form ── */}
         {mode === 'register' && (
-          <form className="auth-form" onSubmit={handleRegister} noValidate>
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-email">Email</label>
+          <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
+            <div className="flex flex-col gap-2">
+              <label className={labelCls} htmlFor="reg-email">Email</label>
               <input
                 id="reg-email"
                 type="email"
-                className="form-input"
+                className={inputCls}
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -210,12 +207,12 @@ export default function AuthScreen() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-password">Password</label>
+            <div className="flex flex-col gap-2">
+              <label className={labelCls} htmlFor="reg-password">Password</label>
               <input
                 id="reg-password"
                 type="password"
-                className="form-input"
+                className={inputCls}
                 placeholder="At least 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -224,12 +221,12 @@ export default function AuthScreen() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-confirm">Confirm Password</label>
+            <div className="flex flex-col gap-2">
+              <label className={labelCls} htmlFor="reg-confirm">Confirm Password</label>
               <input
                 id="reg-confirm"
                 type="password"
-                className="form-input"
+                className={inputCls}
                 placeholder="Repeat your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -240,8 +237,8 @@ export default function AuthScreen() {
 
             <button
               type="submit"
-              className="btn btn-primary btn-full"
               disabled={loading}
+              className="w-full py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account…' : 'Create Account'}
             </button>
@@ -249,18 +246,26 @@ export default function AuthScreen() {
         )}
 
         {/* Toggle link */}
-        <p className="auth-switch">
+        <p className="text-sm text-gray-500 text-center">
           {mode === 'login' ? (
             <>
               Don&apos;t have an account?{' '}
-              <button type="button" className="auth-switch-btn" onClick={() => switchMode('register')}>
+              <button
+                type="button"
+                onClick={() => switchMode('register')}
+                className="text-blue-600 font-semibold bg-transparent border-none cursor-pointer underline underline-offset-1 hover:text-blue-700"
+              >
                 Register
               </button>
             </>
           ) : (
             <>
               Already have an account?{' '}
-              <button type="button" className="auth-switch-btn" onClick={() => switchMode('login')}>
+              <button
+                type="button"
+                onClick={() => switchMode('login')}
+                className="text-blue-600 font-semibold bg-transparent border-none cursor-pointer underline underline-offset-1 hover:text-blue-700"
+              >
                 Log In
               </button>
             </>

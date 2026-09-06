@@ -6,8 +6,7 @@
 //   "This Week" — all expenses whose created_at falls in the current Mon–Sun calendar week
 //
 // IMPORTANT: These ranges are purely calendar-based. They have no relation to the
-// user's chosen budget period (daily / weekly / monthly / custom). A user with a
-// monthly budget still sees "Today" = today's date and "This Week" = Mon–Sun.
+// user's chosen budget period (daily / weekly / monthly / custom).
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -23,21 +22,16 @@ import { EXPENSE_CATEGORIES } from '../utils/constants';
 import { formatPeso }          from '../utils/calculations';
 import { getExpensesByDate, getExpensesByWeek } from '../utils/storage';
 
-// ─── Calendar helpers (calendar dates only — no budget period involved) ───────
+// ─── Calendar helpers ─────────────────────────────────────────────
 
-/** Returns today's date as an ISO 'YYYY-MM-DD' string. */
 function getTodayString() {
   return new Date().toISOString().split('T')[0];
 }
 
-/**
- * Returns the Monday and Sunday of the current calendar week as Date objects.
- * Week is always Mon 00:00:00 → Sun 23:59:59 local time, regardless of budget period.
- */
 function getCurrentCalendarWeek() {
-  const now     = new Date();
-  const day     = now.getDay(); // 0 = Sun, 1 = Mon, …, 6 = Sat
-  const diffToMonday = (day === 0) ? -6 : 1 - day; // Sunday wraps to previous Monday
+  const now  = new Date();
+  const day  = now.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
 
   const monday = new Date(now);
   monday.setDate(now.getDate() + diffToMonday);
@@ -50,7 +44,7 @@ function getCurrentCalendarWeek() {
   return { monday, sunday };
 }
 
-// ─── Category colours (one per category + other) ──────────────────
+// ─── Category colours ─────────────────────────────────────────────
 
 const CATEGORY_COLORS = {
   food:           '#2563eb',
@@ -62,18 +56,15 @@ const CATEGORY_COLORS = {
   other:          '#6b7280',
 };
 
-// Build the full category colour list in EXPENSE_CATEGORIES order
-const ORDERED_COLORS = EXPENSE_CATEGORIES.map((c) => CATEGORY_COLORS[c.key] ?? '#6b7280');
-
 // ─── Custom tooltip ───────────────────────────────────────────────
 
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0].payload;
   return (
-    <div className="pie-tooltip">
-      <span className="pie-tooltip-name">{name}</span>
-      <span className="pie-tooltip-value">{formatPeso(value)}</span>
+    <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 flex flex-col gap-0.5 shadow-sm">
+      <span className="text-xs text-gray-400 font-medium">{name}</span>
+      <span className="text-sm font-bold text-gray-900">{formatPeso(value)}</span>
     </div>
   );
 }
@@ -85,8 +76,6 @@ function groupByCategory(expenses) {
   expenses.forEach((e) => {
     totals[e.category] = (totals[e.category] || 0) + Number(e.amount);
   });
-
-  // Return in EXPENSE_CATEGORIES order so colours are consistent
   return EXPENSE_CATEGORIES
     .filter((cat) => totals[cat.key] > 0)
     .map((cat) => ({
@@ -99,27 +88,21 @@ function groupByCategory(expenses) {
 // ─── Component ────────────────────────────────────────────────────
 
 export default function ExpensePieChart({ userId, refreshKey }) {
-  const [view,      setView]      = useState('today'); // 'today' | 'week'
+  const [view,      setView]      = useState('today');
   const [chartData, setChartData] = useState([]);
   const [loading,   setLoading]   = useState(false);
 
-  // ─── Fetch expenses for the selected calendar range ───────────
   const loadData = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     try {
       let expenses = [];
-
       if (view === 'today') {
-        // Calendar date only — has nothing to do with the user's budget period
-        const today = getTodayString();
-        expenses = await getExpensesByDate(userId, today);
+        expenses = await getExpensesByDate(userId, getTodayString());
       } else {
-        // Current Mon–Sun calendar week — independent of budget period
         const { monday, sunday } = getCurrentCalendarWeek();
         expenses = await getExpensesByWeek(userId, monday, sunday);
       }
-
       setChartData(groupByCategory(expenses));
     } catch (err) {
       console.error('TipidTech: failed to load chart data', err);
@@ -129,44 +112,48 @@ export default function ExpensePieChart({ userId, refreshKey }) {
     }
   }, [userId, view, refreshKey]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
-  // Map a category key back to its colour for the Cell fill
   function getColor(entry) {
     return CATEGORY_COLORS[entry.key] ?? '#6b7280';
   }
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="card section-card pie-chart-section">
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-4">
       {/* Header + toggle */}
-      <div className="pie-chart-header">
-        <h2 className="section-title">Spending Breakdown</h2>
-        <div className="pie-toggle" role="group" aria-label="Chart period">
-          <button
-            type="button"
-            className={`pie-toggle-btn${view === 'today' ? ' pie-toggle-btn--active' : ''}`}
-            onClick={() => setView('today')}
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            className={`pie-toggle-btn${view === 'week' ? ' pie-toggle-btn--active' : ''}`}
-            onClick={() => setView('week')}
-          >
-            This Week
-          </button>
+      <div className="flex justify-between items-center flex-wrap gap-2">
+        <h2 className="text-lg font-semibold text-gray-900">Spending Breakdown</h2>
+        <div
+          className="flex border border-gray-200 rounded-lg overflow-hidden"
+          role="group"
+          aria-label="Chart period"
+        >
+          {[
+            { key: 'today', label: 'Today' },
+            { key: 'week',  label: 'This Week' },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setView(key)}
+              className={`px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer border-none ${
+                view === key
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-900'
+              } ${key === 'week' ? 'border-l border-gray-200' : ''}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Chart area */}
       {loading ? (
-        <p className="pie-loading">Loading…</p>
+        <p className="text-sm text-gray-400 text-center py-8">Loading…</p>
       ) : chartData.length === 0 ? (
-        <p className="pie-empty">
+        <p className="text-sm text-gray-400 text-center py-8">
           No expenses recorded {view === 'today' ? 'today' : 'this week'}.
         </p>
       ) : (

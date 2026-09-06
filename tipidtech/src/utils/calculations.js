@@ -306,3 +306,56 @@ export function formatPeso(amount) {
   const rounded = Math.round(amount);
   return '₱' + rounded.toLocaleString('en-PH');
 }
+
+// ─── Savings Goals (REQ-08, Phase 14) ────────────────────────────
+// These functions are completely independent of the budget Savings category.
+
+/**
+ * How much the user needs to save per day to hit the goal on time.
+ * targetAmount: numeric
+ * durationDays: integer (computed from chosen duration option)
+ */
+export function getSavingsDailyRequired(targetAmount, durationDays) {
+  if (durationDays <= 0) return 0;
+  return targetAmount / durationDays;
+}
+
+/**
+ * How much the user needs to save per week to hit the goal on time.
+ */
+export function getSavingsWeeklyRequired(targetAmount, durationDays) {
+  if (durationDays <= 0) return 0;
+  return targetAmount / (durationDays / 7);
+}
+
+/**
+ * Percentage of the goal completed, capped at 100.
+ * totalSaved: numeric — sum of all contributions for this goal
+ */
+export function getSavingsProgressPercentage(totalSaved, targetAmount) {
+  if (targetAmount <= 0) return 0;
+  return Math.min((totalSaved / targetAmount) * 100, 100);
+}
+
+/**
+ * Whether the goal is considered completed.
+ */
+export function isSavingsGoalCompleted(totalSaved, targetAmount) {
+  return totalSaved >= targetAmount;
+}
+
+/**
+ * Map a duration option key to a number of days.
+ * Options: '1month' | '3months' | '6months' | '1year' | 'custom'
+ * For 'custom', pass customMonths (number).
+ */
+export function durationToDays(option, customMonths = 0) {
+  switch (option) {
+    case '1month':  return 30;
+    case '3months': return 90;
+    case '6months': return 180;
+    case '1year':   return 365;
+    case 'custom':  return Math.max(1, Math.round(customMonths * 30));
+    default:        return 30;
+  }
+}

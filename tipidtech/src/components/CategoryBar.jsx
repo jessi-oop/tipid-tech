@@ -6,33 +6,44 @@
 import { formatPeso } from '../utils/calculations';
 
 export default function CategoryBar({ emoji, label, spent, budget }) {
-  // Progress as a percentage, capped at 100% for the bar width
-  // (over-budget state is shown separately via colour)
-  const percentage    = budget > 0 ? (spent / budget) * 100 : 0;
-  const displayWidth  = Math.min(100, percentage);
-  const isOver        = spent > budget;
-  const isFull        = spent === budget;
+  const percentage   = budget > 0 ? (spent / budget) * 100 : 0;
+  const displayWidth = Math.min(100, percentage);
+  const isOver       = spent > budget;
+  const isFull       = spent === budget;
+
+  const fillCls = isOver
+    ? 'bg-red-500'
+    : isFull
+    ? 'bg-green-500'
+    : 'bg-blue-600';
 
   return (
-    <div className={`category-bar${isOver ? ' category-bar--over' : ''}`}>
+    <div className="flex flex-col gap-2">
       {/* Label row */}
-      <div className="category-bar-header">
-        <span className="category-bar-name">
-          <span className="category-emoji">{emoji}</span>
+      <div className="flex justify-between items-center gap-2 text-sm">
+        <span className="flex items-center gap-2 font-medium text-gray-900 shrink-0">
+          <span className="text-lg leading-none shrink-0">{emoji}</span>
           {label}
         </span>
-        <span className={`category-bar-amounts${isOver ? ' category-bar-amounts--over' : ''}`}>
+        <span className={`text-xs text-right ${isOver ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
           {formatPeso(spent)}
-          <span className="category-bar-separator"> / </span>
+          <span className="text-gray-300"> / </span>
           {formatPeso(budget)}
-          {isOver && <span className="over-label"> Over budget</span>}
+          {isOver && <span className="text-xs font-semibold text-red-600 ml-1">Over budget</span>}
         </span>
       </div>
 
-      {/* Progress bar track */}
-      <div className="progress-track" role="progressbar" aria-valuenow={Math.round(percentage)} aria-valuemin={0} aria-valuemax={100}>
+      {/* Progress bar */}
+      <div
+        className="h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200"
+        role="progressbar"
+        aria-valuenow={Math.round(percentage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${label} budget`}
+      >
         <div
-          className={`progress-fill${isOver ? ' progress-fill--over' : isFull ? ' progress-fill--full' : ''}`}
+          className={`h-full rounded-full transition-all duration-300 ${fillCls}`}
           style={{ width: `${displayWidth}%` }}
         />
       </div>
