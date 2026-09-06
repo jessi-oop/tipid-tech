@@ -1,5 +1,5 @@
 // AddExpenseForm.jsx
-// Form for recording a new expense.
+// Form for recording and adding a new expense.
 // Inserts directly into Supabase via addExpense().
 // Shows an overspend warning when adding the expense would worsen the student's status.
 // The student can always proceed — TipidTech is a decision-support tool, not a gatekeeper.
