@@ -174,7 +174,7 @@ export default function SetupScreen({ onComplete }) {
       </form>
 
       <p className="setup-disclaimer">
-        No account needed. Your data stays on this device.
+        Your data is saved to your account and synced across devices.
       </p>
     </div>
   );

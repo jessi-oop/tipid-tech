@@ -1,33 +1,36 @@
 // App.jsx
-// Root component — owns all application state and handles screen routing.
-// No routing library; the current screen is just a state value.
+// Root component — owns auth state and budget state.
+// Uses React Router v6 for screen navigation.
+// Expenses are now owned per-component (Dashboard loads its own from Supabase).
 //
-// Screens:
-//   'setup'     → SetupScreen   (enter allowance + budget period)
-//   'budget'    → BudgetScreen  (review / edit suggested category budgets)
-//   'dashboard' → Dashboard     (main tracking view)
+// Routes:
+//   /login      → AuthScreen        (unauthenticated)
+//   /           → redirects based on session + budget state
+//   /setup      → SetupScreen       (protected)
+//   /budget     → BudgetScreen      (protected)
+//   /dashboard  → Dashboard         (protected)
+//   /history    → HistoryScreen     (protected)
+//   /reports    → ReportsScreen     (protected)
+//   /savings    → SavingsScreen     (protected) — added in Phase 14
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 
-import SetupScreen   from './components/SetupScreen';
-import BudgetScreen  from './components/BudgetScreen';
-import Dashboard     from './components/Dashboard';
+import SetupScreen     from './components/SetupScreen';
+import BudgetScreen    from './components/BudgetScreen';
+import Dashboard       from './components/Dashboard';
+import AuthScreen      from './components/AuthScreen';
+import ProtectedRoute  from './components/ProtectedRoute';
+import HistoryScreen   from './components/HistoryScreen';
+import ReportsScreen   from './components/ReportsScreen';
 
-import { loadData, saveData, clearData } from './utils/localStorage';
-import { getSuggestedBudgets }           from './utils/calculations';
+import { supabase }              from './utils/supabase';
+import { getBudget, saveBudget, deleteBudget} from './utils/storage';
+import { getSuggestedBudgets }   from './utils/calculations';
 
-// ─── Initial / empty state values ────────────────────────────────
-// These are the defaults when no saved data exists.
 
-function getEmptySetup() {
-  return {
-    allowance:          '',      // string while typing, number after confirmed
-    periodType:         'weekly',
-    nextAllowanceDate:  '',      // ISO date string, only used when periodType === 'date'
-    startDate:          '',      // ISO date string — set when budget starts
-  };
-}
+// ─── Helpers ──────────────────────────────────────────────────────
 
 function getEmptyCategoryBudgets() {
   return {
@@ -40,146 +43,261 @@ function getEmptyCategoryBudgets() {
   };
 }
 
+// Map a Supabase budget row → App state fields
+function budgetRowToState(row) {
+  return {
+    allowance:          Number(row.allowance),
+    periodType:         row.period,
+    nextAllowanceDate:  row.next_allowance_date || '',
+    startDate:          row.start_date,
+    categoryBudgets: {
+      food:           Number(row.food_budget),
+      transportation: Number(row.transport_budget),
+      school:         Number(row.school_budget),
+      personal:       Number(row.personal_budget),
+      savings:        Number(row.savings_budget),
+      emergency:      Number(row.emergency_budget),
+    },
+  };
+}
+
+// Map App state fields → Supabase budget row shape
+function stateToBudgetRow(allowance, periodType, nextAllowanceDate, startDate, categoryBudgets) {
+  return {
+    allowance,
+    period:              periodType,
+    next_allowance_date: nextAllowanceDate || null,
+    start_date:          startDate,
+    total_days:          0, // retained for schema compatibility; recalculated in calculations.js
+    food_budget:         categoryBudgets.food,
+    transport_budget:    categoryBudgets.transportation,
+    school_budget:       categoryBudgets.school,
+    personal_budget:     categoryBudgets.personal,
+    savings_budget:      categoryBudgets.savings,
+    emergency_budget:    categoryBudgets.emergency,
+  };
+}
+
 // ─── App ──────────────────────────────────────────────────────────
 
 export default function App() {
-  // ── Screen routing ──────────────────────────────────────────────
-  // Not persisted — determined on load based on whether saved data exists.
-  const [currentScreen, setCurrentScreen] = useState('setup');
+  const navigate = useNavigate();
 
-  // ── Setup state ─────────────────────────────────────────────────
-  const [allowance,         setAllowance]         = useState('');
-  const [periodType,        setPeriodType]         = useState('weekly');
-  const [nextAllowanceDate, setNextAllowanceDate]  = useState('');
-  const [startDate,         setStartDate]          = useState('');
+  // ── Auth state ────────────────────────────────────────────────
+  const [session,     setSession]     = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [resetCount, setResetCount] = useState(0);
+  
 
-  // ── Budget state ─────────────────────────────────────────────────
-  const [categoryBudgets, setCategoryBudgets] = useState(getEmptyCategoryBudgets());
+  // ── Budget state ──────────────────────────────────────────────
+  const budgetLoadedRef = useRef(false);
+  const [budgetLoaded, setBudgetLoaded] = useState(false);
+  const [allowance,         setAllowance]        = useState('');
+  const [periodType,        setPeriodType]        = useState('weekly');
+  const [nextAllowanceDate, setNextAllowanceDate] = useState('');
+  const [startDate,         setStartDate]         = useState('');
+  const [budgetId, setBudgetId] = useState('');
+  const [categoryBudgets,   setCategoryBudgets]   = useState(getEmptyCategoryBudgets());
+  const [budgetStartDate, setBudgetStartDate] = useState('');
 
-  // ── Expense state ────────────────────────────────────────────────
-  const [expenses, setExpenses] = useState([]);
-
-  // ── UI state (not persisted) ─────────────────────────────────────
-  const [showExpenseForm, setShowExpenseForm] = useState(false);
-
-  // ─── Load saved data on mount ──────────────────────────────────
+  // ─── Auth initialisation ──────────────────────────────────────
   useEffect(() => {
-    const saved = loadData();
-    if (saved) {
-      setAllowance(saved.allowance);
-      setPeriodType(saved.periodType);
-      setNextAllowanceDate(saved.nextAllowanceDate || '');
-      setStartDate(saved.startDate || '');
-      setCategoryBudgets(saved.categoryBudgets || getEmptyCategoryBudgets());
-      setExpenses(saved.expenses || []);
-      setCurrentScreen('dashboard');
-    }
-  }, []); // runs once on mount
-
-  // ─── Persist to localStorage whenever relevant state changes ───
-  useEffect(() => {
-    // Only save when a budget has actually been started (startDate is set)
-    if (!startDate) return;
-    saveData({
-      allowance,
-      periodType,
-      nextAllowanceDate,
-      startDate,
-      categoryBudgets,
-      expenses,
+    supabase.auth.getSession().then(({ data: { session: existing } }) => {
+      setSession(existing ?? false);
+      setAuthChecked(true);
     });
-  }, [allowance, periodType, nextAllowanceDate, startDate, categoryBudgets, expenses]);
 
-  // ─── Screen transition handlers ────────────────────────────────
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setSession(newSession ?? false);
+      }
+    );
 
-  // Called by SetupScreen when the user clicks "Continue"
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // ─── Load budget from Supabase when session becomes available ─
+  useEffect(() => {
+    if (!session?.user) return;
+    if (budgetLoadedRef.current) return;
+
+    getBudget(session.user.id)
+      .then((row) => {
+        if (row) {
+          const state = budgetRowToState(row);
+          setAllowance(state.allowance);
+          setPeriodType(state.periodType);
+          setNextAllowanceDate(state.nextAllowanceDate);
+          setStartDate(state.startDate);
+          setCategoryBudgets(state.categoryBudgets);
+        }
+      })
+      .catch((err) => console.error('TipidTech: failed to load budget', err))
+      .finally(() => {
+        budgetLoadedRef.current = true;
+        setBudgetLoaded(true);
+      });
+  }, [session?.user?.id]);
+
+  // ─── Screen transition handlers ───────────────────────────────
+
   function handleSetupComplete(setupData) {
     const numericAllowance = parseFloat(setupData.allowance);
     setAllowance(numericAllowance);
     setPeriodType(setupData.periodType);
     setNextAllowanceDate(setupData.nextAllowanceDate);
-    // Pre-fill category budgets with suggested amounts
     setCategoryBudgets(getSuggestedBudgets(numericAllowance));
-    setCurrentScreen('budget');
+    navigate('/budget');
   }
 
-  // Called by BudgetScreen when the user clicks "Start Budget"
-  function handleBudgetStart(finalBudgets) {
-    setCategoryBudgets(finalBudgets);
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    setStartDate(today);
-    setExpenses([]);
-    setCurrentScreen('dashboard');
-  }
+  async function handleBudgetStart(finalBudgets) {
+    const today = new Date().toISOString().split('T')[0];
 
-  // Called by BudgetScreen if the user wants to go back to setup
+    if (session?.user) {
+      try {
+        const saved = await saveBudget(
+          session.user.id,
+          stateToBudgetRow(allowance, periodType, nextAllowanceDate, today, finalBudgets)
+        );
+        setBudgetId(saved.id);
+      } catch (err) {
+        console.error('TipidTech: failed to save budget', err);
+      }
+    }
+
+    navigate('/dashboard');
+}
+
   function handleBudgetBack() {
-    setCurrentScreen('setup');
+    navigate('/setup');
   }
 
-  // ─── Expense handlers ──────────────────────────────────────────
+  // ─── Logout ───────────────────────────────────────────────────
 
-  // Add a new expense — called by AddExpenseForm
-  function handleAddExpense(expenseData) {
-    const newExpense = {
-      id:          crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-      amount:      parseFloat(expenseData.amount),
-      category:    expenseData.category,
-      description: expenseData.description.trim(),
-      date:        new Date().toISOString(),
-    };
-    setExpenses((prev) => [...prev, newExpense]);
-    setShowExpenseForm(false);
-  }
-
-  // ─── Reset ────────────────────────────────────────────────────
-  // Clears all data and returns the user to the setup screen.
-  function handleReset() {
-    clearData();
-    // Reset all state to defaults
+  async function handleLogout() {
+    await supabase.auth.signOut();
     setAllowance('');
     setPeriodType('weekly');
     setNextAllowanceDate('');
     setStartDate('');
     setCategoryBudgets(getEmptyCategoryBudgets());
-    setExpenses([]);
-    setShowExpenseForm(false);
-    setCurrentScreen('setup');
+    setBudgetLoaded(false);
+    budgetLoadedRef.current = false;
+    navigate('/login');
+  }
+
+  // ─── Reset budget ─────────────────────────────────────────────
+
+  async function handleReset() {
+    if (session?.user) {
+      try {
+        await deleteBudget(session.user.id);
+      } catch (err) {
+        console.error('TipidTech: failed to delete budget', err);
+      }
+    }
+    setBudgetId('');
+    navigate('/setup');
+}
+
+  // ─── Root redirect ────────────────────────────────────────────
+  function RootRedirect() {
+    if (!authChecked) return null;
+    if (!session)     return <Navigate to="/login"     replace />;
+    if (!budgetLoaded) return null;
+    if (!startDate)   return <Navigate to="/setup"     replace />;
+    return                   <Navigate to="/dashboard" replace />;
   }
 
   // ─── Render ───────────────────────────────────────────────────
   return (
     <div className="app">
-      {currentScreen === 'setup' && (
-        <SetupScreen
-          onComplete={handleSetupComplete}
-        />
-      )}
+      <Routes>
+        <Route path="/" element={<RootRedirect />} />
 
-      {currentScreen === 'budget' && (
-        <BudgetScreen
-          allowance={allowance}
-          categoryBudgets={categoryBudgets}
-          onStart={handleBudgetStart}
-          onBack={handleBudgetBack}
+        <Route
+          path="/login"
+          element={
+            !authChecked ? null : session
+              ? <Navigate to="/" replace />
+              : <AuthScreen />
+          }
         />
-      )}
 
-      {currentScreen === 'dashboard' && (
-        <Dashboard
-          allowance={allowance}
-          periodType={periodType}
-          nextAllowanceDate={nextAllowanceDate}
-          startDate={startDate}
-          categoryBudgets={categoryBudgets}
-          expenses={expenses}
-          showExpenseForm={showExpenseForm}
-          onShowExpenseForm={() => setShowExpenseForm(true)}
-          onHideExpenseForm={() => setShowExpenseForm(false)}
-          onAddExpense={handleAddExpense}
-          onReset={handleReset}
+        <Route
+          path="/setup"
+          element={
+            <ProtectedRoute session={session}>
+              <SetupScreen onComplete={handleSetupComplete} />
+            </ProtectedRoute>
+          }
         />
-      )}
+        <Route
+          path="/budget"
+          element={
+            <ProtectedRoute session={session}>
+              <BudgetScreen
+                allowance={allowance}
+                categoryBudgets={categoryBudgets}
+                onStart={handleBudgetStart}
+                onBack={handleBudgetBack}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute session={session}>
+              <Dashboard
+                key={`${session?.user?.id}-${budgetId}`}
+                userId={session?.user?.id}
+                onReset={handleReset}
+                onLogout={handleLogout}
+                userEmail={session?.user?.email ?? ''}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute session={session}>
+              <HistoryScreen
+                userId={session?.user?.id}
+                onLogout={handleLogout}
+                userEmail={session?.user?.email ?? ''}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute session={session}>
+              <ReportsScreen
+                userId={session?.user?.id}
+                onLogout={handleLogout}
+                userEmail={session?.user?.email ?? ''}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/savings"
+          element={
+            <ProtectedRoute session={session}>
+              <div style={{ padding: '2rem' }}>Savings screen — coming in Phase 14</div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 }

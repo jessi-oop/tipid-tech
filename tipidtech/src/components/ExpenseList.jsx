@@ -1,26 +1,26 @@
 // ExpenseList.jsx
 // Displays the 5 most recent expenses on the dashboard.
-// Shows: emoji, description (or category name), and amount.
+// Consumes Supabase expense rows: { id, amount, category, note, created_at }
 
-import { MAX_RECENT_EXPENSES, EXPENSE_CATEGORIES } from '../utils/constants';
+import { EXPENSE_CATEGORIES } from '../utils/constants';
 import { formatPeso } from '../utils/calculations';
 
-// Look up the emoji for a given category key
 function getCategoryEmoji(categoryKey) {
   const cat = EXPENSE_CATEGORIES.find((c) => c.key === categoryKey);
   return cat ? cat.emoji : '📌';
 }
 
-// Look up the label for a given category key
 function getCategoryLabel(categoryKey) {
   const cat = EXPENSE_CATEGORIES.find((c) => c.key === categoryKey);
   return cat ? cat.label : 'Other';
 }
 
-// Format a stored ISO date string as a short readable date (e.g. "Sep 1")
-function formatExpenseDate(isoString) {
+// Format a Supabase timestamptz string as "Sep 1, 2:30 PM"
+function formatExpenseDateTime(isoString) {
   const date = new Date(isoString);
-  return date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+  const datePart = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+  const timePart = date.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true });
+  return `${datePart}, ${timePart}`;
 }
 
 export default function ExpenseList({ expenses }) {
@@ -33,22 +33,17 @@ export default function ExpenseList({ expenses }) {
     );
   }
 
-  // Show the most recent expenses first, limited to MAX_RECENT_EXPENSES
-  const recent = [...expenses]
-    .reverse()
-    .slice(0, MAX_RECENT_EXPENSES);
-
   return (
     <ul className="expense-list" aria-label="Recent expenses">
-      {recent.map((expense) => (
+      {expenses.map((expense) => (
         <li key={expense.id} className="expense-item">
           <span className="expense-emoji">{getCategoryEmoji(expense.category)}</span>
           <span className="expense-details">
             <span className="expense-description">
-              {expense.description || getCategoryLabel(expense.category)}
+              {expense.note || getCategoryLabel(expense.category)}
             </span>
             <span className="expense-meta">
-              {getCategoryLabel(expense.category)} · {formatExpenseDate(expense.date)}
+              {getCategoryLabel(expense.category)} · {formatExpenseDateTime(expense.created_at)}
             </span>
           </span>
           <span className="expense-amount">−{formatPeso(expense.amount)}</span>

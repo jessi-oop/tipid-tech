@@ -200,6 +200,71 @@ export function checkOverspendWarning(
   };
 }
 
+// ─── Overspend Warning Details (REQ-07) ──────────────────────────
+
+/**
+ * Build the full set of values needed to render the detailed warning message.
+ *
+ * Call this only when checkOverspendWarning() has already returned a non-null result.
+ * The base warning detection logic in checkOverspendWarning() is unchanged — this
+ * function only enriches the return value with the specific amounts required by REQ-07.
+ *
+ * Returns an object with:
+ *   currentStatus       — status key before the expense (e.g. 'green')
+ *   newStatus           — status key after the expense (e.g. 'yellow')
+ *   expenseAmount       — the amount the user is trying to add
+ *   currentRemaining    — remaining balance before the expense
+ *   newRemaining        — remaining balance after the expense (may be negative)
+ *   currentDailyAmount  — available daily amount before the expense
+ *   newDailyAmount      — available daily amount after the expense
+ *   daysRemaining       — days left in the budget period
+ *   isOverAllowance     — true if adding this expense would make total spending exceed allowance
+ *   overAllowanceBy     — how much over the allowance (0 if not over)
+ */
+export function buildOverspendWarningDetails(
+  enteredAmount,
+  allowance,
+  expenses,
+  periodType,
+  nextAllowanceDate,
+  startDate
+) {
+  const daysRemaining    = getDaysRemaining(periodType, nextAllowanceDate, startDate);
+  const currentRemaining = getRemainingBalance(allowance, expenses);
+  const currentDaily     = getCurrentDailyAmount(currentRemaining, daysRemaining);
+
+  const simulatedExpenses = [
+    ...expenses,
+    { amount: enteredAmount, category: '_preview', description: '' },
+  ];
+  const newRemaining = getRemainingBalance(allowance, simulatedExpenses);
+  const newDaily     = getCurrentDailyAmount(newRemaining, daysRemaining);
+
+  const currentStatusResult = getSpendingStatus(
+    allowance, expenses, periodType, nextAllowanceDate, startDate
+  );
+  const newStatusResult = getSpendingStatus(
+    allowance, simulatedExpenses, periodType, nextAllowanceDate, startDate
+  );
+
+  const totalSpentAfter  = getTotalSpent(simulatedExpenses);
+  const isOverAllowance  = totalSpentAfter > allowance;
+  const overAllowanceBy  = isOverAllowance ? totalSpentAfter - allowance : 0;
+
+  return {
+    currentStatus:      currentStatusResult.status,
+    newStatus:          newStatusResult.status,
+    expenseAmount:      enteredAmount,
+    currentRemaining,
+    newRemaining,
+    currentDailyAmount: currentDaily,
+    newDailyAmount:     newDaily,
+    daysRemaining,
+    isOverAllowance,
+    overAllowanceBy,
+  };
+}
+
 // ─── Budget Setup Calculations ────────────────────────────────────
 
 /**
