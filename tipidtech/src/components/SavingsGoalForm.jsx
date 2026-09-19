@@ -69,20 +69,20 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
   }
 
   // ── Shared input class ────────────────────────────────────────
-  const inputCls = 'w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors duration-150 appearance-none';
-  const labelCls = 'text-sm font-semibold text-gray-900';
+  const inputCls = 'w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
+  const labelCls = 'text-sm font-semibold text-ink';
 
   // ── Render ────────────────────────────────────────────────────
   return (
     <form
-      className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-4"
+      className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
       onSubmit={handleSubmit}
       noValidate
     >
-      <h3 className="text-lg font-bold text-gray-900">New Savings Goal</h3>
+      <h3 className="text-lg font-bold text-ink">New Savings Goal</h3>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
         </p>
       )}
@@ -153,15 +153,15 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
 
       {/* Live preview */}
       {dailyNeeded !== null && (
-        <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 flex flex-col gap-1">
-          <p className="text-xs font-medium text-blue-500 uppercase tracking-wide">
+        <div className="flex flex-col gap-1 rounded-lg border border-brand/30 bg-brand/10 px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink/60">
             To reach your goal you need to save:
           </p>
-          <p className="text-base font-bold text-blue-700">
-            {formatPeso(dailyNeeded)}<span className="text-sm font-medium text-blue-500">/day</span>
+          <p className="text-base font-bold text-ink">
+            {formatPeso(dailyNeeded)}<span className="text-sm font-medium text-muted">/day</span>
           </p>
-          <p className="text-base font-bold text-blue-700">
-            {formatPeso(weeklyNeeded)}<span className="text-sm font-medium text-blue-500">/week</span>
+          <p className="text-base font-bold text-ink">
+            {formatPeso(weeklyNeeded)}<span className="text-sm font-medium text-muted">/week</span>
           </p>
         </div>
       )}
@@ -171,7 +171,7 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
+          className="flex-1 cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
         >
           {submitting ? 'Saving…' : 'Create Goal'}
         </button>
@@ -180,7 +180,7 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
             type="button"
             disabled={submitting}
             onClick={onCancel}
-            className="flex-1 py-3 px-5 bg-white text-gray-900 font-semibold border border-gray-200 rounded-lg cursor-pointer transition-colors duration-150 hover:bg-gray-50 disabled:opacity-45 disabled:cursor-not-allowed"
+            className="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
           >
             Cancel
           </button>

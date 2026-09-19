@@ -2,13 +2,9 @@
 // Displays the 5 most recent expenses on the dashboard.
 // Consumes Supabase expense rows: { id, amount, category, note, created_at }
 
+import CategoryIcon from './CategoryIcon';
 import { EXPENSE_CATEGORIES } from '../utils/constants';
 import { formatPeso } from '../utils/calculations';
-
-function getCategoryEmoji(categoryKey) {
-  const cat = EXPENSE_CATEGORIES.find((c) => c.key === categoryKey);
-  return cat ? cat.emoji : '📌';
-}
 
 function getCategoryLabel(categoryKey) {
   const cat = EXPENSE_CATEGORIES.find((c) => c.key === categoryKey);
@@ -26,28 +22,31 @@ export default function ExpenseList({ expenses }) {
   if (!expenses || expenses.length === 0) {
     return (
       <div className="flex flex-col gap-1 py-4 text-center">
-        <p className="text-sm text-gray-400">No expenses recorded yet.</p>
-        <p className="text-xs text-gray-300">Add your first expense to start tracking.</p>
+        <p className="text-sm text-muted">No expenses recorded yet.</p>
+        <p className="text-xs text-gray-400">Add your first expense to start tracking.</p>
       </div>
     );
   }
 
   return (
-    <ul className="flex flex-col gap-3" aria-label="Recent expenses">
-      {expenses.map((expense) => (
-        <li key={expense.id} className="flex items-start gap-3">
-          <span className="text-xl leading-none shrink-0 mt-0.5">
-            {getCategoryEmoji(expense.category)}
+    <ul className="flex flex-col" aria-label="Recent expenses">
+      {expenses.map((expense, idx) => (
+        <li
+          key={expense.id}
+          className={`flex items-center gap-3 py-3 ${idx < expenses.length - 1 ? 'border-b border-gray-100' : ''}`}
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-page text-muted">
+            <CategoryIcon category={expense.category} className="h-4 w-4" />
           </span>
-          <span className="flex-1 flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm font-medium text-gray-900 truncate">
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="truncate text-sm font-medium text-ink">
               {expense.note || getCategoryLabel(expense.category)}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-muted">
               {getCategoryLabel(expense.category)} · {formatExpenseDateTime(expense.created_at)}
             </span>
           </span>
-          <span className="text-sm font-semibold text-red-600 shrink-0">
+          <span className="shrink-0 text-sm font-semibold text-red-600">
             −{formatPeso(expense.amount)}
           </span>
         </li>

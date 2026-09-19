@@ -3,6 +3,8 @@
 // Fetches its own totalSaved from Supabase on mount and after each contribution.
 
 import { useState, useEffect } from 'react';
+import { CheckCircle2, Plus } from 'lucide-react';
+import ProgressBar from './ProgressBar';
 import { getTotalSaved, addContribution, markGoalCompleted } from '../utils/storage';
 import {
   getSavingsDailyRequired,
@@ -83,113 +85,106 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated }) {
   }
 
   // ── Shared input class ────────────────────────────────────────
-  const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors duration-150 appearance-none';
+  const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
 
   // ── Render ────────────────────────────────────────────────────
-  return (
-    <div className={`bg-white border rounded-2xl p-4 flex flex-col gap-3 ${completed ? 'border-green-200 bg-green-50' : 'border-gray-200'}`}>
+  if (completed) {
+    // Muted completed style with checkmark
+    return (
+      <div className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-page p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-base font-semibold text-muted">{goal.name}</h3>
+          <span className="shrink-0 text-sm font-semibold text-muted">{formatPeso(targetAmount)}</span>
+        </div>
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-green-700">
+          <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+          Completed — {formatPeso(totalSaved)} saved
+        </p>
+      </div>
+    );
+  }
 
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       {/* Header row */}
-      <div className="flex justify-between items-start gap-2">
-        <h3 className="text-base font-semibold text-gray-900">{goal.name}</h3>
-        <span className="text-sm font-semibold text-gray-500 shrink-0">{formatPeso(targetAmount)}</span>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-base font-semibold text-ink">{goal.name}</h3>
+        <span className="shrink-0 text-sm font-semibold text-muted">{formatPeso(targetAmount)}</span>
       </div>
 
-      {completed ? (
-        // ── Completed state ──────────────────────────────────
-        <p className="text-sm font-semibold text-green-700">
-          ✅ Completed — {formatPeso(totalSaved)} saved
-        </p>
+      {/* Green progress bar */}
+      <ProgressBar percentage={percentage} fillClass="bg-brand" label={`${goal.name} progress`} />
+
+      {/* Stats */}
+      <p className="text-sm text-muted">
+        {loadingTotal
+          ? 'Loading…'
+          : `${formatPeso(totalSaved)} saved of ${formatPeso(targetAmount)} (${Math.round(percentage)}%)`
+        }
+      </p>
+      <p className="text-xs text-gray-400">
+        Save {formatPeso(dailyRequired)}/day or {formatPeso(weeklyRequired)}/week
+      </p>
+
+      {/* Add Contribution */}
+      {!showForm ? (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="flex w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-brand bg-brand px-3 py-1.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"        >
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+          Add Contribution
+        </button>
       ) : (
-        // ── Active state ─────────────────────────────────────
-        <>
-          {/* Progress bar */}
-          <div
-            className="h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200"
-            role="progressbar"
-            aria-valuenow={Math.round(percentage)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${goal.name} progress`}
-          >
-            <div
-              className="h-full bg-blue-600 rounded-full transition-all duration-300"
-              style={{ width: `${percentage}%` }}
+        <form className="flex flex-col gap-2" onSubmit={handleContribSubmit} noValidate>
+          {formError && (
+            <p className="text-xs text-red-600">{formError}</p>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="number"
+              className={inputCls}
+              placeholder="Amount (₱)"
+              value={contribAmount}
+              onChange={(e) => setContribAmount(e.target.value)}
+              min="0.01"
+              step="0.01"
+              required
+              aria-label="Contribution amount"
+            />
+            <input
+              type="text"
+              className={inputCls}
+              placeholder="Note (optional)"
+              value={contribNote}
+              onChange={(e) => setContribNote(e.target.value)}
+              maxLength={120}
+              aria-label="Contribution note"
             />
           </div>
-
-          {/* Stats */}
-          <p className="text-sm text-gray-500">
-            {loadingTotal
-              ? 'Loading…'
-              : `${formatPeso(totalSaved)} saved of ${formatPeso(targetAmount)} (${Math.round(percentage)}%)`
-            }
-          </p>
-          <p className="text-xs text-gray-400">
-            Save {formatPeso(dailyRequired)}/day or {formatPeso(weeklyRequired)}/week
-          </p>
-
-          {/* Add Contribution */}
-          {!showForm ? (
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              {submitting ? 'Saving…' : 'Save'}
+            </button>
             <button
               type="button"
-              onClick={() => setShowForm(true)}
-              className="self-start text-sm font-semibold text-blue-600 bg-transparent border border-blue-200 rounded-lg px-3 py-1.5 cursor-pointer transition-colors duration-150 hover:bg-blue-50"
+              disabled={submitting}
+              onClick={() => {
+                setShowForm(false);
+                setContribAmount('');
+                setContribNote('');
+                setFormError('');
+              }}
+              className="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
             >
-              + Add Contribution
+              Cancel
             </button>
-          ) : (
-            <form className="flex flex-col gap-2" onSubmit={handleContribSubmit} noValidate>
-              {formError && (
-                <p className="text-xs text-red-600">{formError}</p>
-              )}
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  className={inputCls}
-                  placeholder="Amount (₱)"
-                  value={contribAmount}
-                  onChange={(e) => setContribAmount(e.target.value)}
-                  min="0.01"
-                  step="0.01"
-                  required
-                  aria-label="Contribution amount"
-                />
-                <input
-                  type="text"
-                  className={inputCls}
-                  placeholder="Note (optional)"
-                  value={contribNote}
-                  onChange={(e) => setContribNote(e.target.value)}
-                  maxLength={120}
-                  aria-label="Contribution note"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-2 px-4 bg-blue-600 text-white text-sm font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Saving…' : 'Save'}
-                </button>
-                <button
-                  type="button"
-                  disabled={submitting}
-                  onClick={() => {
-                    setShowForm(false);
-                    setContribAmount('');
-                    setContribNote('');
-                    setFormError('');
-                  }}
-                  className="flex-1 py-2 px-4 bg-white text-gray-900 text-sm font-semibold border border-gray-200 rounded-lg cursor-pointer transition-colors duration-150 hover:bg-gray-50 disabled:opacity-45 disabled:cursor-not-allowed"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
-        </>
+          </div>
+        </form>
       )}
     </div>
   );

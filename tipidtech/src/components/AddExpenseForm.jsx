@@ -5,6 +5,7 @@
 // The student can always proceed — TipidTech is a decision-support tool, not a gatekeeper.
 
 import { useState } from 'react';
+import { X, AlertTriangle } from 'lucide-react';
 import { EXPENSE_CATEGORIES } from '../utils/constants';
 import {
   checkOverspendWarning,
@@ -108,25 +109,25 @@ export default function AddExpenseForm({
 
   // ── Shared input classes ──────────────────────────────────────
   const inputCls = (hasError) =>
-    `w-full px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors duration-150 focus:outline-none focus:ring-2 appearance-none ${
+    `w-full px-4 py-3 border rounded-lg text-base text-ink bg-white transition-colors duration-150 focus:outline-none focus:ring-2 appearance-none ${
       hasError
         ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
-        : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/10'
+        : 'border-gray-200 focus:border-brand focus:ring-brand/15'
     }`;
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-4">
+    <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5">
 
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold text-gray-900">Add Expense</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-ink">Add Expense</h3>
         <button
-          className="text-lg text-gray-400 bg-transparent border-none cursor-pointer px-2 py-1 rounded-md leading-none hover:bg-gray-100 hover:text-gray-700 transition-colors duration-150"
+          className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
           onClick={onCancel}
           aria-label="Cancel"
         >
-          ✕
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -134,11 +135,11 @@ export default function AddExpenseForm({
 
         {/* ── Amount ───────────────────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-gray-900" htmlFor="expense-amount">
+          <label className="text-sm font-semibold text-ink" htmlFor="expense-amount">
             Amount
           </label>
           <div className="relative flex items-center">
-            <span className="absolute left-4 text-gray-400 font-medium pointer-events-none z-10">₱</span>
+            <span className="absolute left-4 z-10 font-medium text-muted pointer-events-none">₱</span>
             <input
               id="expense-amount"
               type="text"
@@ -152,13 +153,13 @@ export default function AddExpenseForm({
             />
           </div>
           {errors.amount && (
-            <p className="text-sm text-red-600 mt-0.5">{errors.amount}</p>
+            <p className="mt-0.5 text-sm text-red-600">{errors.amount}</p>
           )}
         </div>
 
-        {/* ── Category ─────────────────────────────────────────── */}
+        {/* ── Category (emoji-free) ────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-gray-900" htmlFor="expense-category">
+          <label className="text-sm font-semibold text-ink" htmlFor="expense-category">
             Category
           </label>
           <select
@@ -167,17 +168,17 @@ export default function AddExpenseForm({
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
-            {EXPENSE_CATEGORIES.map(({ key, label, emoji }) => (
-              <option key={key} value={key}>{emoji} {label}</option>
+            {EXPENSE_CATEGORIES.map(({ key, label }) => (
+              <option key={key} value={key}>{label}</option>
             ))}
           </select>
         </div>
 
         {/* ── Note ─────────────────────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-gray-900" htmlFor="expense-note">
+          <label className="text-sm font-semibold text-ink" htmlFor="expense-note">
             Note{' '}
-            <span className="font-normal text-gray-400">(optional)</span>
+            <span className="font-normal text-muted">(optional)</span>
           </label>
           <input
             id="expense-note"
@@ -197,12 +198,15 @@ export default function AddExpenseForm({
 
         {/* ── Overspend warning ─────────────────────────────────── */}
         {warning && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex flex-col gap-2">
-            <p className="font-bold text-red-600">
-              ⚠️ Adding {formatPeso(warning.expenseAmount)} will change your status from{' '}
-              <strong>{STATUS_LABELS[warning.currentStatus] ?? warning.currentStatus}</strong>
-              {' '}to{' '}
-              <strong>{STATUS_LABELS[warning.newStatus] ?? warning.newStatus}</strong>.
+          <div className="flex flex-col gap-2 rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="flex items-start gap-2 font-bold text-red-600">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>
+                Adding {formatPeso(warning.expenseAmount)} will change your status from{' '}
+                <strong>{STATUS_LABELS[warning.currentStatus] ?? warning.currentStatus}</strong>
+                {' '}to{' '}
+                <strong>{STATUS_LABELS[warning.newStatus] ?? warning.newStatus}</strong>.
+              </span>
             </p>
 
             <p className="text-sm text-gray-700">
@@ -220,8 +224,8 @@ export default function AddExpenseForm({
             </p>
 
             {warning.isOverAllowance && (
-              <p className="text-sm font-semibold text-red-600 bg-red-100 border border-red-200 rounded px-3 py-2">
-                ⚠️ This expense would put you{' '}
+              <p className="rounded border border-red-200 bg-red-100 px-3 py-2 text-sm font-semibold text-red-600">
+                This expense would put you{' '}
                 <strong>{formatPeso(warning.overAllowanceBy)}</strong> over your total allowance.
               </p>
             )}
@@ -230,10 +234,10 @@ export default function AddExpenseForm({
               {warning.daysRemaining} day{warning.daysRemaining !== 1 ? 's' : ''} remaining in your budget period.
             </p>
 
-            <div className="flex gap-2 flex-wrap pt-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               <button
                 type="button"
-                className="flex-1 min-w-[120px] py-3 px-5 bg-red-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-red-700 disabled:opacity-45 disabled:cursor-not-allowed"
+                className="min-w-[120px] flex-1 cursor-pointer rounded-lg bg-red-600 px-5 py-3 font-semibold text-white transition-colors duration-150 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                 onClick={handleConfirmAnyway}
                 disabled={saving}
               >
@@ -241,7 +245,7 @@ export default function AddExpenseForm({
               </button>
               <button
                 type="button"
-                className="flex-1 min-w-[120px] py-3 px-5 bg-white text-gray-900 font-semibold border border-gray-200 rounded-lg cursor-pointer transition-colors duration-150 hover:bg-gray-50 disabled:opacity-45 disabled:cursor-not-allowed"
+                className="min-w-[120px] flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
                 onClick={onCancel}
                 disabled={saving}
               >
@@ -255,7 +259,7 @@ export default function AddExpenseForm({
         {!warning && (
           <button
             type="submit"
-            className="w-full py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
+            className="w-full cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
             disabled={saving}
           >
             {saving ? 'Saving…' : 'Add Expense'}

@@ -44,16 +44,16 @@ function getCurrentCalendarWeek() {
   return { monday, sunday };
 }
 
-// ─── Category colours ─────────────────────────────────────────────
+// ─── Category colours (blue-free palette anchored on the brand green) ──
 
 const CATEGORY_COLORS = {
-  food:           '#2563eb',
-  transportation: '#16a34a',
-  school:         '#ca8a04',
-  personal:       '#9333ea',
-  savings:        '#0891b2',
-  emergency:      '#dc2626',
-  other:          '#6b7280',
+  food:           '#80ed99',
+  transportation: '#57cc99',
+  school:         '#f4d35e',
+  personal:       '#f4a261',
+  savings:        '#74c69d',
+  emergency:      '#e76f51',
+  other:          '#9ca3af',
 };
 
 // ─── Custom tooltip ───────────────────────────────────────────────
@@ -62,9 +62,9 @@ function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0].payload;
   return (
-    <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 flex flex-col gap-0.5 shadow-sm">
-      <span className="text-xs text-gray-400 font-medium">{name}</span>
-      <span className="text-sm font-bold text-gray-900">{formatPeso(value)}</span>
+    <div className="flex flex-col gap-0.5 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm">
+      <span className="text-xs font-medium text-muted">{name}</span>
+      <span className="text-sm font-bold text-ink">{formatPeso(value)}</span>
     </div>
   );
 }
@@ -115,17 +115,17 @@ export default function ExpensePieChart({ userId, refreshKey }) {
   useEffect(() => { loadData(); }, [loadData]);
 
   function getColor(entry) {
-    return CATEGORY_COLORS[entry.key] ?? '#6b7280';
+    return CATEGORY_COLORS[entry.key] ?? '#9ca3af';
   }
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-4">
+    <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       {/* Header + toggle */}
-      <div className="flex justify-between items-center flex-wrap gap-2">
-        <h2 className="text-lg font-semibold text-gray-900">Spending Breakdown</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-base font-semibold text-ink">Spending Breakdown</h2>
         <div
-          className="flex border border-gray-200 rounded-lg overflow-hidden"
+          className="flex rounded-full bg-page p-1"
           role="group"
           aria-label="Chart period"
         >
@@ -137,11 +137,11 @@ export default function ExpensePieChart({ userId, refreshKey }) {
               key={key}
               type="button"
               onClick={() => setView(key)}
-              className={`px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer border-none ${
+              className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-150 ${
                 view === key
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-900'
-              } ${key === 'week' ? 'border-l border-gray-200' : ''}`}
+                  ? 'bg-brand text-ink'
+                  : 'text-muted hover:text-ink'
+              }`}
             >
               {label}
             </button>
@@ -151,9 +151,9 @@ export default function ExpensePieChart({ userId, refreshKey }) {
 
       {/* Chart area */}
       {loading ? (
-        <p className="text-sm text-gray-400 text-center py-8">Loading…</p>
+        <p className="py-8 text-center text-sm text-muted">Loading…</p>
       ) : chartData.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">
+        <p className="py-8 text-center text-sm text-muted">
           No expenses recorded {view === 'today' ? 'today' : 'this week'}.
         </p>
       ) : (

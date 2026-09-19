@@ -1,11 +1,19 @@
 // AuthScreen.jsx
 // Login and Register screen.
+// Desktop: split layout — left green branded panel with logo + tagline,
+//          right half the login/register form. Mobile: single column.
 // Two modes toggled on the same page: 'login' and 'register'.
 // Wired to Supabase email+password auth.
-// On success, the onAuthStateChange listener in App.jsx handles the redirect.
 
 import { useState } from 'react';
+import { Wallet, PieChart, PiggyBank } from 'lucide-react';
 import { supabase } from '../utils/supabase';
+
+const BRAND_POINTS = [
+  { icon: Wallet,   text: 'Track every peso you spend' },
+  { icon: PieChart, text: 'See exactly where your money goes' },
+  { icon: PiggyBank, text: 'Build savings goals that stick' },
+];
 
 export default function AuthScreen() {
   // ── Mode toggle ──────────────────────────────────────────────
@@ -98,179 +106,212 @@ export default function AuthScreen() {
   }
 
   // ── Shared input classes ──────────────────────────────────────
-  const inputCls = 'w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-gray-900 bg-white transition-colors duration-150 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 appearance-none';
-  const labelCls = 'text-sm font-semibold text-gray-900';
+  const inputCls = 'w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-ink bg-white transition-colors duration-150 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 appearance-none';
+  const labelCls = 'text-sm font-semibold text-ink';
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="w-full max-w-lg mx-auto px-4 py-12 flex flex-col gap-5 min-h-dvh justify-center">
+    <div className="flex min-h-dvh bg-page">
 
-      {/* Brand */}
-      <div className="text-center pb-2">
-        <h1 className="text-5xl font-extrabold text-blue-600 tracking-tight">TipidTech</h1>
-        <p className="text-lg text-gray-500 mt-1">Plan. Track. Understand.</p>
-      </div>
+      {/* Left branded panel — desktop only */}
+      <div className="hidden w-1/2 flex-col justify-between bg-brand p-12 lg:flex">
+        <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
 
-      {/* Card */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col gap-5 p-5">
-
-        {/* Tab toggle */}
-        <div className="flex border-b-2 border-gray-200" role="tablist">
-          {[
-            { key: 'login',    label: 'Log In' },
-            { key: 'register', label: 'Register' },
-          ].map(({ key, label }) => (
-            <button
-              key={key}
-              role="tab"
-              aria-selected={mode === key}
-              type="button"
-              onClick={() => switchMode(key)}
-              className={`flex-1 py-3 px-4 text-base font-semibold border-b-2 -mb-0.5 transition-colors duration-150 cursor-pointer bg-transparent ${
-                mode === key
-                  ? 'text-blue-600 border-blue-600'
-                  : 'text-gray-400 border-transparent hover:text-gray-900'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex flex-col gap-6">
+          <h2 className="text-4xl font-extrabold leading-tight text-ink">
+            Plan. Track.<br />Understand.
+          </h2>
+          <p className="text-lg font-medium text-ink/70">
+            Make your allowance last.
+          </p>
+          <ul className="flex flex-col gap-3">
+            {BRAND_POINTS.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3 text-ink">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70">
+                  <Icon className="h-4 w-4 text-ink" aria-hidden="true" />
+                </span>
+                <span className="text-sm font-medium">{text}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Feedback messages */}
-        {error && (
-          <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3 leading-relaxed">
-            {error}
-          </p>
-        )}
-        {info && (
-          <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 leading-relaxed">
-            {info}
-          </p>
-        )}
-
-        {/* ── Login form ── */}
-        {mode === 'login' && (
-          <form className="flex flex-col gap-4" onSubmit={handleLogin} noValidate>
-            <div className="flex flex-col gap-2">
-              <label className={labelCls} htmlFor="login-email">Email</label>
-              <input
-                id="login-email"
-                type="email"
-                className={inputCls}
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className={labelCls} htmlFor="login-password">Password</label>
-              <input
-                id="login-password"
-                type="password"
-                className={inputCls}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Logging in…' : 'Log In'}
-            </button>
-          </form>
-        )}
-
-        {/* ── Register form ── */}
-        {mode === 'register' && (
-          <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
-            <div className="flex flex-col gap-2">
-              <label className={labelCls} htmlFor="reg-email">Email</label>
-              <input
-                id="reg-email"
-                type="email"
-                className={inputCls}
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className={labelCls} htmlFor="reg-password">Password</label>
-              <input
-                id="reg-password"
-                type="password"
-                className={inputCls}
-                placeholder="At least 6 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className={labelCls} htmlFor="reg-confirm">Confirm Password</label>
-              <input
-                id="reg-confirm"
-                type="password"
-                className={inputCls}
-                placeholder="Repeat your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-45 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating account…' : 'Create Account'}
-            </button>
-          </form>
-        )}
-
-        {/* Toggle link */}
-        <p className="text-sm text-gray-500 text-center">
-          {mode === 'login' ? (
-            <>
-              Don&apos;t have an account?{' '}
-              <button
-                type="button"
-                onClick={() => switchMode('register')}
-                className="text-blue-600 font-semibold bg-transparent border-none cursor-pointer underline underline-offset-1 hover:text-blue-700"
-              >
-                Register
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => switchMode('login')}
-                className="text-blue-600 font-semibold bg-transparent border-none cursor-pointer underline underline-offset-1 hover:text-blue-700"
-              >
-                Log In
-              </button>
-            </>
-          )}
+        <p className="text-xs font-medium text-ink/60">
+          A simple spending-awareness tool for Filipino students.
         </p>
+      </div>
+
+      {/* Right side — form */}
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-6">
+        <div className="flex w-full max-w-md flex-col gap-6">
+
+          {/* Mobile logo */}
+          <div className="flex flex-col items-center gap-1 pb-1 lg:hidden">
+            <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
+          </div>
+
+          {/* Card */}
+          <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+
+            {/* Pill tab toggle */}
+            <div className="flex w-fit self-center rounded-full bg-page p-1" role="tablist">
+              {[
+                { key: 'login',    label: 'Log In' },
+                { key: 'register', label: 'Register' },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  role="tab"
+                  aria-selected={mode === key}
+                  type="button"
+                  onClick={() => switchMode(key)}
+                  className={`cursor-pointer rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150 ${
+                    mode === key
+                      ? 'bg-brand text-ink'
+                      : 'text-muted hover:text-ink'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Feedback messages */}
+            {error && (
+              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-600">
+                {error}
+              </p>
+            )}
+            {info && (
+              <p role="status" className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm leading-relaxed text-green-700">
+                {info}
+              </p>
+            )}
+
+            {/* ── Login form ── */}
+            {mode === 'login' && (
+              <form className="flex flex-col gap-4" onSubmit={handleLogin} noValidate>
+                <div className="flex flex-col gap-2">
+                  <label className={labelCls} htmlFor="login-email">Email</label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    className={inputCls}
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className={labelCls} htmlFor="login-password">Password</label>
+                  <input
+                    id="login-password"
+                    type="password"
+                    className={inputCls}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {loading ? 'Logging in…' : 'Log In'}
+                </button>
+              </form>
+            )}
+
+            {/* ── Register form ── */}
+            {mode === 'register' && (
+              <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
+                <div className="flex flex-col gap-2">
+                  <label className={labelCls} htmlFor="reg-email">Email</label>
+                  <input
+                    id="reg-email"
+                    type="email"
+                    className={inputCls}
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className={labelCls} htmlFor="reg-password">Password</label>
+                  <input
+                    id="reg-password"
+                    type="password"
+                    className={inputCls}
+                    placeholder="At least 6 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className={labelCls} htmlFor="reg-confirm">Confirm Password</label>
+                  <input
+                    id="reg-confirm"
+                    type="password"
+                    className={inputCls}
+                    placeholder="Repeat your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {loading ? 'Creating account…' : 'Create Account'}
+                </button>
+              </form>
+            )}
+
+            {/* Toggle link */}
+            <p className="text-center text-sm text-muted">
+              {mode === 'login' ? (
+                <>
+                  Don&apos;t have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode('register')}
+                    className="cursor-pointer border-none bg-transparent font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
+                  >
+                    Register
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode('login')}
+                    className="cursor-pointer border-none bg-transparent font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
+                  >
+                    Log In
+                  </button>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

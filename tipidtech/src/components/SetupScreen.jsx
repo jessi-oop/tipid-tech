@@ -1,10 +1,12 @@
 // SetupScreen.jsx
 // Screen 1 — Welcome screen.
+// Centered 480px card with logo + step indicator.
 // Student enters their allowance and selects how long it needs to last.
 // Calls onComplete(setupData) when the student clicks "Continue".
 
 import { useState } from 'react';
 import { PERIOD_OPTIONS } from '../utils/constants';
+import StepIndicator from './StepIndicator';
 
 export default function SetupScreen({ onComplete }) {
   const [allowance,         setAllowance]         = useState('');
@@ -81,35 +83,35 @@ export default function SetupScreen({ onComplete }) {
 
   // ── Shared input classes ──────────────────────────────────────
   const inputCls = (hasError) =>
-    `w-full px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors duration-150 focus:outline-none focus:ring-2 appearance-none ${
+    `w-full px-4 py-3 border rounded-lg text-base text-ink bg-white transition-colors duration-150 focus:outline-none focus:ring-2 appearance-none ${
       hasError
         ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
-        : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/10'
+        : 'border-gray-200 focus:border-brand focus:ring-brand/15'
     }`;
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="w-full max-w-lg mx-auto px-4 pt-12 pb-12 flex flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-[480px] flex-col gap-5 px-4 py-10">
 
-      {/* Hero */}
-      <div className="text-center pb-2">
-        <h1 className="text-5xl font-extrabold text-blue-600 tracking-tight">TipidTech</h1>
-        <p className="text-lg text-gray-500 mt-1">Make your allowance last.</p>
+      {/* Logo + step indicator */}
+      <div className="flex flex-col items-center gap-3 pb-1">
+        <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
+        <StepIndicator current={1} />
       </div>
 
       {/* Form card */}
       <form
-        className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-5"
+        className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6"
         onSubmit={handleContinue}
         noValidate
       >
         {/* ── Allowance input ───────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-gray-900" htmlFor="allowance">
+          <label className="text-sm font-semibold text-ink" htmlFor="allowance">
             How much money do you have?
           </label>
           <div className="relative flex items-center">
-            <span className="absolute left-4 text-gray-400 font-medium pointer-events-none z-10">₱</span>
+            <span className="absolute left-4 z-10 font-medium text-muted pointer-events-none">₱</span>
             <input
               id="allowance"
               type="text"
@@ -122,13 +124,13 @@ export default function SetupScreen({ onComplete }) {
             />
           </div>
           {errors.allowance && (
-            <p className="text-sm text-red-600 mt-0.5">{errors.allowance}</p>
+            <p className="mt-0.5 text-sm text-red-600">{errors.allowance}</p>
           )}
         </div>
 
         {/* ── Budget period ──────────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-ink">
             How do you want to set your budget period?
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -137,9 +139,9 @@ export default function SetupScreen({ onComplete }) {
               return (
                 <label
                   key={option.key}
-                  className={`flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer text-sm font-medium transition-colors duration-150 select-none ${
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors duration-150 select-none ${
                     selected
-                      ? 'border-blue-500 bg-blue-50 text-blue-600'
+                      ? 'border-brand bg-brand/10 text-ink'
                       : 'border-gray-200 text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -149,7 +151,7 @@ export default function SetupScreen({ onComplete }) {
                     value={option.key}
                     checked={selected}
                     onChange={handlePeriodChange}
-                    className="accent-blue-600 w-4 h-4 shrink-0"
+                    className="h-4 w-4 shrink-0 [accent-color:#80ed99]"
                   />
                   <span>{option.label}</span>
                 </label>
@@ -161,7 +163,7 @@ export default function SetupScreen({ onComplete }) {
         {/* ── Date picker ───────────────────────────────────── */}
         {periodType === 'date' && (
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-900" htmlFor="nextAllowanceDate">
+            <label className="text-sm font-semibold text-ink" htmlFor="nextAllowanceDate">
               When will you receive your next allowance?
             </label>
             <input
@@ -173,7 +175,7 @@ export default function SetupScreen({ onComplete }) {
               onChange={handleDateChange}
             />
             {errors.nextAllowanceDate && (
-              <p className="text-sm text-red-600 mt-0.5">{errors.nextAllowanceDate}</p>
+              <p className="mt-0.5 text-sm text-red-600">{errors.nextAllowanceDate}</p>
             )}
           </div>
         )}
@@ -181,13 +183,13 @@ export default function SetupScreen({ onComplete }) {
         {/* ── Continue button ───────────────────────────────── */}
         <button
           type="submit"
-          className="w-full py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition-colors duration-150 hover:bg-blue-700"
+          className="w-full cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark"
         >
           Continue
         </button>
       </form>
 
-      <p className="text-sm text-gray-400 text-center">
+      <p className="text-center text-sm text-muted">
         Your data is saved to your account and synced across devices.
       </p>
     </div>

@@ -8,10 +8,10 @@
 //   /           → redirects based on session + budget state
 //   /setup      → SetupScreen       (protected)
 //   /budget     → BudgetScreen      (protected)
-//   /dashboard  → Dashboard         (protected)
-//   /history    → HistoryScreen     (protected)
-//   /reports    → ReportsScreen     (protected)
-//   /savings    → SavingsScreen     (protected) — added in Phase 14
+//   /dashboard  → Dashboard         (protected, inside AppLayout)
+//   /history    → HistoryScreen     (protected, inside AppLayout)
+//   /reports    → ReportsScreen     (protected, inside AppLayout)
+//   /savings    → SavingsScreen     (protected, inside AppLayout)
 
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
@@ -25,6 +25,7 @@ import ProtectedRoute  from './components/ProtectedRoute';
 import HistoryScreen   from './components/HistoryScreen';
 import ReportsScreen   from './components/ReportsScreen';
 import SavingsScreen   from './components/SavingsScreen';
+import AppLayout       from './components/AppLayout';
 
 import { supabase }              from './utils/supabase';
 import { getBudget, saveBudget, deleteBudget} from './utils/storage';
@@ -88,7 +89,7 @@ export default function App() {
   const [session,     setSession]     = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [resetCount, setResetCount] = useState(0);
-  
+
 
   // ── Budget state ──────────────────────────────────────────────
   const budgetLoadedRef = useRef(false);
@@ -251,13 +252,18 @@ export default function App() {
           path="/dashboard"
           element={
             <ProtectedRoute session={session}>
-              <Dashboard
-                key={`${session?.user?.id}-${budgetId}`}
-                userId={session?.user?.id}
-                onReset={handleReset}
+              <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
-              />
+              >
+                <Dashboard
+                  key={`${session?.user?.id}-${budgetId}`}
+                  userId={session?.user?.id}
+                  onReset={handleReset}
+                  onLogout={handleLogout}
+                  userEmail={session?.user?.email ?? ''}
+                />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -266,11 +272,16 @@ export default function App() {
           path="/history"
           element={
             <ProtectedRoute session={session}>
-              <HistoryScreen
-                userId={session?.user?.id}
+              <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
-              />
+              >
+                <HistoryScreen
+                  userId={session?.user?.id}
+                  onLogout={handleLogout}
+                  userEmail={session?.user?.email ?? ''}
+                />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -279,11 +290,16 @@ export default function App() {
           path="/reports"
           element={
             <ProtectedRoute session={session}>
-              <ReportsScreen
-                userId={session?.user?.id}
+              <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
-              />
+              >
+                <ReportsScreen
+                  userId={session?.user?.id}
+                  onLogout={handleLogout}
+                  userEmail={session?.user?.email ?? ''}
+                />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -292,11 +308,16 @@ export default function App() {
           path="/savings"
           element={
             <ProtectedRoute session={session}>
-              <SavingsScreen
-                userId={session?.user?.id}
+              <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
-              />
+              >
+                <SavingsScreen
+                  userId={session?.user?.id}
+                  onLogout={handleLogout}
+                  userEmail={session?.user?.email ?? ''}
+                />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
