@@ -115,13 +115,13 @@ export default function AuthScreen() {
 
       {/* Left branded panel — desktop only */}
       <div className="hidden w-1/2 flex-col justify-between bg-brand p-12 lg:flex">
-        <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-20 w-fit" />
 
         <div className="flex flex-col gap-6">
-          <h2 className="text-4xl font-extrabold leading-tight text-ink">
+          <h2 className="text-5xl font-extrabold leading-tight text-ink">
             Plan. Track.<br />Understand.
           </h2>
-          <p className="text-lg font-medium text-ink/70">
+          <p className="text-xl font-medium text-ink/70">
             Make your allowance last.
           </p>
           <ul className="flex flex-col gap-3">
@@ -130,13 +130,17 @@ export default function AuthScreen() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70">
                   <Icon className="h-4 w-4 text-ink" aria-hidden="true" />
                 </span>
-                <span className="text-sm font-medium">{text}</span>
+                <span className="text-base font-medium">{text}</span>
               </li>
             ))}
           </ul>
+          <p className="mt-4 text-6xl font-extrabold leading-none tracking-tight">
+            <span className="text-ink">Be Money</span>{' '}
+            <span className="text-white">Wise.</span>
+          </p>
         </div>
 
-        <p className="text-xs font-medium text-ink/60">
+        <p className="text-sm font-medium text-ink/60">
           A simple spending-awareness tool for Filipino students.
         </p>
       </div>
@@ -147,7 +151,7 @@ export default function AuthScreen() {
 
           {/* Mobile logo */}
           <div className="flex flex-col items-center gap-1 pb-1 lg:hidden">
-            <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
+            <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-fit" />
           </div>
 
           {/* Card */}

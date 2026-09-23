@@ -67,7 +67,7 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
 
       {/* Logo + step indicator */}
       <div className="flex flex-col items-center gap-3 pb-1">
-        <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-fit" />
         <StepIndicator current={2} />
       </div>
 

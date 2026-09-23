@@ -30,7 +30,7 @@ function SidebarContent({ onLogout, userEmail, onNavigate }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-gray-100 px-5">
-        <img src="/logo.png" alt="TipidTech" className="h-8 w-auto" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-10 w-auto" />
       </div>
 
       {/* Nav links */}
@@ -96,7 +96,7 @@ export default function AppLayout({ children, onLogout, userEmail }) {
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
-        <img src="/logo.png" alt="TipidTech" className="h-7 w-auto" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-10 w-auto" />
       </div>
 
       {/* Mobile overlay drawer */}

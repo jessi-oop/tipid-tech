@@ -95,7 +95,7 @@ export default function SetupScreen({ onComplete }) {
 
       {/* Logo + step indicator */}
       <div className="flex flex-col items-center gap-3 pb-1">
-        <img src="/logo.png" alt="TipidTech" className="h-10 w-fit" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-fit" />
         <StepIndicator current={1} />
       </div>
 
