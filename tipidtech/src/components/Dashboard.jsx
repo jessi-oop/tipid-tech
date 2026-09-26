@@ -5,7 +5,7 @@
 // only the layout and styling were redesigned.
 
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CalendarDays, Wallet, Plus } from 'lucide-react';
 
 import StatusBadge      from './StatusBadge';
@@ -15,6 +15,7 @@ import AddExpenseForm   from './AddExpenseForm';
 import ExpensePieChart  from './ExpensePieChart';
 import SavingsGoalCard  from './SavingsGoalCard';
 import CategoryIcon     from './CategoryIcon';
+import EditExpenseModal from './EditExpenseModal';
 
 import { CATEGORIES, PERIOD_OPTIONS } from '../utils/constants';
 import {
@@ -62,11 +63,14 @@ export default function Dashboard({
   onLogout,
   userEmail,
 }) {
+  const navigate = useNavigate();
+
   // ── Expense state ─────────────────────────────────────────────
   const [expenses,        setExpenses]        = useState([]);
   const [totalSpent,      setTotalSpent]      = useState(0);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [refreshKey,      setRefreshKey]      = useState(0);
+  const [editingExpense,  setEditingExpense]  = useState(null);
 
   const [budget,        setBudget]        = useState(null);
   const [budgetLoading, setBudgetLoading] = useState(true);
@@ -77,18 +81,18 @@ export default function Dashboard({
 
   // ─── Load recent expenses + total spent ───────────────────────
   const loadExpenses = useCallback(async () => {
-    if (!userId || !budget?.startDate) return;
+    if (!userId || !budget?.id) return;
     try {
       const [recent, total] = await Promise.all([
-        getRecentExpenses(userId, 5),
-        getTotalExpenses(userId, budget?.startDate),
+        getRecentExpenses(userId, 5, budget.id),
+        getTotalExpenses(userId, budget.id),
       ]);
       setExpenses(recent);
       setTotalSpent(total);
     } catch (err) {
       console.error('TipidTech: failed to load expenses', err);
     }
-  }, [userId, budget?.startDate]);
+  }, [userId, budget?.id]);
 
   useEffect(() => {
     loadExpenses();
@@ -106,6 +110,7 @@ export default function Dashboard({
             periodType:        row.period,
             nextAllowanceDate: row.next_allowance_date || '',
             startDate:         row.start_date,
+            endDate:           row.end_date || '',
             categoryBudgets: {
               food:           Number(row.food_budget),
               transportation: Number(row.transport_budget),
@@ -148,20 +153,18 @@ export default function Dashboard({
   // ─── Calculated values ────────────────────────────────────────
   const expensesForCalc  = totalSpent > 0 ? [{ amount: totalSpent }] : [];
   const remainingBalance = getRemainingBalance(budget?.allowance, expensesForCalc);
-  const daysRemaining    = getDaysRemaining(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate);
-  const totalDays        = getTotalDays(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate);
+  const daysRemaining    = getDaysRemaining(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
+  const totalDays        = getTotalDays(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
   const plannedDaily     = getPlannedDailyAmount(budget?.allowance, totalDays);
   const currentDaily     = getCurrentDailyAmount(remainingBalance, daysRemaining);
   const categorySpending = getCategorySpending(expenses);
   const otherSpending    = getOtherSpending(expenses);
-  const statusResult     = getSpendingStatus(budget?.allowance, expensesForCalc, budget?.periodType, budget?.nextAllowanceDate, budget?.startDate);
+  const statusResult     = getSpendingStatus(budget?.allowance, expensesForCalc, budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
   const periodEnded      = daysRemaining <= 0;
 
-  // ─── Reset confirmation ───────────────────────────────────────
+  // ─── Reset: hand off to App.jsx which opens PeriodSummaryModal ─
   function handleResetClick() {
-    if (window.confirm('Reset your budget? This will clear all your data and start over.')) {
-      onReset();
-    }
+    onReset(budget);
   }
 
   // ─── Render ───────────────────────────────────────────────────
@@ -177,6 +180,7 @@ export default function Dashboard({
           <p className="text-xs font-semibold uppercase tracking-widest text-muted">
             Remaining Balance
           </p>
+          <p className="text-sm text-muted mt-0.5">Your remaining allowance for this budget period. It updates automatically every time you log an expense.</p>
           <button
             type="button"
             onClick={handleResetClick}
@@ -216,10 +220,11 @@ export default function Dashboard({
 
       {/* ── Row 3: pie chart + category budget bars ────────────── */}
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-        <ExpensePieChart userId={userId} refreshKey={refreshKey} />
+        <ExpensePieChart userId={userId} refreshKey={refreshKey} budgetId={budget?.id} />
 
         <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="text-base font-semibold text-ink">Budget Categories</h2>
+          <p className="text-sm text-muted mt-0.5">How your allowance is split across each spending category this period.</p>
           <div className="flex flex-1 flex-col justify-center gap-4">
             {CATEGORIES.map(({ key, label }) => (
               <CategoryBar
@@ -246,6 +251,7 @@ export default function Dashboard({
       <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-semibold text-ink">Recent Expenses</h2>
+          <p className="text-sm text-muted mt-0.5">Your 5 most recent transactions this budget period. Go to History to see everything.</p>
           <div className="flex items-center gap-3">
             {!showExpenseForm && (
               <button
@@ -269,6 +275,7 @@ export default function Dashboard({
         {showExpenseForm ? (
           <AddExpenseForm
             userId={userId}
+            budgetId={budget?.id}
             allowance={budget?.allowance}
             totalSpent={totalSpent}
             periodType={budget?.periodType}
@@ -279,7 +286,10 @@ export default function Dashboard({
             onCancel={() => setShowExpenseForm(false)}
           />
         ) : (
-          <ExpenseList expenses={expenses} />
+          <ExpenseList
+            expenses={expenses}
+            onEdit={(expense) => setEditingExpense(expense)}
+          />
         )}
       </div>
 
@@ -287,6 +297,7 @@ export default function Dashboard({
       <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-ink">Savings Goals</h2>
+          <p className="text-sm text-muted mt-0.5">A quick view of your active savings goals. Go to Savings Goals for the full details.</p>
           <Link
             to="/savings"
             className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
@@ -312,6 +323,7 @@ export default function Dashboard({
                 goal={goal}
                 userId={userId}
                 onGoalUpdated={handleGoalUpdated}
+                onCardTap={() => navigate('/savings')}
               />
             ))}
           </div>
@@ -323,6 +335,15 @@ export default function Dashboard({
         TipidTech is a simple spending-awareness tool for students.
         Thresholds shown are prototype estimates, not financial advice.
       </p>
+
+      {/* ── Edit expense modal ───────────────────────────────────── */}
+      {editingExpense && (
+        <EditExpenseModal
+          expense={editingExpense}
+          onSaved={handleExpenseAdded}
+          onClose={() => setEditingExpense(null)}
+        />
+      )}
 
     </div>
   );

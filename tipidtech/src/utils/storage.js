@@ -50,16 +50,15 @@ export async function deleteBudget(userId) {
 }
 
 // ─── Expenses ─────────────────────────────────────────────────────
-
 /**
- * Insert a new expense row for the given user.
+ * Insert a new expense row for the given user, linked to a specific budget period.
  * expenseData: { amount, category, note }
  * created_at is set by the database default.
  */
-export async function addExpense(userId, expenseData) {
+export async function addExpense(userId, budgetId, expenseData) {
   const { data, error } = await supabase
     .from('expenses')
-    .insert({ ...expenseData, user_id: userId })
+    .insert({ ...expenseData, user_id: userId, budget_id: budgetId })
     .select()
     .single();
 
@@ -68,14 +67,44 @@ export async function addExpense(userId, expenseData) {
 }
 
 /**
- * Fetch the N most recent expenses for the user.
+ * Update an existing expense row by its id.
+ * expenseData: { amount, category, note }
+ * Returns the updated row.
+ */
+export async function updateExpense(expenseId, expenseData) {
+  const { data, error } = await supabase
+    .from('expenses')
+    .update({ ...expenseData })
+    .eq('id', expenseId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Delete a single expense row by its id.
+ */
+export async function deleteExpense(expenseId) {
+  const { error } = await supabase
+    .from('expenses')
+    .delete()
+    .eq('id', expenseId);
+
+  if (error) throw error;
+}
+
+/**
+ * Fetch the N most recent expenses for the user's current budget period.
  * Defaults to 5 (matches MAX_RECENT_EXPENSES in constants.js).
  */
-export async function getRecentExpenses(userId, limit = 5) {
+export async function getRecentExpenses(userId, limit = 5, budgetId) {
   const { data, error } = await supabase
     .from('expenses')
     .select('*')
     .eq('user_id', userId)
+    .eq('budget_id', budgetId)
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -84,14 +113,15 @@ export async function getRecentExpenses(userId, limit = 5) {
 }
 
 /**
- * Fetch every expense for the user, newest first.
+ * Fetch every expense for the user's current budget period, newest first.
  * Used by HistoryScreen.
  */
-export async function getAllExpenses(userId) {
+export async function getAllExpenses(userId, budgetId) {
   const { data, error } = await supabase
     .from('expenses')
     .select('*')
     .eq('user_id', userId)
+    .eq('budget_id', budgetId)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -101,10 +131,12 @@ export async function getAllExpenses(userId) {
 /**
  * Fetch all expenses for the user on a specific calendar date.
  * date: ISO string 'YYYY-MM-DD'
+ * budgetId: optional — when provided, also filters by budget_id (pie chart usage).
+ *           When omitted, returns all expenses on that date (ReportsScreen usage).
  * Used by the Daily Report and the pie chart "Today" toggle.
  */
-export async function getExpensesByDate(userId, date) {
-  const { data, error } = await supabase
+export async function getExpensesByDate(userId, date, budgetId = null) {
+  let query = supabase
     .from('expenses')
     .select('*')
     .eq('user_id', userId)
@@ -112,6 +144,9 @@ export async function getExpensesByDate(userId, date) {
     .lte('created_at', `${date}T23:59:59`)
     .order('created_at', { ascending: false });
 
+  if (budgetId) query = query.eq('budget_id', budgetId);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
 }
@@ -119,13 +154,15 @@ export async function getExpensesByDate(userId, date) {
 /**
  * Fetch all expenses for the user within a date range (inclusive).
  * weekStart / weekEnd: Date objects or ISO strings.
+ * budgetId: optional — when provided, also filters by budget_id (pie chart usage).
+ *           When omitted, returns all expenses in the range (ReportsScreen usage).
  * Used by the Weekly Report and the pie chart "This Week" toggle.
  */
-export async function getExpensesByWeek(userId, weekStart, weekEnd) {
+export async function getExpensesByWeek(userId, weekStart, weekEnd, budgetId = null) {
   const start = new Date(weekStart).toISOString();
   const end   = new Date(weekEnd).toISOString();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('expenses')
     .select('*')
     .eq('user_id', userId)
@@ -133,27 +170,47 @@ export async function getExpensesByWeek(userId, weekStart, weekEnd) {
     .lte('created_at', end)
     .order('created_at', { ascending: false });
 
+  if (budgetId) query = query.eq('budget_id', budgetId);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
 }
 
 /**
  * Return the sum of all expense amounts for the user's current budget period.
- * budgetStartDate: ISO string 'YYYY-MM-DD' — expenses before this date are excluded.
+ * budgetId: uuid — only expenses linked to this budget period are included.
  */
-export async function getTotalExpenses(userId, budgetStartDate) {
-  const start = `${budgetStartDate}T00:00:00`;
-
+export async function getTotalExpenses(userId, budgetId) {
   const { data, error } = await supabase
     .from('expenses')
     .select('amount')
     .eq('user_id', userId)
-    .gte('created_at', start);
+    .eq('budget_id', budgetId);
 
   if (error) throw error;
 
   const total = (data ?? []).reduce((sum, e) => sum + Number(e.amount), 0);
   return total;
+}
+
+/**
+ * Fetch all expenses for a user within a custom date range (inclusive).
+ * startDate / endDate: ISO strings 'YYYY-MM-DD'.
+ * Intentionally crosses budget period boundaries — used by the custom
+ * date range picker in HistoryScreen only.
+ */
+export async function getExpensesByRange(userId, startDate, endDate) {
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('created_at', `${startDate}T00:00:00`)
+    .lte('created_at', `${endDate}T23:59:59`)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
 }
 
 // ─── Savings Goals (Phase 14) ─────────────────────────────────────
@@ -244,4 +301,41 @@ export async function markGoalCompleted(goalId) {
     .eq('id', goalId);
 
   if (error) throw error;
+}
+
+/**
+ * Update an existing savings goal row by its id.
+ * goalData: { name, target_amount, duration_days, start_date }
+ * Returns the updated row.
+ */
+export async function updateGoal(goalId, goalData) {
+  const { data, error } = await supabase
+    .from('savings_goals')
+    .update({ ...goalData })
+    .eq('id', goalId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Delete a savings goal and all its contributions.
+ * Contributions must be deleted first to avoid foreign key violations.
+ */
+export async function deleteGoal(goalId) {
+  const { error: contribError } = await supabase
+    .from('savings_contributions')
+    .delete()
+    .eq('goal_id', goalId);
+
+  if (contribError) throw contribError;
+
+  const { error: goalError } = await supabase
+    .from('savings_goals')
+    .delete()
+    .eq('id', goalId);
+
+  if (goalError) throw goalError;
 }

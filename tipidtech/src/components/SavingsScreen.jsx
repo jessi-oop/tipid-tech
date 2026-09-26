@@ -8,13 +8,17 @@ import { Plus } from 'lucide-react';
 
 import SavingsGoalCard from './SavingsGoalCard';
 import SavingsGoalForm from './SavingsGoalForm';
+import EditGoalModal           from './EditGoalModal';
+import GoalContributionSummary from './GoalContributionSummary';
 import { getSavingsGoals } from '../utils/storage';
 
 export default function SavingsScreen({ userId, onLogout, userEmail }) {
-  const [goals,      setGoals]      = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [showForm,   setShowForm]   = useState(false);
-  const [fetchError, setFetchError] = useState('');
+  const [goals,        setGoals]        = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [showForm,     setShowForm]     = useState(false);
+  const [fetchError,   setFetchError]   = useState('');
+  const [editingGoal,  setEditingGoal]  = useState(null);
+  const [viewingGoal,  setViewingGoal]  = useState(null);
 
   // ── Fetch all goals ───────────────────────────────────────────
   const loadGoals = useCallback(async () => {
@@ -47,6 +51,7 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold text-ink">Savings Goals</h1>
+        <p className="text-sm text-muted mt-0.5">Tap a goal card to see your contribution history. Tap the pencil icon to edit or delete a goal.</p>
         {!showForm && (
           <button
             type="button"
@@ -84,6 +89,8 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
                   goal={goal}
                   userId={userId}
                   onGoalUpdated={handleGoalUpdated}
+                  onEdit={(g) => setEditingGoal(g)}
+                  onCardTap={(g) => setViewingGoal(g)}
                 />
               ))}
             </div>
@@ -108,12 +115,31 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
                     goal={goal}
                     userId={userId}
                     onGoalUpdated={handleGoalUpdated}
+                    onEdit={(g) => setEditingGoal(g)}
+                    onCardTap={(g) => setViewingGoal(g)}
                   />
                 ))}
               </div>
             </div>
           )}
         </>
+      )}
+      {/* Edit goal modal */}
+      {editingGoal && (
+        <EditGoalModal
+          goal={editingGoal}
+          onSaved={() => { setEditingGoal(null); loadGoals(); }}
+          onClose={() => setEditingGoal(null)}
+        />
+      )}
+
+      {/* Goal contribution summary modal */}
+      {viewingGoal && (
+        <GoalContributionSummary
+          goal={viewingGoal}
+          userId={userId}
+          onClose={() => setViewingGoal(null)}
+        />
       )}
 
     </div>

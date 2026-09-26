@@ -25,9 +25,15 @@ function daysBetween(dateA, dateB) {
 /**
  * Get the total number of days in the budget period.
  * For 'date', calculates days from startDate to nextAllowanceDate.
+ * For 'custom', calculates from startDate to endDate.
  * Minimum is 1 to avoid division-by-zero.
  */
-export function getTotalDays(periodType, nextAllowanceDate, startDate) {
+export function getTotalDays(periodType, nextAllowanceDate, startDate, endDate = null) {
+  if (periodType === 'custom' && endDate) {
+    const start = new Date(startDate + 'T00:00:00');
+    const end   = new Date(endDate   + 'T00:00:00');
+    return Math.max(0, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+  }
   if (periodType === 'daily')   return 1;
   if (periodType === 'weekly')  return 7;
   if (periodType === 'monthly') return 30;
@@ -42,8 +48,8 @@ export function getTotalDays(periodType, nextAllowanceDate, startDate) {
  * Get the number of days remaining from today until the end of the period.
  * Clamps to 0 if the period has ended.
  */
-export function getDaysRemaining(periodType, nextAllowanceDate, startDate) {
-  const totalDays   = getTotalDays(periodType, nextAllowanceDate, startDate);
+export function getDaysRemaining(periodType, nextAllowanceDate, startDate, endDate = null) {
+  const totalDays   = getTotalDays(periodType, nextAllowanceDate, startDate, endDate);
   const elapsed     = daysBetween(startDate, new Date());
   const remaining   = totalDays - elapsed;
   return Math.max(0, remaining);
@@ -125,10 +131,10 @@ export function getCurrentDailyAmount(remainingBalance, daysRemaining) {
  *
  * Returns an object: { status, ratio, currentDaily, plannedDaily }
  */
-export function getSpendingStatus(allowance, expenses, periodType, nextAllowanceDate, startDate) {
+export function getSpendingStatus(allowance, expenses, periodType, nextAllowanceDate, startDate, endDate = null) {
   const remainingBalance = getRemainingBalance(allowance, expenses);
-  const daysRemaining    = getDaysRemaining(periodType, nextAllowanceDate, startDate);
-  const totalDays        = getTotalDays(periodType, nextAllowanceDate, startDate);
+  const daysRemaining    = getDaysRemaining(periodType, nextAllowanceDate, startDate, endDate);
+  const totalDays        = getTotalDays(periodType, nextAllowanceDate, startDate, endDate);
   const plannedDaily     = getPlannedDailyAmount(allowance, totalDays);
   const currentDaily     = getCurrentDailyAmount(remainingBalance, daysRemaining);
 

@@ -26,6 +26,7 @@ import HistoryScreen   from './components/HistoryScreen';
 import ReportsScreen   from './components/ReportsScreen';
 import SavingsScreen   from './components/SavingsScreen';
 import AppLayout       from './components/AppLayout';
+import PeriodSummaryModal from './components/PeriodSummaryModal';
 
 import { supabase }              from './utils/supabase';
 import { getBudget, saveBudget, deleteBudget} from './utils/storage';
@@ -64,12 +65,13 @@ function budgetRowToState(row) {
 }
 
 // Map App state fields → Supabase budget row shape
-function stateToBudgetRow(allowance, periodType, nextAllowanceDate, startDate, categoryBudgets) {
+function stateToBudgetRow(allowance, periodType, nextAllowanceDate, startDate, categoryBudgets, endDate) {
   return {
     allowance,
     period:              periodType,
     next_allowance_date: nextAllowanceDate || null,
     start_date:          startDate,
+    end_date:            endDate || null,
     total_days:          0, // retained for schema compatibility; recalculated in calculations.js
     food_budget:         categoryBudgets.food,
     transport_budget:    categoryBudgets.transportation,
@@ -78,6 +80,23 @@ function stateToBudgetRow(allowance, periodType, nextAllowanceDate, startDate, c
     savings_budget:      categoryBudgets.savings,
     emergency_budget:    categoryBudgets.emergency,
   };
+}
+
+// Calculate end_date (YYYY-MM-DD) from startDate + periodType
+function calcEndDate(startDate, periodType, nextAllowanceDate, customDays) {
+  const start = new Date(startDate + 'T00:00:00');
+  if (periodType === 'date') {
+    return nextAllowanceDate || null;
+  }
+  let daysToAdd = null;
+  if (periodType === 'daily')   daysToAdd = 1;
+  if (periodType === 'weekly')  daysToAdd = 7;
+  if (periodType === 'monthly') daysToAdd = 30;
+  if (periodType === 'custom')  daysToAdd = parseInt(customDays, 10);
+  if (!daysToAdd || isNaN(daysToAdd)) return null;
+  const end = new Date(start);
+  end.setDate(end.getDate() + daysToAdd);
+  return end.toISOString().split('T')[0];
 }
 
 // ─── App ──────────────────────────────────────────────────────────
@@ -101,6 +120,11 @@ export default function App() {
   const [budgetId, setBudgetId] = useState('');
   const [categoryBudgets,   setCategoryBudgets]   = useState(getEmptyCategoryBudgets());
   const [budgetStartDate, setBudgetStartDate] = useState('');
+  const [customDays,        setCustomDays]         = useState('');
+
+  // ── Period summary modal state ────────────────────────────────
+  // { budgetId, budget, isAutoReset } — null when modal is closed
+  const [periodSummary, setPeriodSummary] = useState(null);
 
   // ─── Auth initialisation ──────────────────────────────────────
   useEffect(() => {
@@ -132,6 +156,27 @@ export default function App() {
           setNextAllowanceDate(state.nextAllowanceDate);
           setStartDate(state.startDate);
           setCategoryBudgets(state.categoryBudgets);
+          setBudgetId(row.id);
+
+          // Auto-reset check: if end_date exists and today is past it,
+          // show the period summary modal before allowing any action.
+          if (row.end_date) {
+            const today   = new Date().toISOString().split('T')[0];
+            if (today > row.end_date) {
+              setPeriodSummary({
+                budgetId:    row.id,
+                budget: {
+                  allowance:         Number(row.allowance),
+                  startDate:         row.start_date,
+                  endDate:           row.end_date,
+                  periodType:        row.period,
+                  nextAllowanceDate: row.next_allowance_date || '',
+                  categoryBudgets:   state.categoryBudgets,
+                },
+                isAutoReset: true,
+              });
+            }
+          }
         }
       })
       .catch((err) => console.error('TipidTech: failed to load budget', err))
@@ -148,18 +193,20 @@ export default function App() {
     setAllowance(numericAllowance);
     setPeriodType(setupData.periodType);
     setNextAllowanceDate(setupData.nextAllowanceDate);
+    setCustomDays(setupData.customDays || '');
     setCategoryBudgets(getSuggestedBudgets(numericAllowance));
     navigate('/budget');
   }
 
   async function handleBudgetStart(finalBudgets) {
-    const today = new Date().toISOString().split('T')[0];
+    const today   = new Date().toISOString().split('T')[0];
+    const endDate = calcEndDate(today, periodType, nextAllowanceDate, customDays);
 
     if (session?.user) {
       try {
         const saved = await saveBudget(
           session.user.id,
-          stateToBudgetRow(allowance, periodType, nextAllowanceDate, today, finalBudgets)
+          stateToBudgetRow(allowance, periodType, nextAllowanceDate, today, finalBudgets, endDate)
         );
         setBudgetId(saved.id);
       } catch (err) {
@@ -168,7 +215,7 @@ export default function App() {
     }
 
     navigate('/dashboard');
-}
+  }
 
   function handleBudgetBack() {
     navigate('/setup');
@@ -190,7 +237,19 @@ export default function App() {
 
   // ─── Reset budget ─────────────────────────────────────────────
 
-  async function handleReset() {
+  // Called by Dashboard's reset button — opens the summary modal first.
+  // Budget object is passed in from Dashboard which already holds it.
+  function handleReset(dashboardBudget) {
+    setPeriodSummary({
+      budgetId:    budgetId,
+      budget:      dashboardBudget,
+      isAutoReset: false,
+    });
+  }
+
+  // Called by PeriodSummaryModal's "Start New Period" button.
+  async function doActualReset() {
+    setPeriodSummary(null);
     if (session?.user) {
       try {
         await deleteBudget(session.user.id);
@@ -198,9 +257,17 @@ export default function App() {
         console.error('TipidTech: failed to delete budget', err);
       }
     }
+    setAllowance('');
+    setPeriodType('weekly');
+    setNextAllowanceDate('');
+    setStartDate('');
+    setCustomDays('');
+    setCategoryBudgets(getEmptyCategoryBudgets());
     setBudgetId('');
+    setBudgetLoaded(false);
+    budgetLoadedRef.current = false;
     navigate('/setup');
-}
+  }
 
   // ─── Root redirect ────────────────────────────────────────────
   function RootRedirect() {
@@ -278,6 +345,7 @@ export default function App() {
               >
                 <HistoryScreen
                   userId={session?.user?.id}
+                  budgetId={budgetId}
                   onLogout={handleLogout}
                   userEmail={session?.user?.email ?? ''}
                 />
@@ -324,6 +392,18 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* ── Period summary modal (auto-reset or manual reset) ── */}
+      {periodSummary && (
+        <PeriodSummaryModal
+          userId={session?.user?.id}
+          budgetId={periodSummary.budgetId}
+          budget={periodSummary.budget}
+          isAutoReset={periodSummary.isAutoReset}
+          onConfirm={doActualReset}
+          onCancel={() => setPeriodSummary(null)}
+        />
+      )}
     </div>
   );
 }

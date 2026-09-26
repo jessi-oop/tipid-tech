@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback } from 'react';
 import CategoryIcon         from './CategoryIcon';
 import { EXPENSE_CATEGORIES } from '../utils/constants';
 import { formatPeso }         from '../utils/calculations';
-import { getExpensesByDate, getExpensesByWeek } from '../utils/storage';
+import { getExpensesByDate, getExpensesByWeek, getExpensesByRange } from '../utils/storage';
 
 // ─── Calendar helpers ─────────────────────────────────────────────
 
@@ -115,6 +115,7 @@ function DailyTab({ userId }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <p className="text-sm text-muted mt-0.5">See everything you spent on a specific day. Tap the date to change it.</p>
       {/* Date picker */}
       <div className="flex max-w-xs flex-col gap-2">
         <label className="text-sm font-semibold text-ink" htmlFor="report-date">
@@ -197,6 +198,7 @@ function WeeklyTab({ userId }) {
         {' – '}
         {sunday.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
       </p>
+      <p className="text-sm text-muted mt-0.5">See your spending for the current calendar week, broken down by day.</p>
 
       {loading && <p className="py-6 text-center text-sm text-muted">Loading…</p>}
       {error   && <p className="py-4 text-center text-sm text-red-600">{error}</p>}
@@ -238,6 +240,138 @@ function WeeklyTab({ userId }) {
   );
 }
 
+// ─── Custom Range helpers ─────────────────────────────────────────
+
+/** Group a flat expense array by calendar date string 'YYYY-MM-DD', newest first. */
+function groupByDate(expenses) {
+  const map = new Map();
+  for (const expense of expenses) {
+    const dateStr = expense.created_at.slice(0, 10);
+    if (!map.has(dateStr)) map.set(dateStr, []);
+    map.get(dateStr).push(expense);
+  }
+  return map;
+}
+
+// ─── Custom Range Tab ─────────────────────────────────────────────
+
+function CustomRangeTab({ userId }) {
+  const [rangeStart,    setRangeStart]    = useState('');
+  const [rangeEnd,      setRangeEnd]      = useState('');
+  const [rangeExpenses, setRangeExpenses] = useState([]);
+  const [rangeLoading,  setRangeLoading]  = useState(false);
+  const [rangeError,    setRangeError]    = useState('');
+  const [rangeFiltered, setRangeFiltered] = useState(false);
+
+  async function handleFilter() {
+    setRangeError('');
+    if (!rangeStart || !rangeEnd || rangeStart > rangeEnd) {
+      setRangeError('Please select a valid date range.');
+      return;
+    }
+    setRangeLoading(true);
+    try {
+      const data = await getExpensesByRange(userId, rangeStart, rangeEnd);
+      setRangeExpenses(data);
+      setRangeFiltered(true);
+    } catch (err) {
+      console.error('TipidTech: failed to load custom range report', err);
+      setRangeError('Could not load expenses. Please try again.');
+    } finally {
+      setRangeLoading(false);
+    }
+  }
+
+  const inputCls = 'w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-ink transition-colors duration-150 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15';
+  const rangeTotal = rangeExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  const byDate     = groupByDate(rangeExpenses);
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Date inputs + Filter */}
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-ink" htmlFor="range-start-r">From</label>
+            <input
+              id="range-start-r"
+              type="date"
+              className={inputCls}
+              value={rangeStart}
+              onChange={(e) => { setRangeStart(e.target.value); setRangeError(''); }}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-ink" htmlFor="range-end-r">To</label>
+            <input
+              id="range-end-r"
+              type="date"
+              className={inputCls}
+              value={rangeEnd}
+              onChange={(e) => { setRangeEnd(e.target.value); setRangeError(''); }}
+            />
+          </div>
+        </div>
+        {rangeError && <p className="text-sm text-red-600">{rangeError}</p>}
+        <button
+          type="button"
+          onClick={handleFilter}
+          disabled={rangeLoading}
+          className="w-full cursor-pointer rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          {rangeLoading ? 'Loading…' : 'Filter'}
+        </button>
+      </div>
+
+      {/* Results */}
+      {!rangeFiltered && !rangeLoading && (
+        <p className="py-6 text-center text-sm text-muted">
+          Select a date range and tap Filter to see expenses.
+        </p>
+      )}
+
+      {rangeFiltered && !rangeLoading && rangeExpenses.length === 0 && (
+        <p className="py-6 text-center text-sm text-muted">
+          No expenses found for this date range.
+        </p>
+      )}
+
+      {rangeFiltered && !rangeLoading && rangeExpenses.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-muted">
+            {rangeExpenses.length} expense{rangeExpenses.length !== 1 ? 's' : ''} · {formatPeso(rangeTotal)} total
+          </p>
+
+          {Array.from(byDate.entries()).map(([dateStr, dateExpenses]) => {
+            const dayTotal = dateExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+            const displayDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-PH', {
+              month: 'short', day: 'numeric', year: 'numeric',
+            });
+            return (
+              <div key={dateStr} className="flex flex-col gap-3">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span className="text-sm font-bold text-ink">{displayDate}</span>
+                  <span className="inline-flex items-center rounded-full bg-page px-2.5 py-0.5 text-xs font-semibold text-muted">
+                    {formatPeso(dayTotal)}
+                  </span>
+                </div>
+                <ul className="flex flex-col gap-3">
+                  {dateExpenses.map((e) => <ExpenseRow key={e.id} expense={e} />)}
+                </ul>
+              </div>
+            );
+          })}
+
+          <div className="mt-1 flex items-center justify-between rounded-xl border border-brand/40 bg-brand/15 px-5 py-4">
+            <span className="text-sm font-bold text-ink">Total</span>
+            <span className="text-base font-extrabold text-ink">{formatPeso(rangeTotal)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── ReportsScreen ────────────────────────────────────────────────
 
 export default function ReportsScreen({ userId, onLogout, userEmail }) {
@@ -249,14 +383,15 @@ export default function ReportsScreen({ userId, onLogout, userEmail }) {
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h2 className="text-2xl font-bold text-ink">Reports</h2>
-        <p className="text-sm text-muted">Daily and weekly views of your spending.</p>
+        <p className="text-sm text-muted mt-0.5">Calendar-based spending reports. These are independent of your budget period — use them to look up any date.</p>
       </div>
 
       {/* Pill-style tab toggle */}
       <div className="flex w-fit rounded-full bg-page p-1" role="tablist">
         {[
-          { key: 'daily',  label: 'Daily' },
-          { key: 'weekly', label: 'Weekly' },
+          { key: 'daily',  label: 'Daily'        },
+          { key: 'weekly', label: 'Weekly'       },
+          { key: 'custom', label: 'Custom Range' },
         ].map(({ key, label }) => (
           <button
             key={key}
@@ -277,8 +412,9 @@ export default function ReportsScreen({ userId, onLogout, userEmail }) {
 
       {/* Tab content */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        {activeTab === 'daily'  && <DailyTab  userId={userId} />}
-        {activeTab === 'weekly' && <WeeklyTab userId={userId} />}
+        {activeTab === 'daily'  && <DailyTab       userId={userId} />}
+        {activeTab === 'weekly' && <WeeklyTab      userId={userId} />}
+        {activeTab === 'custom' && <CustomRangeTab userId={userId} />}
       </div>
 
     </div>

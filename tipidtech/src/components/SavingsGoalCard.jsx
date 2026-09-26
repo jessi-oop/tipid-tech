@@ -3,7 +3,7 @@
 // Fetches its own totalSaved from Supabase on mount and after each contribution.
 
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Plus } from 'lucide-react';
+import { CheckCircle2, Plus, Pencil } from 'lucide-react';
 import ProgressBar from './ProgressBar';
 import { getTotalSaved, addContribution, markGoalCompleted } from '../utils/storage';
 import {
@@ -14,7 +14,7 @@ import {
   formatPeso,
 } from '../utils/calculations';
 
-export default function SavingsGoalCard({ goal, userId, onGoalUpdated }) {
+export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, onCardTap }) {
   const [totalSaved,   setTotalSaved]   = useState(0);
   const [loadingTotal, setLoadingTotal] = useState(true);
 
@@ -93,8 +93,27 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated }) {
     return (
       <div className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-page p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-base font-semibold text-muted">{goal.name}</h3>
-          <span className="shrink-0 text-sm font-semibold text-muted">{formatPeso(targetAmount)}</span>
+          <button
+            type="button"
+            onClick={() => onCardTap && onCardTap(goal)}
+            className="min-w-0 flex-1 cursor-pointer border-none bg-transparent p-0 text-left"
+            aria-label={`View ${goal.name} contributions`}
+          >
+            <h3 className="text-base font-semibold text-muted">{goal.name}</h3>
+          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            <span className="text-sm font-semibold text-muted">{formatPeso(targetAmount)}</span>
+            {onEdit && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onEdit(goal); }}
+                className="cursor-pointer rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-200 hover:text-ink"
+                aria-label={`Edit ${goal.name}`}
+              >
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+              </button>
+            )}
+          </div>
         </div>
         <p className="flex items-center gap-1.5 text-sm font-semibold text-green-700">
           <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -108,8 +127,27 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated }) {
     <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-base font-semibold text-ink">{goal.name}</h3>
-        <span className="shrink-0 text-sm font-semibold text-muted">{formatPeso(targetAmount)}</span>
+        <button
+          type="button"
+          onClick={() => onCardTap && onCardTap(goal)}
+          className="min-w-0 flex-1 cursor-pointer border-none bg-transparent p-0 text-left"
+          aria-label={`View ${goal.name} contributions`}
+        >
+          <h3 className="text-base font-semibold text-ink">{goal.name}</h3>
+        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="text-sm font-semibold text-muted">{formatPeso(targetAmount)}</span>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onEdit(goal); }}
+              className="cursor-pointer rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
+              aria-label={`Edit ${goal.name}`}
+            >
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Green progress bar */}

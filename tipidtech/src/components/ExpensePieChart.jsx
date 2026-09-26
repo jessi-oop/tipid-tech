@@ -87,7 +87,7 @@ function groupByCategory(expenses) {
 
 // ─── Component ────────────────────────────────────────────────────
 
-export default function ExpensePieChart({ userId, refreshKey }) {
+export default function ExpensePieChart({ userId, refreshKey, budgetId }) {
   const [view,      setView]      = useState('today');
   const [chartData, setChartData] = useState([]);
   const [loading,   setLoading]   = useState(false);
@@ -98,10 +98,10 @@ export default function ExpensePieChart({ userId, refreshKey }) {
     try {
       let expenses = [];
       if (view === 'today') {
-        expenses = await getExpensesByDate(userId, getTodayString());
+        expenses = await getExpensesByDate(userId, getTodayString(), budgetId);
       } else {
         const { monday, sunday } = getCurrentCalendarWeek();
-        expenses = await getExpensesByWeek(userId, monday, sunday);
+        expenses = await getExpensesByWeek(userId, monday, sunday, budgetId);
       }
       setChartData(groupByCategory(expenses));
     } catch (err) {
@@ -110,7 +110,7 @@ export default function ExpensePieChart({ userId, refreshKey }) {
     } finally {
       setLoading(false);
     }
-  }, [userId, view, refreshKey]);
+  }, [userId, view, refreshKey, budgetId]);
 
   useEffect(() => { loadData(); }, [loadData]);
 

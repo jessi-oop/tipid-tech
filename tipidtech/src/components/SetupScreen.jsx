@@ -12,6 +12,7 @@ export default function SetupScreen({ onComplete }) {
   const [allowance,         setAllowance]         = useState('');
   const [periodType,        setPeriodType]         = useState('weekly');
   const [nextAllowanceDate, setNextAllowanceDate]  = useState('');
+  const [customDays,        setCustomDays]         = useState('');
   const [errors,            setErrors]             = useState({});
 
   // ─── Validation ──────────────────────────────────────────────
@@ -33,6 +34,12 @@ export default function SetupScreen({ onComplete }) {
         }
       }
     }
+    if (periodType === 'custom') {
+      const days = parseInt(customDays, 10);
+      if (!customDays || isNaN(days) || days <= 0 || !Number.isInteger(days)) {
+        newErrors.customDays = 'Please enter a valid number of days greater than 0.';
+      }
+    }
     return newErrors;
   }
 
@@ -49,6 +56,7 @@ export default function SetupScreen({ onComplete }) {
       allowance,
       periodType,
       nextAllowanceDate: periodType === 'date' ? nextAllowanceDate : '',
+      customDays:        periodType === 'custom' ? customDays : '',
     });
   }
 
@@ -66,12 +74,23 @@ export default function SetupScreen({ onComplete }) {
     if (errors.nextAllowanceDate) {
       setErrors((prev) => ({ ...prev, nextAllowanceDate: undefined }));
     }
+    if (errors.customDays) {
+      setErrors((prev) => ({ ...prev, customDays: undefined }));
+    }
   }
 
   function handleDateChange(e) {
     setNextAllowanceDate(e.target.value);
     if (errors.nextAllowanceDate) {
       setErrors((prev) => ({ ...prev, nextAllowanceDate: undefined }));
+    }
+  }
+
+  function handleCustomDaysChange(e) {
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      setCustomDays(value);
+      if (errors.customDays) setErrors((prev) => ({ ...prev, customDays: undefined }));
     }
   }
 
@@ -110,6 +129,7 @@ export default function SetupScreen({ onComplete }) {
           <label className="text-sm font-semibold text-ink" htmlFor="allowance">
             How much money do you have?
           </label>
+          <p className="text-sm text-muted mt-0.5">Enter the total amount you have available for this budget period.</p>
           <div className="relative flex items-center">
             <span className="absolute left-4 z-10 font-medium text-muted pointer-events-none">₱</span>
             <input
@@ -133,6 +153,7 @@ export default function SetupScreen({ onComplete }) {
           <span className="text-sm font-semibold text-ink">
             How do you want to set your budget period?
           </span>
+          <p className="text-sm text-muted mt-0.5">Choose how long your budget period lasts. Pick Daily, Weekly, Monthly, or enter a custom number of days.</p>
           <div className="grid grid-cols-2 gap-2">
             {PERIOD_OPTIONS.map((option) => {
               const selected = periodType === option.key;
@@ -176,6 +197,28 @@ export default function SetupScreen({ onComplete }) {
             />
             {errors.nextAllowanceDate && (
               <p className="mt-0.5 text-sm text-red-600">{errors.nextAllowanceDate}</p>
+            )}
+          </div>
+        )}
+
+        {/* ── Custom days input ─────────────────────────────── */}
+        {periodType === 'custom' && (
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-ink" htmlFor="customDays">
+              How many days is your budget period? (e.g. 15)
+            </label>
+            <input
+              id="customDays"
+              type="text"
+              inputMode="numeric"
+              className={`${inputCls(!!errors.customDays)} max-w-xs`}
+              placeholder="e.g. 15"
+              value={customDays}
+              onChange={handleCustomDaysChange}
+              autoComplete="off"
+            />
+            {errors.customDays && (
+              <p className="mt-0.5 text-sm text-red-600">{errors.customDays}</p>
             )}
           </div>
         )}

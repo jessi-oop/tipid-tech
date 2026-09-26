@@ -22,6 +22,7 @@ const STATUS_LABELS = {
 
 export default function AddExpenseForm({
   userId,
+  budgetId,
   allowance,
   totalSpent,
   periodType,
@@ -66,7 +67,7 @@ export default function AddExpenseForm({
     setSaving(true);
     setSaveError('');
     try {
-      await addExpense(userId, {
+      await addExpense(userId, budgetId, {
         amount:   parsedAmount,
         category,
         note:     note.trim() || null,

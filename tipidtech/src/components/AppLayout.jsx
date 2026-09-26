@@ -107,7 +107,7 @@ export default function AppLayout({ children, onLogout, userEmail }) {
             onClick={closeDrawer}
             aria-hidden="true"
           />
-          <div className="absolute inset-y-0 left-0 w-64 bg-white shadow-xl">
+          <div className="absolute inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col">
             <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4">
               <img src="/logo.png" alt="TipidTech" className="h-8 w-auto" />
               <button
@@ -119,7 +119,9 @@ export default function AppLayout({ children, onLogout, userEmail }) {
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
-            <SidebarContent onLogout={onLogout} userEmail={userEmail} onNavigate={closeDrawer} />
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <SidebarContent onLogout={onLogout} userEmail={userEmail} onNavigate={closeDrawer} />
+            </div>
           </div>
         </div>
       )}
