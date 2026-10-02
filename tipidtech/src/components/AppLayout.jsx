@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  ShieldCheck,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -25,7 +26,7 @@ const NAV_ITEMS = [
   { to: '/savings',   label: 'Savings Goals', icon: PiggyBank },
 ];
 
-function SidebarContent({ onLogout, userEmail, onNavigate }) {
+function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
@@ -52,6 +53,22 @@ function SidebarContent({ onLogout, userEmail, onNavigate }) {
             {label}
           </NavLink>
         ))}
+        {isAdmin && (
+          <NavLink
+            to="/admin"
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors duration-150 no-underline ${
+                isActive
+                  ? 'bg-brand font-semibold text-ink'
+                  : 'font-medium text-muted hover:bg-gray-50 hover:text-ink'
+              }`
+            }
+          >
+            <ShieldCheck className="h-5 w-5 shrink-0" aria-hidden="true" />
+            Admin
+          </NavLink>
+        )}
       </nav>
 
       {/* User + logout */}
@@ -75,7 +92,7 @@ function SidebarContent({ onLogout, userEmail, onNavigate }) {
   );
 }
 
-export default function AppLayout({ children, onLogout, userEmail }) {
+export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
 
@@ -83,7 +100,7 @@ export default function AppLayout({ children, onLogout, userEmail }) {
     <div className="min-h-dvh bg-page">
       {/* Desktop sidebar — fixed, always visible, never collapsible */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r border-gray-200 bg-white lg:block">
-        <SidebarContent onLogout={onLogout} userEmail={userEmail} />
+        <SidebarContent onLogout={onLogout} userEmail={userEmail} isAdmin={isAdmin} />
       </aside>
 
       {/* Mobile top bar with hamburger */}
@@ -120,7 +137,7 @@ export default function AppLayout({ children, onLogout, userEmail }) {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0">
-              <SidebarContent onLogout={onLogout} userEmail={userEmail} onNavigate={closeDrawer} />
+              <SidebarContent onLogout={onLogout} userEmail={userEmail} onNavigate={closeDrawer} isAdmin={isAdmin} />
             </div>
           </div>
         </div>

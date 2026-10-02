@@ -339,3 +339,59 @@ export async function deleteGoal(goalId) {
 
   if (goalError) throw goalError;
 }
+
+// ─── Profiles / Admin ─────────────────────────────────────────────
+
+/**
+ * Fetch the profiles row for the given user.
+ * Returns the row or null if not found.
+ */
+export async function getProfile(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Call the get_admin_metrics() Postgres RPC function.
+ * The function has SECURITY DEFINER and rejects non-admin callers at DB level.
+ * Returns the JSON metrics object.
+ */
+export async function getAdminMetrics() {
+  const { data, error } = await supabase.rpc('get_admin_metrics');
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Record a login event in login_logs.
+ * Called only on SIGNED_IN — not on token refresh or initial session load.
+ */
+export async function logLogin(userId) {
+  const { error } = await supabase
+    .from('login_logs')
+    .insert({
+      user_id:    userId,
+      user_agent: navigator.userAgent,
+    });
+
+  if (error) throw error;
+}
+
+/**
+ * Fetch login history and user details for a specific user (admin only).
+ * Calls the get_user_login_history() SECURITY DEFINER RPC function,
+ * which rejects non-admin callers at the DB level.
+ */
+export async function getUserLoginHistory(targetUserId) {
+  const { data, error } = await supabase.rpc('get_user_login_history', {
+    target_user_id: targetUserId,
+  });
+  if (error) throw error;
+  return data;
+}

@@ -6,7 +6,7 @@
 // Wired to Supabase email+password auth.
 
 import { useState } from 'react';
-import { Wallet, PieChart, PiggyBank } from 'lucide-react';
+import { Wallet, PieChart, PiggyBank, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 
 const BRAND_POINTS = [
@@ -28,6 +28,11 @@ export default function AuthScreen() {
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const [info,    setInfo]    = useState('');
+
+  // ── Password visibility toggles ───────────────────────────────
+  const [showLoginPassword,   setShowLoginPassword]   = useState(false);
+  const [showRegPassword,     setShowRegPassword]     = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // ─── Helpers ─────────────────────────────────────────────────
 
@@ -211,16 +216,28 @@ export default function AuthScreen() {
 
                 <div className="flex flex-col gap-2">
                   <label className={labelCls} htmlFor="login-password">Password</label>
-                  <input
-                    id="login-password"
-                    type="password"
-                    className={inputCls}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      id="login-password"
+                      type={showLoginPassword ? 'text' : 'password'}
+                      className={`${inputCls} pr-10`}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors duration-150 hover:text-ink"
+                      aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showLoginPassword
+                        ? <EyeOff className="h-4 w-4" aria-hidden="true" />
+                        : <Eye    className="h-4 w-4" aria-hidden="true" />}
+                    </button>
+                  </div>
                 </div>
 
                 <button
@@ -252,30 +269,54 @@ export default function AuthScreen() {
 
                 <div className="flex flex-col gap-2">
                   <label className={labelCls} htmlFor="reg-password">Password</label>
-                  <input
-                    id="reg-password"
-                    type="password"
-                    className={inputCls}
-                    placeholder="At least 6 characters"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      id="reg-password"
+                      type={showRegPassword ? 'text' : 'password'}
+                      className={`${inputCls} pr-10`}
+                      placeholder="At least 6 characters"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors duration-150 hover:text-ink"
+                      aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showRegPassword
+                        ? <EyeOff className="h-4 w-4" aria-hidden="true" />
+                        : <Eye    className="h-4 w-4" aria-hidden="true" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label className={labelCls} htmlFor="reg-confirm">Confirm Password</label>
-                  <input
-                    id="reg-confirm"
-                    type="password"
-                    className={inputCls}
-                    placeholder="Repeat your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      id="reg-confirm"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={`${inputCls} pr-10`}
+                      placeholder="Repeat your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors duration-150 hover:text-ink"
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword
+                        ? <EyeOff className="h-4 w-4" aria-hidden="true" />
+                        : <Eye    className="h-4 w-4" aria-hidden="true" />}
+                    </button>
+                  </div>
                 </div>
 
                 <button

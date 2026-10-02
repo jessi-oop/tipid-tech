@@ -22,6 +22,8 @@ import BudgetScreen    from './components/BudgetScreen';
 import Dashboard       from './components/Dashboard';
 import AuthScreen      from './components/AuthScreen';
 import ProtectedRoute  from './components/ProtectedRoute';
+import AdminRoute      from './components/AdminRoute';
+import AdminDashboard  from './components/AdminDashboard';
 import HistoryScreen   from './components/HistoryScreen';
 import ReportsScreen   from './components/ReportsScreen';
 import SavingsScreen   from './components/SavingsScreen';
@@ -29,7 +31,7 @@ import AppLayout       from './components/AppLayout';
 import PeriodSummaryModal from './components/PeriodSummaryModal';
 
 import { supabase }              from './utils/supabase';
-import { getBudget, saveBudget, deleteBudget} from './utils/storage';
+import { getBudget, saveBudget, deleteBudget, getProfile, logLogin } from './utils/storage';
 import { getSuggestedBudgets }   from './utils/calculations';
 
 
@@ -107,7 +109,9 @@ export default function App() {
   // ── Auth state ────────────────────────────────────────────────
   const [session,     setSession]     = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [resetCount, setResetCount] = useState(0);
+  const [resetCount,  setResetCount]  = useState(0);
+  const [isAdmin,       setIsAdmin]       = useState(false);
+  const [adminChecked,  setAdminChecked]  = useState(false);
 
 
   // ── Budget state ──────────────────────────────────────────────
@@ -134,8 +138,15 @@ export default function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
+      async (_event, newSession) => {
         setSession(newSession ?? false);
+        if (_event === 'SIGNED_IN' && newSession?.user) {
+          try {
+            await logLogin(newSession.user.id);
+          } catch (err) {
+            console.error('TipidTech: failed to log login', err);
+          }
+        }
       }
     );
 
@@ -184,6 +195,11 @@ export default function App() {
         budgetLoadedRef.current = true;
         setBudgetLoaded(true);
       });
+
+    getProfile(session.user.id)
+      .then((profile) => setIsAdmin(profile?.is_admin ?? false))
+      .catch(() => setIsAdmin(false))
+      .finally(() => setAdminChecked(true));
   }, [session?.user?.id]);
 
   // ─── Screen transition handlers ───────────────────────────────
@@ -322,6 +338,7 @@ export default function App() {
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
+                isAdmin={isAdmin}
               >
                 <Dashboard
                   key={`${session?.user?.id}-${budgetId}`}
@@ -342,6 +359,7 @@ export default function App() {
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
+                isAdmin={isAdmin}
               >
                 <HistoryScreen
                   userId={session?.user?.id}
@@ -361,6 +379,7 @@ export default function App() {
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
+                isAdmin={isAdmin}
               >
                 <ReportsScreen
                   userId={session?.user?.id}
@@ -379,6 +398,7 @@ export default function App() {
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
+                isAdmin={isAdmin}
               >
                 <SavingsScreen
                   userId={session?.user?.id}
@@ -391,6 +411,21 @@ export default function App() {
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute session={session} isAdmin={isAdmin} adminChecked={adminChecked}>
+              <AppLayout
+                onLogout={handleLogout}
+                userEmail={session?.user?.email ?? ''}
+                isAdmin={isAdmin}
+              >
+                <AdminDashboard userId={session?.user?.id} />
+              </AppLayout>
+            </AdminRoute>
+          }
+        />
       </Routes>
 
       {/* ── Period summary modal (auto-reset or manual reset) ── */}
