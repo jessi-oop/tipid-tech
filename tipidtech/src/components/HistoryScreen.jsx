@@ -10,13 +10,12 @@
 //   budget boundaries by design). Results grouped by calendar date.
 
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronDown, ChevronUp, Pencil }  from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
-import CategoryIcon            from './CategoryIcon';
-import { EXPENSE_CATEGORIES }  from '../utils/constants';
-import { formatPeso }          from '../utils/calculations';
+import CategoryIcon           from './CategoryIcon';
+import { EXPENSE_CATEGORIES } from '../utils/constants';
+import { formatPeso }         from '../utils/calculations';
 import { getAllExpenses, getExpensesByRange } from '../utils/storage';
-import EditExpenseModal        from './EditExpenseModal';
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -59,7 +58,6 @@ function groupExpensesByTime(expenses) {
   const monthStartStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 
   for (const expense of expenses) {
-    // Use local date by parsing as local midnight to avoid UTC-shift issues
     const raw     = expense.created_at;
     const dateStr = raw.slice(0, 10); // 'YYYY-MM-DD' regardless of timezone
 
@@ -90,14 +88,13 @@ function groupByDate(expenses) {
     if (!map.has(dateStr)) map.set(dateStr, []);
     map.get(dateStr).push(expense);
   }
-  // Map insertion order matches the descending sort from the query
   return Array.from(map.entries()); // [ [dateStr, [expenses]], ... ]
 }
 
 // ─── Sub-components ───────────────────────────────────────────────
 
 /** Single expense row — shared by both modes. */
-function ExpenseRow({ expense, isLast, onEdit }) {
+function ExpenseRow({ expense, isLast }) {
   return (
     <li
       className={`flex items-center gap-3 px-4 py-3.5 sm:px-5 ${!isLast ? 'border-b border-gray-100' : ''}`}
@@ -124,26 +121,17 @@ function ExpenseRow({ expense, isLast, onEdit }) {
       <span className="shrink-0 text-sm font-bold text-red-600">
         −{formatPeso(expense.amount)}
       </span>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onEdit(expense); }}
-        className="shrink-0 cursor-pointer rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
-        aria-label="Edit expense"
-      >
-        <Pencil className="h-4 w-4" aria-hidden="true" />
-      </button>
     </li>
   );
 }
 
 /** Collapsible section used in "This Period" mode. */
-function CollapsibleSection({ label, expenses, defaultOpen, onEdit }) {
+function CollapsibleSection({ label, expenses, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen);
   const total           = sumExpenses(expenses);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      {/* Section header — always visible, toggles body */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -163,13 +151,12 @@ function CollapsibleSection({ label, expenses, defaultOpen, onEdit }) {
             </span>
           )}
           {open
-            ? <ChevronUp  className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
+            ? <ChevronUp   className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
             : <ChevronDown className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
           }
         </span>
       </button>
 
-      {/* Body */}
       {open && (
         expenses.length === 0 ? (
           <p className="border-t border-gray-100 px-5 py-4 text-sm text-muted">
@@ -182,7 +169,6 @@ function CollapsibleSection({ label, expenses, defaultOpen, onEdit }) {
                 key={expense.id}
                 expense={expense}
                 isLast={idx === expenses.length - 1}
-                onEdit={onEdit}
               />
             ))}
           </ul>
@@ -199,9 +185,6 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
   // ── Mode ──────────────────────────────────────────────────────
   const [mode, setMode] = useState('period'); // 'period' | 'range'
 
-  // ── Edit state ────────────────────────────────────────────────
-  const [editingExpense, setEditingExpense] = useState(null);
-
   // ── Period mode state ─────────────────────────────────────────
   const [expenses, setExpenses] = useState([]);
   const [loading,  setLoading]  = useState(true);
@@ -214,7 +197,7 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
   const [rangeExpenses, setRangeExpenses] = useState([]);
   const [rangeLoading,  setRangeLoading]  = useState(false);
   const [rangeError,    setRangeError]    = useState('');
-  const [rangeFiltered, setRangeFiltered] = useState(false); // true once Filter is run
+  const [rangeFiltered, setRangeFiltered] = useState(false);
 
   // ── Load period expenses ──────────────────────────────────────
   const loadPeriodExpenses = useCallback(() => {
@@ -241,7 +224,6 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
   function handleTabSwitch(newMode) {
     if (newMode === mode) return;
     if (newMode === 'period') {
-      // Clear range state and re-run period fetch
       setRangeExpenses([]);
       setRangeStart('');
       setRangeEnd('');
@@ -250,7 +232,6 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
       loadPeriodExpenses();
     }
     if (newMode === 'range') {
-      // Clear range results so the prompt shows
       setRangeExpenses([]);
       setRangeFiltered(false);
       setRangeError('');
@@ -286,9 +267,9 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
   const inputCls = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
 
   // ── Derived ───────────────────────────────────────────────────
-  const periodTotal     = sumExpenses(expenses);
-  const rangeTotal      = sumExpenses(rangeExpenses);
-  const rangeByDate     = groupByDate(rangeExpenses);
+  const periodTotal = sumExpenses(expenses);
+  const rangeTotal  = sumExpenses(rangeExpenses);
+  const rangeByDate = groupByDate(rangeExpenses);
 
   // ─── Render ───────────────────────────────────────────────────
   return (
@@ -326,7 +307,6 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
       ══════════════════════════════════════════════════════════ */}
       {mode === 'period' && (
         <>
-          {/* Summary line */}
           {!loading && !error && (
             <p className="text-sm text-muted">
               {expenses.length === 0
@@ -345,10 +325,10 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
 
           {!loading && !error && (
             <div className="flex flex-col gap-3">
-              <CollapsibleSection label="Today"      expenses={grouped.today}     defaultOpen={true}  onEdit={setEditingExpense} />
-              <CollapsibleSection label="This Week"  expenses={grouped.thisWeek}  defaultOpen={true}  onEdit={setEditingExpense} />
-              <CollapsibleSection label="This Month" expenses={grouped.thisMonth} defaultOpen={true}  onEdit={setEditingExpense} />
-              <CollapsibleSection label="Older"      expenses={grouped.older}     defaultOpen={false} onEdit={setEditingExpense} />
+              <CollapsibleSection label="Today"      expenses={grouped.today}     defaultOpen={true}  />
+              <CollapsibleSection label="This Week"  expenses={grouped.thisWeek}  defaultOpen={true}  />
+              <CollapsibleSection label="This Month" expenses={grouped.thisMonth} defaultOpen={true}  />
+              <CollapsibleSection label="Older"      expenses={grouped.older}     defaultOpen={false} />
             </div>
           )}
         </>
@@ -359,13 +339,10 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
       ══════════════════════════════════════════════════════════ */}
       {mode === 'range' && (
         <>
-          {/* Date inputs + Filter button */}
           <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-ink" htmlFor="range-start">
-                  From
-                </label>
+                <label className="text-xs font-semibold text-ink" htmlFor="range-start">From</label>
                 <input
                   id="range-start"
                   type="date"
@@ -375,9 +352,7 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-ink" htmlFor="range-end">
-                  To
-                </label>
+                <label className="text-xs font-semibold text-ink" htmlFor="range-end">To</label>
                 <input
                   id="range-end"
                   type="date"
@@ -402,7 +377,6 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
             </button>
           </div>
 
-          {/* Range results */}
           {!rangeFiltered && !rangeLoading && (
             <p className="py-4 text-center text-sm text-muted">
               Select a date range and tap Filter to see expenses.
@@ -417,18 +391,15 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
 
           {rangeFiltered && !rangeLoading && rangeExpenses.length > 0 && (
             <div className="flex flex-col gap-3">
-              {/* Range total */}
               <p className="text-sm text-muted">
                 {rangeExpenses.length} expense{rangeExpenses.length !== 1 ? 's' : ''} · {formatPeso(rangeTotal)} total
               </p>
 
-              {/* Grouped by calendar date */}
               {rangeByDate.map(([dateStr, dateExpenses]) => (
                 <div
                   key={dateStr}
                   className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
                 >
-                  {/* Date subheader */}
                   <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5 sm:px-5">
                     <span className="text-xs font-semibold text-muted">
                       {formatDate(dateStr + 'T00:00:00')}
@@ -437,14 +408,12 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
                       −{formatPeso(sumExpenses(dateExpenses))}
                     </span>
                   </div>
-                  {/* Expense rows for this date */}
                   <ul aria-label={`Expenses on ${formatDate(dateStr + 'T00:00:00')}`}>
                     {dateExpenses.map((expense, idx) => (
                       <ExpenseRow
                         key={expense.id}
                         expense={expense}
                         isLast={idx === dateExpenses.length - 1}
-                        onEdit={setEditingExpense}
                       />
                     ))}
                   </ul>
@@ -453,18 +422,6 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
             </div>
           )}
         </>
-      )}
-
-      {/* ── Edit expense modal ───────────────────────────────────── */}
-      {editingExpense && (
-        <EditExpenseModal
-          expense={editingExpense}
-          onSaved={() => {
-            setEditingExpense(null);
-            loadPeriodExpenses();
-          }}
-          onClose={() => setEditingExpense(null)}
-        />
       )}
 
     </div>

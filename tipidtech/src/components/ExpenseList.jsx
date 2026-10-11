@@ -5,7 +5,6 @@
 import CategoryIcon from './CategoryIcon';
 import { EXPENSE_CATEGORIES } from '../utils/constants';
 import { formatPeso } from '../utils/calculations';
-import { Pencil } from 'lucide-react';
 
 function getCategoryLabel(categoryKey) {
   const cat = EXPENSE_CATEGORIES.find((c) => c.key === categoryKey);
@@ -19,7 +18,7 @@ function formatExpenseDateTime(isoString) {
   return `${datePart}, ${timePart}`;
 }
 
-export default function ExpenseList({ expenses, onEdit }) {
+export default function ExpenseList({ expenses }) {
   if (!expenses || expenses.length === 0) {
     return (
       <div className="flex flex-col gap-1 py-4 text-center">
@@ -50,16 +49,6 @@ export default function ExpenseList({ expenses, onEdit }) {
           <span className="shrink-0 text-sm font-semibold text-red-600">
             −{formatPeso(expense.amount)}
           </span>
-          {onEdit && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onEdit(expense); }}
-              className="shrink-0 cursor-pointer rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
-              aria-label={`Edit expense`}
-            >
-              <Pencil className="h-4 w-4" aria-hidden="true" />
-            </button>
-          )}
         </li>
       ))}
     </ul>

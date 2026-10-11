@@ -10,29 +10,22 @@
 //   /budget     → BudgetScreen      (protected)
 //   /dashboard  → Dashboard         (protected, inside AppLayout)
 //   /history    → HistoryScreen     (protected, inside AppLayout)
-//   /reports    → ReportsScreen     (protected, inside AppLayout)
-//   /savings    → SavingsScreen     (protected, inside AppLayout)
 
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 
-import SetupScreen     from './components/SetupScreen';
-import BudgetScreen    from './components/BudgetScreen';
-import Dashboard       from './components/Dashboard';
-import AuthScreen      from './components/AuthScreen';
-import ProtectedRoute  from './components/ProtectedRoute';
-import AdminRoute      from './components/AdminRoute';
-import AdminDashboard  from './components/AdminDashboard';
-import HistoryScreen   from './components/HistoryScreen';
-import ReportsScreen   from './components/ReportsScreen';
-import SavingsScreen   from './components/SavingsScreen';
-import AppLayout       from './components/AppLayout';
-import PeriodSummaryModal from './components/PeriodSummaryModal';
+import SetupScreen    from './components/SetupScreen';
+import BudgetScreen   from './components/BudgetScreen';
+import Dashboard      from './components/Dashboard';
+import AuthScreen     from './components/AuthScreen';
+import ProtectedRoute from './components/ProtectedRoute';
+import HistoryScreen  from './components/HistoryScreen';
+import AppLayout      from './components/AppLayout';
 
-import { supabase }              from './utils/supabase';
-import { getBudget, saveBudget, deleteBudget, getProfile, logLogin } from './utils/storage';
-import { getSuggestedBudgets }   from './utils/calculations';
+import { supabase }            from './utils/supabase';
+import { getBudget, saveBudget, deleteBudget, logLogin } from './utils/storage';
+import { getSuggestedBudgets } from './utils/calculations';
 
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -109,26 +102,17 @@ export default function App() {
   // ── Auth state ────────────────────────────────────────────────
   const [session,     setSession]     = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [resetCount,  setResetCount]  = useState(0);
-  const [isAdmin,       setIsAdmin]       = useState(false);
-  const [adminChecked,  setAdminChecked]  = useState(false);
-
 
   // ── Budget state ──────────────────────────────────────────────
   const budgetLoadedRef = useRef(false);
-  const [budgetLoaded, setBudgetLoaded] = useState(false);
-  const [allowance,         setAllowance]        = useState('');
+  const [budgetLoaded,      setBudgetLoaded]      = useState(false);
+  const [allowance,         setAllowance]         = useState('');
   const [periodType,        setPeriodType]        = useState('weekly');
   const [nextAllowanceDate, setNextAllowanceDate] = useState('');
   const [startDate,         setStartDate]         = useState('');
-  const [budgetId, setBudgetId] = useState('');
+  const [budgetId,          setBudgetId]          = useState('');
   const [categoryBudgets,   setCategoryBudgets]   = useState(getEmptyCategoryBudgets());
-  const [budgetStartDate, setBudgetStartDate] = useState('');
-  const [customDays,        setCustomDays]         = useState('');
-
-  // ── Period summary modal state ────────────────────────────────
-  // { budgetId, budget, isAutoReset } — null when modal is closed
-  const [periodSummary, setPeriodSummary] = useState(null);
+  const [customDays,        setCustomDays]        = useState('');
 
   // ─── Auth initialisation ──────────────────────────────────────
   useEffect(() => {
@@ -170,22 +154,20 @@ export default function App() {
           setBudgetId(row.id);
 
           // Auto-reset check: if end_date exists and today is past it,
-          // show the period summary modal before allowing any action.
+          // immediately trigger a reset so the user starts a fresh period.
           if (row.end_date) {
-            const today   = new Date().toISOString().split('T')[0];
+            const today = new Date().toISOString().split('T')[0];
             if (today > row.end_date) {
-              setPeriodSummary({
-                budgetId:    row.id,
-                budget: {
-                  allowance:         Number(row.allowance),
-                  startDate:         row.start_date,
-                  endDate:           row.end_date,
-                  periodType:        row.period,
-                  nextAllowanceDate: row.next_allowance_date || '',
-                  categoryBudgets:   state.categoryBudgets,
-                },
-                isAutoReset: true,
-              });
+              // Fire-and-forget: delete and redirect to setup
+              deleteBudget(session.user.id)
+                .catch((err) => console.error('TipidTech: failed to delete expired budget', err))
+                .finally(() => {
+                  setBudgetId('');
+                  setBudgetLoaded(false);
+                  budgetLoadedRef.current = false;
+                  navigate('/setup');
+                });
+              return; // skip setBudgetLoaded(true) — we're navigating away
             }
           }
         }
@@ -195,11 +177,6 @@ export default function App() {
         budgetLoadedRef.current = true;
         setBudgetLoaded(true);
       });
-
-    getProfile(session.user.id)
-      .then((profile) => setIsAdmin(profile?.is_admin ?? false))
-      .catch(() => setIsAdmin(false))
-      .finally(() => setAdminChecked(true));
   }, [session?.user?.id]);
 
   // ─── Screen transition handlers ───────────────────────────────
@@ -253,19 +230,7 @@ export default function App() {
 
   // ─── Reset budget ─────────────────────────────────────────────
 
-  // Called by Dashboard's reset button — opens the summary modal first.
-  // Budget object is passed in from Dashboard which already holds it.
-  function handleReset(dashboardBudget) {
-    setPeriodSummary({
-      budgetId:    budgetId,
-      budget:      dashboardBudget,
-      isAutoReset: false,
-    });
-  }
-
-  // Called by PeriodSummaryModal's "Start New Period" button.
-  async function doActualReset() {
-    setPeriodSummary(null);
+  async function handleReset() {
     if (session?.user) {
       try {
         await deleteBudget(session.user.id);
@@ -287,11 +252,11 @@ export default function App() {
 
   // ─── Root redirect ────────────────────────────────────────────
   function RootRedirect() {
-    if (!authChecked) return null;
-    if (!session)     return <Navigate to="/login"     replace />;
+    if (!authChecked)  return null;
+    if (!session)      return <Navigate to="/login"     replace />;
     if (!budgetLoaded) return null;
-    if (!startDate)   return <Navigate to="/setup"     replace />;
-    return                   <Navigate to="/dashboard" replace />;
+    if (!startDate)    return <Navigate to="/setup"     replace />;
+    return                    <Navigate to="/dashboard" replace />;
   }
 
   // ─── Render ───────────────────────────────────────────────────
@@ -317,6 +282,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/budget"
           element={
@@ -338,7 +304,6 @@ export default function App() {
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
-                isAdmin={isAdmin}
               >
                 <Dashboard
                   key={`${session?.user?.id}-${budgetId}`}
@@ -359,7 +324,6 @@ export default function App() {
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
-                isAdmin={isAdmin}
               >
                 <HistoryScreen
                   userId={session?.user?.id}
@@ -372,73 +336,8 @@ export default function App() {
           }
         />
 
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute session={session}>
-              <AppLayout
-                onLogout={handleLogout}
-                userEmail={session?.user?.email ?? ''}
-                isAdmin={isAdmin}
-              >
-                <ReportsScreen
-                  userId={session?.user?.id}
-                  onLogout={handleLogout}
-                  userEmail={session?.user?.email ?? ''}
-                />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/savings"
-          element={
-            <ProtectedRoute session={session}>
-              <AppLayout
-                onLogout={handleLogout}
-                userEmail={session?.user?.email ?? ''}
-                isAdmin={isAdmin}
-              >
-                <SavingsScreen
-                  userId={session?.user?.id}
-                  onLogout={handleLogout}
-                  userEmail={session?.user?.email ?? ''}
-                />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-
         <Route path="*" element={<Navigate to="/" replace />} />
-
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute session={session} isAdmin={isAdmin} adminChecked={adminChecked}>
-              <AppLayout
-                onLogout={handleLogout}
-                userEmail={session?.user?.email ?? ''}
-                isAdmin={isAdmin}
-              >
-                <AdminDashboard userId={session?.user?.id} />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
       </Routes>
-
-      {/* ── Period summary modal (auto-reset or manual reset) ── */}
-      {periodSummary && (
-        <PeriodSummaryModal
-          userId={session?.user?.id}
-          budgetId={periodSummary.budgetId}
-          budget={periodSummary.budget}
-          isAutoReset={periodSummary.isAutoReset}
-          onConfirm={doActualReset}
-          onCancel={() => setPeriodSummary(null)}
-        />
-      )}
     </div>
   );
 }
