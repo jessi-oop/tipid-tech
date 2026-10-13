@@ -38,7 +38,6 @@ export const PERIOD_OPTIONS = [
   { key: 'weekly',  label: 'Weekly',               days: 7    },
   { key: 'monthly', label: 'Monthly',              days: 30   },
   { key: 'date',    label: 'Next allowance date',  days: null }, // calculated from date
-  { key: 'custom',  label: 'Custom (enter days)',  days: null }, // user-entered day count
 ];
 
 // ─── Spending status thresholds ───────────────────────────────────

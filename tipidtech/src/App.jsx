@@ -9,7 +9,6 @@
 //   /setup      → SetupScreen       (protected)
 //   /budget     → BudgetScreen      (protected)
 //   /dashboard  → Dashboard         (protected, inside AppLayout)
-//   /history    → HistoryScreen     (protected, inside AppLayout)
 
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
@@ -20,7 +19,6 @@ import BudgetScreen   from './components/BudgetScreen';
 import Dashboard      from './components/Dashboard';
 import AuthScreen     from './components/AuthScreen';
 import ProtectedRoute from './components/ProtectedRoute';
-import HistoryScreen  from './components/HistoryScreen';
 import AppLayout      from './components/AppLayout';
 
 import { supabase }            from './utils/supabase';
@@ -78,7 +76,7 @@ function stateToBudgetRow(allowance, periodType, nextAllowanceDate, startDate, c
 }
 
 // Calculate end_date (YYYY-MM-DD) from startDate + periodType
-function calcEndDate(startDate, periodType, nextAllowanceDate, customDays) {
+function calcEndDate(startDate, periodType, nextAllowanceDate) {
   const start = new Date(startDate + 'T00:00:00');
   if (periodType === 'date') {
     return nextAllowanceDate || null;
@@ -87,8 +85,7 @@ function calcEndDate(startDate, periodType, nextAllowanceDate, customDays) {
   if (periodType === 'daily')   daysToAdd = 1;
   if (periodType === 'weekly')  daysToAdd = 7;
   if (periodType === 'monthly') daysToAdd = 30;
-  if (periodType === 'custom')  daysToAdd = parseInt(customDays, 10);
-  if (!daysToAdd || isNaN(daysToAdd)) return null;
+  if (!daysToAdd) return null;
   const end = new Date(start);
   end.setDate(end.getDate() + daysToAdd);
   return end.toISOString().split('T')[0];
@@ -112,7 +109,6 @@ export default function App() {
   const [startDate,         setStartDate]         = useState('');
   const [budgetId,          setBudgetId]          = useState('');
   const [categoryBudgets,   setCategoryBudgets]   = useState(getEmptyCategoryBudgets());
-  const [customDays,        setCustomDays]        = useState('');
 
   // ─── Auth initialisation ──────────────────────────────────────
   useEffect(() => {
@@ -186,14 +182,13 @@ export default function App() {
     setAllowance(numericAllowance);
     setPeriodType(setupData.periodType);
     setNextAllowanceDate(setupData.nextAllowanceDate);
-    setCustomDays(setupData.customDays || '');
     setCategoryBudgets(getSuggestedBudgets(numericAllowance));
     navigate('/budget');
   }
 
   async function handleBudgetStart(finalBudgets) {
     const today   = new Date().toISOString().split('T')[0];
-    const endDate = calcEndDate(today, periodType, nextAllowanceDate, customDays);
+    const endDate = calcEndDate(today, periodType, nextAllowanceDate);
 
     if (session?.user) {
       try {
@@ -242,7 +237,6 @@ export default function App() {
     setPeriodType('weekly');
     setNextAllowanceDate('');
     setStartDate('');
-    setCustomDays('');
     setCategoryBudgets(getEmptyCategoryBudgets());
     setBudgetId('');
     setBudgetLoaded(false);
@@ -309,25 +303,6 @@ export default function App() {
                   key={`${session?.user?.id}-${budgetId}`}
                   userId={session?.user?.id}
                   onReset={handleReset}
-                  onLogout={handleLogout}
-                  userEmail={session?.user?.email ?? ''}
-                />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute session={session}>
-              <AppLayout
-                onLogout={handleLogout}
-                userEmail={session?.user?.email ?? ''}
-              >
-                <HistoryScreen
-                  userId={session?.user?.id}
-                  budgetId={budgetId}
                   onLogout={handleLogout}
                   userEmail={session?.user?.email ?? ''}
                 />

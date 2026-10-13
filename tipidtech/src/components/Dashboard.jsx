@@ -225,7 +225,7 @@ export default function Dashboard({
       <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-semibold text-ink">Recent Expenses</h2>
-          <p className="text-sm text-muted mt-0.5">Your 5 most recent transactions this budget period. Go to History to see everything.</p>
+          <p className="text-sm text-muted mt-0.5">Your 5 most recent transactions this budget period.</p>
           <div className="flex items-center gap-3">
             {!showExpenseForm && (
               <button
@@ -237,12 +237,7 @@ export default function Dashboard({
                 Add Expense
               </button>
             )}
-            <Link
-              to="/history"
-              className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
-            >
-              View All
-            </Link>
+           
           </div>
         </div>
 

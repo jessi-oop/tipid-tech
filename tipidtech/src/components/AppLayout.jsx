@@ -10,7 +10,6 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
-  History,
   LogOut,
   Menu,
   X,
@@ -18,7 +17,6 @@ import {
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/history',   label: 'History',   icon: History },
 ];
 
 function SidebarContent({ onLogout, userEmail, onNavigate }) {
