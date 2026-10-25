@@ -178,10 +178,13 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
           {formError && (
             <p className="text-xs text-red-600">{formError}</p>
           )}
-          <div className="flex gap-2">
+          {/* Amount and Note: stack on mobile, side-by-side from xs (400px) up.
+              Amount is capped at max-w-[7rem] on wider screens so it doesn't
+              stretch awkwardly; Note fills remaining space. */}
+          <div className="flex flex-col gap-2 xs:flex-row">
             <input
               type="number"
-              className={inputCls}
+              className={`${inputCls} xs:max-w-[7rem]`}
               placeholder="Amount (₱)"
               value={contribAmount}
               onChange={(e) => setContribAmount(e.target.value)}
@@ -192,7 +195,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
             />
             <input
               type="text"
-              className={inputCls}
+              className={`${inputCls} flex-1`}
               placeholder="Note (optional)"
               value={contribNote}
               onChange={(e) => setContribNote(e.target.value)}

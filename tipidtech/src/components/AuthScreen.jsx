@@ -116,11 +116,11 @@ export default function AuthScreen() {
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="flex min-h-dvh bg-page">
+    <div className="flex min-h-dvh flex-col bg-page lg:flex-row">
 
-      {/* Left branded panel — desktop only */}
+      {/* ─── Desktop: left branded panel ─────────────────────── */}
       <div className="hidden w-1/2 flex-col justify-between bg-brand p-12 lg:flex">
-        <img src="/logo-mark.png" alt="TipidTech" className="h-20 w-fit" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-20 w-auto max-w-[200px] object-contain" />
 
         <div className="flex flex-col gap-6">
           <h2 className="text-5xl font-extrabold leading-tight text-ink">
@@ -150,14 +150,28 @@ export default function AuthScreen() {
         </p>
       </div>
 
-      {/* Right side — form */}
-      <div className="flex flex-1 items-center justify-center p-4 sm:p-6">
-        <div className="flex w-full max-w-md flex-col gap-6">
+      {/* ─── Mobile: green header band ────────────────────────── */}
+      {/* Hidden on desktop — desktop uses the left panel above.   */}
+      <div className="bg-brand px-6 pb-10 pt-8 lg:hidden">
+        <div className="mx-auto flex w-full max-w-md flex-col gap-3">
+          <img
+            src="/logo-mark.png"
+            alt="TipidTech"
+            className="h-12 w-auto max-w-[140px] object-contain"
+          />
+          <h1 className="text-[1.75rem] font-extrabold leading-tight text-ink">
+            Plan. Track. Understand.
+          </h1>
+          <p className="text-base font-medium text-ink/75">
+            Make your allowance last.
+          </p>
+        </div>
+      </div>
 
-          {/* Mobile logo */}
-          <div className="flex flex-col items-center gap-1 pb-1 lg:hidden">
-            <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-fit" />
-          </div>
+      {/* ─── Right side — form + mobile bullets ──────────────── */}
+      <div className="flex flex-1 flex-col items-center px-4 pb-10 lg:justify-center lg:p-6">
+        {/* Negative top margin on mobile pulls the card up to overlap the green band */}
+        <div className="w-full max-w-md -mt-6 lg:mt-0 flex flex-col gap-6">
 
           {/* Card */}
           <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
@@ -356,6 +370,31 @@ export default function AuthScreen() {
               )}
             </p>
           </div>
+
+          {/* ─── Mobile: feature bullets + tagline ─────────────── */}
+          {/* Shown only on mobile; desktop sees these in the left panel. */}
+          <div className="flex flex-col gap-5 pb-2 lg:hidden">
+            <ul className="flex flex-col gap-3">
+              {BRAND_POINTS.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-3 text-ink">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/20">
+                    <Icon className="h-4 w-4 text-ink" aria-hidden="true" />
+                  </span>
+                  <span className="text-sm font-medium text-ink">{text}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* "Wise." uses text-ink here — white won't pass 4.5:1 on the light page background */}
+            <p className="text-center text-2xl font-extrabold leading-tight tracking-tight text-ink">
+              Be Money Wise.
+            </p>
+
+            <p className="text-center text-xs text-muted">
+              A simple spending-awareness tool for Filipino students.
+            </p>
+          </div>
+
         </div>
       </div>
     </div>

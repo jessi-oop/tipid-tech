@@ -152,12 +152,12 @@ export default function AdminDashboard({ userId }) {
                     className="flex flex-col items-center gap-1"
                     style={{ width: '24px' }}
                   >
-                    <span className="text-[9px] leading-none text-muted">{entry.logins}</span>
+                    <span className="text-[0.6875rem] leading-none text-muted">{entry.logins}</span>
                     <div
                       className="w-full rounded-t bg-brand transition-all duration-300"
                       style={{ height: `${heightPx}px` }}
                     />
-                    <span className="text-[9px] leading-none text-muted">{dayNum}</span>
+                    <span className="text-[0.6875rem] leading-none text-muted">{dayNum}</span>
                   </div>
                 );
               })}

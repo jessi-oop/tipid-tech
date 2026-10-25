@@ -1,10 +1,9 @@
 // AppLayout.jsx
 // App shell for all authenticated screens.
-// Desktop: fixed 240px left sidebar (always visible, never collapsible) with
-//          logo, nav links, user email and logout at the bottom.
-// Mobile:  sidebar becomes a hamburger button that opens an overlay drawer,
-//          and the main content takes the full width.
-// Receives page content as children — no routing or data logic lives here.
+// Desktop: fixed 240px left sidebar (always visible, never collapsible).
+// Mobile:  hamburger → overlay drawer.
+// Both sidebar and drawer share SidebarContent, which includes the
+// Text Size control so it works identically in both places.
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -17,21 +16,30 @@ import {
   Menu,
   X,
   ShieldCheck,
+  ALargeSmall,
 } from 'lucide-react';
+import { TEXT_SIZE_OPTIONS, useTextSize } from '../utils/textSize';
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard',   icon: LayoutDashboard },
-  { to: '/history',   label: 'History',     icon: History },
-  { to: '/reports',   label: 'Reports',     icon: BarChart3 },
-  { to: '/savings',   label: 'Savings Goals', icon: PiggyBank },
+  { to: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard },
+  { to: '/history',   label: 'History',      icon: History         },
+  { to: '/reports',   label: 'Reports',      icon: BarChart3       },
+  { to: '/savings',   label: 'Savings Goals', icon: PiggyBank      },
 ];
 
 function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
+  const [textSize, setTextSize] = useTextSize();
+
   return (
     <div className="flex h-full flex-col">
+
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-gray-100 px-5">
-        <img src="/logo-mark.png" alt="TipidTech" className="h-10 w-auto" />
+        <img
+          src="/logo-mark.png"
+          alt="TipidTech"
+          className="h-10 w-auto max-w-[120px] object-contain"
+        />
       </div>
 
       {/* Nav links */}
@@ -71,8 +79,45 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
         )}
       </nav>
 
-      {/* User + logout */}
+      {/* Text size + user email + logout */}
       <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 p-4">
+
+        {/* ── Text size control ─────────────────────────────────
+            Three buttons; selected one gets brand fill.
+            Each button is min 44 px tall (py-3 = 0.75rem × 2 + line
+            height ≈ 44 px at 16 px root) for WCAG 2.5.5 tap target.
+        ─────────────────────────────────────────────────────── */}
+        <div className="flex flex-col gap-2">
+          <span
+            className="flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-widest text-muted"
+            id="text-size-label"
+          >
+            <ALargeSmall className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            Text size
+          </span>
+          <div
+            className="flex gap-1"
+            role="group"
+            aria-labelledby="text-size-label"
+          >
+            {TEXT_SIZE_OPTIONS.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTextSize(key)}
+                aria-pressed={textSize === key}
+                className={`flex-1 cursor-pointer rounded-lg border py-3 text-xs font-semibold transition-colors duration-150 leading-none ${
+                  textSize === key
+                    ? 'border-brand bg-brand text-ink'
+                    : 'border-gray-200 bg-white text-muted hover:border-gray-300 hover:text-ink'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {userEmail && (
           <p className="truncate px-1 text-xs text-muted" title={userEmail}>
             {userEmail}
@@ -82,12 +127,14 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
           <button
             type="button"
             onClick={onLogout}
-            className="flex cursor-pointer items-center gap-2 rounded-xl border border-brand bg-brand px-4 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"          >
+            className="flex cursor-pointer items-center gap-2 rounded-xl border border-brand bg-brand px-4 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"
+          >
             <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
             Log Out
           </button>
         )}
       </div>
+
     </div>
   );
 }
@@ -98,8 +145,9 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
 
   return (
     <div className="min-h-dvh bg-page">
-      {/* Desktop sidebar — fixed, always visible, never collapsible */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r border-gray-200 bg-white lg:block">
+
+      {/* Desktop sidebar — fixed, always visible */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 overflow-y-auto border-r border-gray-200 bg-white lg:block">
         <SidebarContent onLogout={onLogout} userEmail={userEmail} isAdmin={isAdmin} />
       </aside>
 
@@ -113,7 +161,11 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
-        <img src="/logo-mark.png" alt="TipidTech" className="h-10 w-auto" />
+        <img
+          src="/logo-mark.png"
+          alt="TipidTech"
+          className="h-10 w-auto max-w-[120px] object-contain"
+        />
       </div>
 
       {/* Mobile overlay drawer */}
@@ -124,9 +176,14 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
             onClick={closeDrawer}
             aria-hidden="true"
           />
-          <div className="absolute inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col">
-            <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4">
-              <img src="/logo.png" alt="TipidTech" className="h-8 w-auto" />
+          <div className="absolute inset-y-0 left-0 flex w-64 flex-col bg-white shadow-xl">
+            {/* Drawer header */}
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-4">
+              <img
+                src="/logo.png"
+                alt="TipidTech"
+                className="h-8 w-auto max-w-[120px] object-contain"
+              />
               <button
                 type="button"
                 onClick={closeDrawer}
@@ -136,17 +193,26 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <SidebarContent onLogout={onLogout} userEmail={userEmail} onNavigate={closeDrawer} isAdmin={isAdmin} />
+            {/* Scrollable sidebar content */}
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <SidebarContent
+                onLogout={onLogout}
+                userEmail={userEmail}
+                onNavigate={closeDrawer}
+                isAdmin={isAdmin}
+              />
             </div>
           </div>
         </div>
       )}
 
-      {/* Main content — right of the sidebar on desktop, full width on mobile */}
+      {/* Main content */}
       <main className="min-h-dvh bg-page lg:pl-60">
-        <div className="mx-auto w-full max-w-[1440px] p-4 sm:p-6">{children}</div>
+        <div className="mx-auto w-full max-w-[1440px] p-4 sm:p-6">
+          {children}
+        </div>
       </main>
+
     </div>
   );
 }

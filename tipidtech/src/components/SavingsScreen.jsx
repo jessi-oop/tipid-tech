@@ -6,10 +6,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 
-import SavingsGoalCard from './SavingsGoalCard';
-import SavingsGoalForm from './SavingsGoalForm';
+import SavingsGoalCard         from './SavingsGoalCard';
+import SavingsGoalForm         from './SavingsGoalForm';
 import EditGoalModal           from './EditGoalModal';
 import GoalContributionSummary from './GoalContributionSummary';
+import SectionHeader           from './ui/SectionHeader';
 import { getSavingsGoals } from '../utils/storage';
 
 export default function SavingsScreen({ userId, onLogout, userEmail }) {
@@ -48,21 +49,26 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold text-ink">Savings Goals</h1>
-        <p className="text-sm text-muted mt-0.5">Tap a goal card to see your contribution history. Tap the pencil icon to edit or delete a goal.</p>
-        {!showForm && (
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Add New Goal
-          </button>
-        )}
-      </div>
+      {/* Header — SectionHeader keeps title+description left, button right.
+          Button is w-full on mobile (full-width primary action rule),
+          w-auto from sm up via the sm:w-auto class. */}
+      <SectionHeader
+        as="h1"
+        title="Savings Goals"
+        description="Tap a goal card to see your contribution history. Tap the pencil icon to edit or delete a goal."
+        action={
+          !showForm && (
+            <button
+              type="button"
+              onClick={() => setShowForm(true)}
+              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark sm:w-auto sm:justify-start"
+            >
+              <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Add New Goal
+            </button>
+          )
+        }
+      />
 
       {/* New goal form */}
       {showForm && (
@@ -124,6 +130,7 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
           )}
         </>
       )}
+
       {/* Edit goal modal */}
       {editingGoal && (
         <EditGoalModal

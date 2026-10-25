@@ -1,12 +1,14 @@
 // SetupScreen.jsx
 // Screen 1 — Welcome screen.
-// Centered 480px card with logo + step indicator.
+// Centered card with logo + step indicator.
 // Student enters their allowance and selects how long it needs to last.
 // Calls onComplete(setupData) when the student clicks "Continue".
 
 import { useState } from 'react';
 import { PERIOD_OPTIONS } from '../utils/constants';
-import StepIndicator from './StepIndicator';
+import StepIndicator  from './StepIndicator';
+import Card           from './ui/Card';
+import OptionGroup    from './ui/OptionGroup';
 
 export default function SetupScreen({ onComplete }) {
   const [allowance,         setAllowance]         = useState('');
@@ -69,8 +71,8 @@ export default function SetupScreen({ onComplete }) {
     }
   }
 
-  function handlePeriodChange(e) {
-    setPeriodType(e.target.value);
+  function handlePeriodChange(key) {
+    setPeriodType(key);
     if (errors.nextAllowanceDate) {
       setErrors((prev) => ({ ...prev, nextAllowanceDate: undefined }));
     }
@@ -110,127 +112,111 @@ export default function SetupScreen({ onComplete }) {
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="mx-auto flex w-full max-w-[480px] flex-col gap-5 px-4 py-10">
+    <div className="mx-auto flex w-full max-w-[30rem] flex-col gap-5 px-4 py-10">
 
       {/* Logo + step indicator */}
       <div className="flex flex-col items-center gap-3 pb-1">
-        <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-fit" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-auto max-w-[160px] object-contain" />
         <StepIndicator current={1} />
       </div>
 
       {/* Form card */}
-      <form
-        className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6"
-        onSubmit={handleContinue}
-        noValidate
-      >
-        {/* ── Allowance input ───────────────────────────────── */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-ink" htmlFor="allowance">
-            How much money do you have?
-          </label>
-          <p className="text-sm text-muted mt-0.5">Enter the total amount you have available for this budget period.</p>
-          <div className="relative flex items-center">
-            <span className="absolute left-4 z-10 font-medium text-muted pointer-events-none">₱</span>
-            <input
-              id="allowance"
-              type="text"
-              inputMode="decimal"
-              className={`${inputCls(!!errors.allowance)} pl-8`}
-              placeholder="0.00"
-              value={allowance}
-              onChange={handleAllowanceChange}
-              autoComplete="off"
-            />
-          </div>
-          {errors.allowance && (
-            <p className="mt-0.5 text-sm text-red-600">{errors.allowance}</p>
-          )}
-        </div>
-
-        {/* ── Budget period ──────────────────────────────────── */}
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-ink">
-            How do you want to set your budget period?
-          </span>
-          <p className="text-sm text-muted mt-0.5">Choose how long your budget period lasts. Pick Daily, Weekly, Monthly, or enter a custom number of days.</p>
-          <div className="grid grid-cols-2 gap-2">
-            {PERIOD_OPTIONS.map((option) => {
-              const selected = periodType === option.key;
-              return (
-                <label
-                  key={option.key}
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors duration-150 select-none ${
-                    selected
-                      ? 'border-brand bg-brand/10 text-ink'
-                      : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="periodType"
-                    value={option.key}
-                    checked={selected}
-                    onChange={handlePeriodChange}
-                    className="h-4 w-4 shrink-0 [accent-color:#80ed99]"
-                  />
-                  <span>{option.label}</span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── Date picker ───────────────────────────────────── */}
-        {periodType === 'date' && (
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-ink" htmlFor="nextAllowanceDate">
-              When will you receive your next allowance?
-            </label>
-            <input
-              id="nextAllowanceDate"
-              type="date"
-              className={`${inputCls(!!errors.nextAllowanceDate)} max-w-xs`}
-              value={nextAllowanceDate}
-              min={getTomorrowString()}
-              onChange={handleDateChange}
-            />
-            {errors.nextAllowanceDate && (
-              <p className="mt-0.5 text-sm text-red-600">{errors.nextAllowanceDate}</p>
-            )}
-          </div>
-        )}
-
-        {/* ── Custom days input ─────────────────────────────── */}
-        {periodType === 'custom' && (
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-ink" htmlFor="customDays">
-              How many days is your budget period? (e.g. 15)
-            </label>
-            <input
-              id="customDays"
-              type="text"
-              inputMode="numeric"
-              className={`${inputCls(!!errors.customDays)} max-w-xs`}
-              placeholder="e.g. 15"
-              value={customDays}
-              onChange={handleCustomDaysChange}
-              autoComplete="off"
-            />
-            {errors.customDays && (
-              <p className="mt-0.5 text-sm text-red-600">{errors.customDays}</p>
-            )}
-          </div>
-        )}
-
-        {/* ── Continue button ───────────────────────────────── */}
-        <button
-          type="submit"
-          className="w-full cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark"
+      <Card>
+        <form
+          className="flex flex-col gap-5"
+          onSubmit={handleContinue}
+          noValidate
         >
-          Continue
-        </button>
-      </form>
+          {/* ── Allowance input ───────────────────────────────── */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-ink" htmlFor="allowance">
+              How much money do you have?
+            </label>
+            <p className="text-sm text-muted">Enter the total amount you have available for this budget period.</p>
+            <div className="relative flex items-center">
+              <span className="absolute left-4 z-10 font-medium text-muted pointer-events-none">₱</span>
+              <input
+                id="allowance"
+                type="text"
+                inputMode="decimal"
+                className={`${inputCls(!!errors.allowance)} pl-8`}
+                placeholder="0.00"
+                value={allowance}
+                onChange={handleAllowanceChange}
+                autoComplete="off"
+              />
+            </div>
+            {errors.allowance && (
+              <p className="text-sm text-red-600">{errors.allowance}</p>
+            )}
+          </div>
+
+          {/* ── Budget period ──────────────────────────────────── */}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-ink">
+              How do you want to set your budget period?
+            </span>
+            <p className="text-sm text-muted">Choose how long your budget period lasts. Pick Daily, Weekly, Monthly, or enter a custom number of days.</p>
+            {/* OptionGroup: 1 col on phones, 2 cols from xs (400px) up */}
+            <OptionGroup
+              name="periodType"
+              options={PERIOD_OPTIONS}
+              value={periodType}
+              onChange={handlePeriodChange}
+            />
+          </div>
+
+          {/* ── Date picker ───────────────────────────────────── */}
+          {periodType === 'date' && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-ink" htmlFor="nextAllowanceDate">
+                When will you receive your next allowance?
+              </label>
+              <input
+                id="nextAllowanceDate"
+                type="date"
+                className={`${inputCls(!!errors.nextAllowanceDate)} max-w-xs`}
+                value={nextAllowanceDate}
+                min={getTomorrowString()}
+                onChange={handleDateChange}
+              />
+              {errors.nextAllowanceDate && (
+                <p className="text-sm text-red-600">{errors.nextAllowanceDate}</p>
+              )}
+            </div>
+          )}
+
+          {/* ── Custom days input ─────────────────────────────── */}
+          {periodType === 'custom' && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-ink" htmlFor="customDays">
+                How many days is your budget period? (e.g. 15)
+              </label>
+              <input
+                id="customDays"
+                type="text"
+                inputMode="numeric"
+                className={`${inputCls(!!errors.customDays)} max-w-xs`}
+                placeholder="e.g. 15"
+                value={customDays}
+                onChange={handleCustomDaysChange}
+                autoComplete="off"
+              />
+              {errors.customDays && (
+                <p className="text-sm text-red-600">{errors.customDays}</p>
+              )}
+            </div>
+          )}
+
+          {/* ── Continue button ───────────────────────────────── */}
+          <button
+            type="submit"
+            className="w-full cursor-pointer rounded-lg bg-brand px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark"
+          >
+            Continue
+          </button>
+        </form>
+      </Card>
 
       <p className="text-center text-sm text-muted">
         Your data is saved to your account and synced across devices.

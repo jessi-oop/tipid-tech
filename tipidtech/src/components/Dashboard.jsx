@@ -1,8 +1,7 @@
 // Dashboard.jsx
 // Main tracking view. Loads its own expenses and savings goals from Supabase.
 // Grid layout: hero balance → 3 stat cards → charts row → recent expenses →
-// savings goals. All data loading, calculations and handlers are unchanged —
-// only the layout and styling were redesigned.
+// savings goals. All data loading, calculations and handlers are unchanged.
 
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,6 +15,9 @@ import ExpensePieChart  from './ExpensePieChart';
 import SavingsGoalCard  from './SavingsGoalCard';
 import CategoryIcon     from './CategoryIcon';
 import EditExpenseModal from './EditExpenseModal';
+import Card             from './ui/Card';
+import SectionHeader    from './ui/SectionHeader';
+import UiStatCard       from './ui/StatCard';
 
 import { CATEGORIES, PERIOD_OPTIONS } from '../utils/constants';
 import {
@@ -43,26 +45,7 @@ function getPeriodLabel(periodType, nextAllowanceDate, startDate) {
   return option ? option.label : '';
 }
 
-// Small presentational stat card used in row 2
-function StatCard({ icon: Icon, label, value, sub }) {
-  return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted">{label}</p>
-        <Icon className="h-4 w-4 shrink-0 text-brand-dark" aria-hidden="true" />
-      </div>
-      <p className="text-2xl font-extrabold leading-tight text-ink">{value}</p>
-      {sub && <p className="text-xs leading-snug text-muted">{sub}</p>}
-    </div>
-  );
-}
-
-export default function Dashboard({
-  userId,
-  onReset,
-  onLogout,
-  userEmail,
-}) {
+export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
   const navigate = useNavigate();
 
   // ── Expense state ─────────────────────────────────────────────
@@ -94,9 +77,7 @@ export default function Dashboard({
     }
   }, [userId, budget?.id]);
 
-  useEffect(() => {
-    loadExpenses();
-  }, [loadExpenses]);
+  useEffect(() => { loadExpenses(); }, [loadExpenses]);
 
   // ─── Load budget ──────────────────────────────────────────────
   useEffect(() => {
@@ -162,10 +143,7 @@ export default function Dashboard({
   const statusResult     = getSpendingStatus(budget?.allowance, expensesForCalc, budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
   const periodEnded      = daysRemaining <= 0;
 
-  // ─── Reset: hand off to App.jsx which opens PeriodSummaryModal ─
-  function handleResetClick() {
-    onReset(budget);
-  }
+  function handleResetClick() { onReset(budget); }
 
   // ─── Render ───────────────────────────────────────────────────
   if (budgetLoading) return <p className="py-10 text-center text-sm text-muted">Loading…</p>;
@@ -174,46 +152,60 @@ export default function Dashboard({
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
 
-      {/* ── Row 1: full-width hero card — remaining balance ────── */}
-      <div className="relative flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Remaining Balance
-          </p>
-          <p className="text-sm text-muted mt-0.5">Your remaining allowance for this budget period. It updates automatically every time you log an expense.</p>
-          <button
-            type="button"
-            onClick={handleResetClick}
-            className="shrink-0 cursor-pointer rounded-full border border-brand bg-brand px-3 py-1 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"          >
-            Reset Budget
-          </button>
-        </div>
-        <p className={`text-4xl font-extrabold leading-tight sm:text-5xl ${remainingBalance < 0 ? 'text-red-600' : 'text-ink'}`}>
+      {/* ── Row 1: hero balance card ─────────────────────────────
+          SectionHeader: label+description stack left, Reset right.
+          No more title+description+button in one flex row → scrollbar fixed.
+      ── */}
+      <Card>
+        <SectionHeader
+          as="h2"
+          title={
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+              Remaining Balance
+            </p>
+          }
+          description="Your remaining allowance for this budget period. It updates automatically every time you log an expense."
+          action={
+            <button
+              type="button"
+              onClick={handleResetClick}
+              className="cursor-pointer rounded-full border border-brand bg-brand px-3 py-1.5 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"
+            >
+              Reset Budget
+            </button>
+          }
+        />
+
+        <p className={`mt-3 min-w-0 break-words text-4xl font-extrabold leading-tight sm:text-5xl ${
+          remainingBalance < 0 ? 'text-red-600' : 'text-ink'
+        }`}>
           {formatPeso(Math.max(0, remainingBalance))}
         </p>
+
         {remainingBalance < 0 && (
-          <p className="text-sm font-medium text-red-600">
+          <p className="mt-1 text-sm font-medium text-red-600">
             Over by {formatPeso(Math.abs(remainingBalance))}
           </p>
         )}
-        <p className="mt-1 text-xs text-muted">
+
+        <p className="mt-2 text-xs text-muted">
           Budget: {formatPeso(budget?.allowance)} · {getPeriodLabel(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate)}
         </p>
-      </div>
+      </Card>
 
       {/* ── Row 2: 3-column stat cards ─────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          icon={CalendarDays}
+        <UiStatCard
+          icon={<CalendarDays className="h-4 w-4" />}
           label="Days Left"
           value={periodEnded ? '—' : daysRemaining}
-          sub={periodEnded ? 'Period ended' : `${totalDays}-day budget period`}
+          helper={periodEnded ? 'Period ended' : `${totalDays}-day budget period`}
         />
-        <StatCard
-          icon={Wallet}
+        <UiStatCard
+          icon={<Wallet className="h-4 w-4" />}
           label="Available per Day"
           value={periodEnded || daysRemaining <= 0 ? '—' : `${formatPeso(currentDaily)}/day`}
-          sub="Approximate amount you can spend per day"
+          helper="Approximate amount you can spend per day"
         />
         <StatusBadge statusResult={statusResult} daysRemaining={daysRemaining} />
       </div>
@@ -222,9 +214,9 @@ export default function Dashboard({
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <ExpensePieChart userId={userId} refreshKey={refreshKey} budgetId={budget?.id} />
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <Card className="flex flex-col gap-4">
           <h2 className="text-base font-semibold text-ink">Budget Categories</h2>
-          <p className="text-sm text-muted mt-0.5">How your allowance is split across each spending category this period.</p>
+          <p className="text-sm text-muted">How your allowance is split across each spending category this period.</p>
           <div className="flex flex-1 flex-col justify-center gap-4">
             {CATEGORIES.map(({ key, label }) => (
               <CategoryBar
@@ -236,41 +228,46 @@ export default function Dashboard({
               />
             ))}
           </div>
-
           {otherSpending > 0 && (
-            <div className="mt-1 flex items-center gap-2 border-t border-gray-100 pt-3 text-sm">
-              <CategoryIcon category="other" className="h-4 w-4 text-muted" />
-              <span className="flex-1 font-medium text-muted">Other expenses</span>
-              <span className="font-semibold text-ink">{formatPeso(otherSpending)}</span>
+            <div className="mt-1 flex min-w-0 items-center gap-2 border-t border-gray-100 pt-3 text-sm">
+              <CategoryIcon category="other" className="h-4 w-4 shrink-0 text-muted" />
+              <span className="min-w-0 flex-1 font-medium text-muted">Other expenses</span>
+              <span className="shrink-0 font-semibold text-ink">{formatPeso(otherSpending)}</span>
             </div>
           )}
-        </div>
+        </Card>
       </div>
 
-      {/* ── Row 4: full-width recent expenses ──────────────────── */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-semibold text-ink">Recent Expenses</h2>
-          <p className="text-sm text-muted mt-0.5">Your 5 most recent transactions this budget period. Go to History to see everything.</p>
-          <div className="flex items-center gap-3">
-            {!showExpenseForm && (
-              <button
-                type="button"
-                onClick={() => setShowExpenseForm(true)}
-                className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand px-3.5 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark"
+      {/* ── Row 4: recent expenses ───────────────────────────────
+          SectionHeader keeps h2+description on the left; Add Expense
+          and View All are the action slot.
+      ── */}
+      <Card className="flex flex-col gap-4">
+        <SectionHeader
+          as="h2"
+          title="Recent Expenses"
+          description="Your 5 most recent transactions this budget period. Go to History to see everything."
+          action={
+            <div className="flex w-full items-center gap-3 sm:w-auto">
+              {!showExpenseForm && (
+                <button
+                  type="button"
+                  onClick={() => setShowExpenseForm(true)}
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand px-3.5 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark sm:flex-none"
+                >
+                  <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  Add Expense
+                </button>
+              )}
+              <Link
+                to="/history"
+                className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
               >
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                Add Expense
-              </button>
-            )}
-            <Link
-              to="/history"
-              className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
-            >
-              View All
-            </Link>
-          </div>
-        </div>
+                View All
+              </Link>
+            </div>
+          }
+        />
 
         {showExpenseForm ? (
           <AddExpenseForm
@@ -291,20 +288,25 @@ export default function Dashboard({
             onEdit={(expense) => setEditingExpense(expense)}
           />
         )}
-      </div>
+      </Card>
 
-      {/* ── Row 5: full-width active savings goals ─────────────── */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-ink">Savings Goals</h2>
-          <p className="text-sm text-muted mt-0.5">A quick view of your active savings goals. Go to Savings Goals for the full details.</p>
-          <Link
-            to="/savings"
-            className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
-          >
-            See All Goals
-          </Link>
-        </div>
+      {/* ── Row 5: savings goals ─────────────────────────────────
+          SectionHeader: h2+description left, See All Goals right.
+      ── */}
+      <Card className="flex flex-col gap-4">
+        <SectionHeader
+          as="h2"
+          title="Savings Goals"
+          description="A quick view of your active savings goals. Go to Savings Goals for the full details."
+          action={
+            <Link
+              to="/savings"
+              className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
+            >
+              See All Goals
+            </Link>
+          }
+        />
 
         {goalsLoading ? (
           <p className="text-sm text-muted">Loading…</p>
@@ -328,7 +330,7 @@ export default function Dashboard({
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* ── Footer note ─────────────────────────────────────────── */}
       <p className="text-center text-xs leading-relaxed text-muted">

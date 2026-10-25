@@ -6,4 +6,55 @@
   --color-page: #f9fafb;
   --color-ink: #111827;
   --color-muted: #6b7280;
+
+  /* xs breakpoint: 25rem (400px) — sits between base (phone) and sm (640px) */
+  --breakpoint-xs: 25rem;
+}
+
+/* ── Responsive root font-size with user-scale multiplier ──────────
+   clamp(1rem, 0.95rem + 0.15vw, 1.0625rem)
+   Computed values (at 16 px browser default):
+     320 px  → 16.00 px  (floor holds — 0.95rem+0.15vw = 15.68 px)
+     360 px  → 16.00 px  (floor holds — 0.95rem+0.15vw = 15.74 px)
+     390 px  → 16.00 px  (floor holds — 0.95rem+0.15vw = 15.79 px)
+     768 px  → 16.35 px  (viewport-responsive range)
+    1280 px  → 17.00 px  (cap: 1.0625rem)
+
+   Multiplied by --text-scale per user preference:
+     Normal (×1):    320→16  360→16  390→16  768→16.35  1280→17.00
+     Large  (×1.125):320→18  360→18  390→18  768→18.39  1280→19.13
+     XL     (×1.25): 320→20  360→20  390→20  768→20.44  1280→21.25
+
+   Every rem-based Tailwind class (text-sm, padding, gap …) scales
+   automatically — no utility changes needed.
+──────────────────────────────────────────────────────────────────── */
+html {
+  --text-scale: 1;
+  font-size: calc(clamp(1rem, 0.95rem + 0.15vw, 1.0625rem) * var(--text-scale));
+}
+
+/* These selectors are applied synchronously by the inline <script>
+   in index.html before first paint, preventing any size flash.      */
+html[data-text-size="large"] { --text-scale: 1.125; }
+html[data-text-size="xl"]    { --text-scale: 1.25;  }
+
+/* ── Input zoom prevention on iOS Safari ───────────────────────────
+   iOS zooms the page when a focused input's computed font-size is
+   below 16 px. This rule is intentionally outside any @layer so it
+   has higher specificity than Tailwind utilities like text-sm.
+   max(1rem, 16px) means:
+     • 1rem wins when root ≥ 16 px (Normal on all widths, Large, XL)
+     • 16px floor kicks in only if the browser default is < 16 px
+   Inputs therefore scale up with the multiplier at Large/XL while
+   never falling below the 16 px iOS threshold.
+──────────────────────────────────────────────────────────────────── */
+input,
+select,
+textarea,
+input[type="date"],
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="number"] {
+  font-size: max(1rem, 16px);
 }

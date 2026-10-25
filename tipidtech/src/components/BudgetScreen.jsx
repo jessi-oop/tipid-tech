@@ -1,6 +1,5 @@
 // BudgetScreen.jsx
 // Screen 2 — Suggested Starting Budget.
-// Centered 480px card with logo + step indicator.
 // Shows six editable category budget amounts pre-filled with suggested percentages.
 // Validates that the total allocation does not exceed the allowance.
 // Calls onStart(finalBudgets) when the student clicks "Start Budget".
@@ -9,8 +8,9 @@ import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { CATEGORIES } from '../utils/constants';
 import { getTotalAllocated, getBudgetDifference, formatPeso } from '../utils/calculations';
-import CategoryIcon from './CategoryIcon';
+import CategoryIcon  from './CategoryIcon';
 import StepIndicator from './StepIndicator';
+import Card          from './ui/Card';
 
 export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBack }) {
   // Local copy of category budgets — edited here before being committed
@@ -63,11 +63,11 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
 
   // ─── Render ───────────────────────────────────────────────────
   return (
-    <div className="mx-auto flex w-full max-w-[480px] flex-col gap-5 px-4 py-10">
+    <div className="mx-auto flex w-full max-w-[30rem] flex-col gap-5 px-4 py-10">
 
       {/* Logo + step indicator */}
       <div className="flex flex-col items-center gap-3 pb-1">
-        <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-fit" />
+        <img src="/logo-mark.png" alt="TipidTech" className="h-16 w-auto max-w-[160px] object-contain" />
         <StepIndicator current={2} />
       </div>
 
@@ -90,18 +90,23 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
       </div>
 
       {/* Form card */}
-      <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+      <Card className="flex flex-col gap-5">
 
-        {/* ── Category inputs (Lucide icons, no emojis) ────────── */}
-        <div className="flex flex-col gap-3">
+        {/* ── Category inputs ───────────────────────────────────
+            Mobile: label stacks above input (flex-col).
+            xs+:    label and input side-by-side (xs:flex-row).
+            Removed min-w-[140px] and whitespace-nowrap — label
+            wraps freely, icon+text are in a flex row with min-w-0.
+        ── */}
+        <div className="flex flex-col gap-4">
           {CATEGORIES.map(({ key, label }) => (
-            <div key={key} className="flex items-center gap-3">
+            <div key={key} className="flex flex-col gap-1.5 xs:flex-row xs:items-center xs:gap-3">
               <label
-                className="flex min-w-[140px] cursor-default items-center gap-2 text-sm font-medium text-ink"
+                className="flex min-w-0 shrink-0 cursor-default items-center gap-2 text-sm font-medium text-ink xs:w-[9rem]"
                 htmlFor={`budget-${key}`}
               >
                 <CategoryIcon category={key} className="h-4 w-4 shrink-0 text-muted" />
-                <span className="whitespace-nowrap">{label}</span>
+                <span className="min-w-0">{label}</span>
               </label>
               <div className="relative flex flex-1 items-center">
                 <span className="absolute left-4 z-10 font-medium text-muted pointer-events-none">₱</span>
@@ -121,9 +126,9 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
 
         {/* ── Allocation summary ───────────────────────────────── */}
         <div className={summaryCls}>
-          <div className="flex items-center justify-between text-sm font-medium">
-            <span className="text-gray-700">Allocated</span>
-            <span className="text-base">
+          <div className="flex min-w-0 items-center justify-between gap-2 text-sm font-medium">
+            <span className="shrink-0 text-gray-700">Allocated</span>
+            <span className="min-w-0 break-words text-base">
               <strong>{formatPeso(totalAllocated)}</strong>
               <span className="text-gray-400"> / </span>
               {formatPeso(allowance)}
@@ -137,11 +142,9 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
               Reduce some categories to continue.
             </p>
           )}
-
           {isBalanced && (
             <p className="text-sm text-green-700">Your budget is balanced.</p>
           )}
-
           {!isOverBudget && !isBalanced && (
             <p className="text-sm text-muted">
               <strong className="text-gray-700">{formatPeso(difference)}</strong> unallocated — this will
@@ -160,11 +163,11 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
         </button>
 
         {isOverBudget && (
-          <p className="-mt-2 text-center text-sm text-red-600">
+          <p className="text-center text-sm text-red-600">
             Adjust your category amounts before starting.
           </p>
         )}
-      </div>
+      </Card>
 
       {/* Disclaimer */}
       <p className="text-center text-xs leading-relaxed text-muted">

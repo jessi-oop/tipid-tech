@@ -6,6 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#80ed99" />
     <title>TipidTech</title>
+    <!--
+      Apply the saved text-size preference BEFORE any CSS or JS loads,
+      so there is no flash of incorrectly-sized text on page load.
+      This mirrors the logic in src/utils/textSize.js exactly.
+      The localStorage key and valid values must stay in sync with that file.
+    -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('tipidtech-text-size');
+          if (saved === 'large' || saved === 'xl') {
+            document.documentElement.setAttribute('data-text-size', saved);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
