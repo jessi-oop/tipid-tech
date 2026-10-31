@@ -22,6 +22,11 @@ These rules apply to every UI change in TipidTech without exception.
 - Use `dvh` instead of `vh` for full-height layouts.
 - Inputs stay at 16 px or larger.
 - Use the shared layout components in `src/components/ui/` (PageContainer, Card, SectionHeader, OptionGroup, Modal, StatCard) instead of ad-hoc wrappers. If a screen needs a new layout pattern, add it to the shared components rather than inlining it.
+- All new UI is built from the shared components in the ui folder (Card, SectionHeader, StatCard, OptionGroup, SegmentedControl, Modal, ExpenseRow). Don't create ad-hoc card wrappers, section headers, toggles, modals, or expense rows. If a new pattern is needed, add it to the shared components and tell me.
+- Rows that show text and an amount: amount is shrink-0 and whitespace-nowrap on the right, text is min-w-0 flex-1 on the left. Date chips and pills never share a row with an amount on mobile.
+- After layout work, check for overlap visually. The console overflow check only catches elements past the screen edge.
+- Every feature prompt finishes with this check at 320px and 360px, at Normal and Extra Large text, on each screen it touched (open any modals first): [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > document.documentElement.clientWidth).map(e => e.tagName + '.' + String(e.className).slice(0,80)). Expected: Array [].
+- Text sizes: body 1rem, descriptions text-sm, nothing under 0.6875rem.
 
 ## CHECK BEFORE FINISHING ANY UI TASK
 

@@ -30,6 +30,8 @@
 
 - Use rem units for text, not fixed pixels.
 
+- Rows that show text and an amount: amount is shrink-0 and whitespace-nowrap on the right, text is min-w-0 flex-1 on the left. Date chips and pills never go in a row with an amount on mobile. After layout work, check for overlap visually, since the console overflow check only catches elements past the screen edge.
+
 ## PROCESS RULES
 
 - Before building anything, inspect the repo. Do not assume something is missing just because it isn't listed.
