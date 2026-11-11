@@ -133,7 +133,7 @@ Branch `responsive-foundation` (not yet merged to `main`):
 - [x] 1.1 Logo fix
 - [x] Responsive foundation: `ui/` primitives, modals as bottom sheets (R3a), shared `ExpenseRow`
 - [x] R3b History/Reports mobile pass. Original group list was lost; scope as done: Reports lists moved into flush cards (`DayCard`, `isLast`) so rows aren't double-padded, each tab's controls in its own Card, Filter buttons 44px tall, date inputs use the DESIGN §7 input pattern, History edit in Custom Range now refreshes the range results
-- [x] Local-date fix (`fix/local-date-grouping`): History, Reports, pie chart "Today", budget start/end dates, savings goal start date all use the local day. Needs `docs/sql/2026-11-11-budget-end-date-plus-one.sql` run on both Supabase projects at deploy
+- [x] Local-date fix (merged from `fix/local-date-grouping`): History, Reports, pie chart "Today", budget start/end dates, savings goal start date all use the local day. **Deploy step:** run `docs/sql/2026-11-11-budget-end-date-plus-one.sql` once on both Supabase projects (main and v1-demo) when this reaches production
 - [ ] R4 responsive QA, then merge to `main`
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
 
