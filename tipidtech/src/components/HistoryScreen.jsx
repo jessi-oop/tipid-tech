@@ -212,7 +212,7 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
     }
   }
 
-  const inputCls     = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
+  const inputCls     = 'w-full px-4 py-2.5 border border-gray-200 rounded-lg text-base text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
   const periodTotal  = sumExpenses(expenses);
   const rangeTotal   = sumExpenses(rangeExpenses);
   const rangeByDate  = groupByDate(rangeExpenses);
@@ -301,7 +301,7 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
               type="button"
               onClick={handleRangeFilter}
               disabled={rangeLoading}
-              className="w-full cursor-pointer rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+              className="min-h-[2.75rem] w-full cursor-pointer rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
             >
               {rangeLoading ? 'Loading…' : 'Filter'}
             </button>
@@ -357,7 +357,11 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
       {editingExpense && (
         <EditExpenseModal
           expense={editingExpense}
-          onSaved={() => { setEditingExpense(null); loadPeriodExpenses(); }}
+          onSaved={() => {
+            setEditingExpense(null);
+            if (mode === 'range') handleRangeFilter();
+            else loadPeriodExpenses();
+          }}
           onClose={() => setEditingExpense(null)}
         />
       )}

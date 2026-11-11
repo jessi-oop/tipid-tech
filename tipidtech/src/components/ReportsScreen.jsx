@@ -62,9 +62,29 @@ function TotalBar({ label, amount }) {
   );
 }
 
-// ─── Shared date input class ──────────────────────────────────────
+// ─── Day group (flush card: header + rows, like HistoryScreen) ────
 
-const dateCls = 'w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-ink transition-colors duration-150 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15';
+function DayCard({ heading, expenses, dateMode }) {
+  return (
+    <Card variant="flush">
+      <div className="flex min-w-0 items-center justify-between gap-2 border-b border-gray-100 px-4 py-2.5 sm:px-5">
+        <span className="min-w-0 text-sm font-bold text-ink">{heading}</span>
+        <span className="shrink-0 rounded-full bg-page px-2.5 py-0.5 text-xs font-semibold text-muted">
+          {formatPeso(sumAmounts(expenses))}
+        </span>
+      </div>
+      <ul aria-label={`Expenses on ${heading}`}>
+        {expenses.map((e, idx) => (
+          <ExpenseRow key={e.id} expense={e} dateMode={dateMode} isLast={idx === expenses.length - 1} />
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
+// ─── Shared date input class (DESIGN.md §7 input) ─────────────────
+
+const dateCls = 'w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-base text-ink transition-colors duration-150 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15';
 
 // ─── Daily Tab ────────────────────────────────────────────────────
 
@@ -94,22 +114,24 @@ function DailyTab({ userId }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-muted">See everything you spent on a specific day. Tap the date to change it.</p>
+      <Card className="flex flex-col gap-3">
+        <p className="text-sm text-muted">See everything you spent on a specific day. Tap the date to change it.</p>
 
-      {/* Date picker — max-w-xs caps it on wide screens */}
-      <div className="flex max-w-xs flex-col gap-2">
-        <label className="text-sm font-semibold text-ink" htmlFor="report-date">
-          Select Date
-        </label>
-        <input
-          id="report-date"
-          type="date"
-          className={dateCls}
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          max={getTodayString()}
-        />
-      </div>
+        {/* Date picker — max-w-xs caps it on wide screens */}
+        <div className="flex max-w-xs flex-col gap-2">
+          <label className="text-sm font-semibold text-ink" htmlFor="report-date">
+            Select Date
+          </label>
+          <input
+            id="report-date"
+            type="date"
+            className={dateCls}
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            max={getTodayString()}
+          />
+        </div>
+      </Card>
 
       {loading && <p className="py-6 text-center text-sm text-muted">Loading…</p>}
       {error   && <p className="py-4 text-center text-sm text-red-600">{error}</p>}
@@ -120,9 +142,13 @@ function DailyTab({ userId }) {
 
       {!loading && !error && expenses.length > 0 && (
         <>
-          <ul className="flex flex-col gap-3">
-            {expenses.map((e) => <ExpenseRow key={e.id} expense={e} dateMode="timeOnly" />)}
-          </ul>
+          <Card variant="flush">
+            <ul aria-label="Expenses on selected date">
+              {expenses.map((e, idx) => (
+                <ExpenseRow key={e.id} expense={e} dateMode="timeOnly" isLast={idx === expenses.length - 1} />
+              ))}
+            </ul>
+          </Card>
           <TotalBar label="Total" amount={dayTotal} />
         </>
       )}
@@ -169,13 +195,15 @@ function WeeklyTab({ userId }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Week range label */}
-      <p className="text-sm font-semibold text-muted">
-        {monday.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
-        {' – '}
-        {sunday.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
-      </p>
-      <p className="text-sm text-muted">See your spending for the current calendar week, broken down by day.</p>
+      <Card className="flex flex-col gap-1">
+        {/* Week range label */}
+        <p className="text-sm font-semibold text-ink">
+          {monday.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
+          {' – '}
+          {sunday.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </p>
+        <p className="text-sm text-muted">See your spending for the current calendar week, broken down by day.</p>
+      </Card>
 
       {loading && <p className="py-6 text-center text-sm text-muted">Loading…</p>}
       {error   && <p className="py-4 text-center text-sm text-red-600">{error}</p>}
@@ -190,20 +218,8 @@ function WeeklyTab({ userId }) {
             const dateKey     = day.toISOString().split('T')[0];
             const dayExpenses = grouped[dateKey] || [];
             if (dayExpenses.length === 0) return null;
-            const dayTotal = sumAmounts(dayExpenses);
-
             return (
-              <div key={dateKey} className="flex flex-col gap-3">
-                <div className="flex min-w-0 items-center justify-between border-b border-gray-100 pb-2">
-                  <span className="min-w-0 text-sm font-bold text-ink">{formatDayHeading(day)}</span>
-                  <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-page px-2.5 py-0.5 text-xs font-semibold text-muted">
-                    {formatPeso(dayTotal)}
-                  </span>
-                </div>
-                <ul className="flex flex-col gap-3">
-                  {dayExpenses.map((e) => <ExpenseRow key={e.id} expense={e} />)}
-                </ul>
-              </div>
+              <DayCard key={dateKey} heading={formatDayHeading(day)} expenses={dayExpenses} dateMode="timeOnly" />
             );
           })}
           <TotalBar label="Week Total" amount={weekTotal} />
@@ -260,7 +276,7 @@ function CustomRangeTab({ userId }) {
   return (
     <div className="flex flex-col gap-4">
       {/* Date inputs — 1 col on phones, 2 cols from xs (400px) up */}
-      <div className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-3">
         <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-ink" htmlFor="range-start-r">From</label>
@@ -288,11 +304,11 @@ function CustomRangeTab({ userId }) {
           type="button"
           onClick={handleFilter}
           disabled={rangeLoading}
-          className="w-full cursor-pointer rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+          className="min-h-[2.75rem] w-full cursor-pointer rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
         >
           {rangeLoading ? 'Loading…' : 'Filter'}
         </button>
-      </div>
+      </Card>
 
       {!rangeFiltered && !rangeLoading && (
         <p className="py-6 text-center text-sm text-muted">
@@ -312,23 +328,10 @@ function CustomRangeTab({ userId }) {
           </p>
 
           {Array.from(byDate.entries()).map(([dateStr, dateExpenses]) => {
-            const dayTotal    = dateExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
             const displayDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-PH', {
               month: 'short', day: 'numeric', year: 'numeric',
             });
-            return (
-              <div key={dateStr} className="flex flex-col gap-3">
-                <div className="flex min-w-0 items-center justify-between border-b border-gray-100 pb-2">
-                  <span className="min-w-0 text-sm font-bold text-ink">{displayDate}</span>
-                  <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-page px-2.5 py-0.5 text-xs font-semibold text-muted">
-                    {formatPeso(dayTotal)}
-                  </span>
-                </div>
-                <ul className="flex flex-col gap-3">
-                  {dateExpenses.map((e) => <ExpenseRow key={e.id} expense={e} />)}
-                </ul>
-              </div>
-            );
+            return <DayCard key={dateStr} heading={displayDate} expenses={dateExpenses} dateMode="timeOnly" />;
           })}
 
           <TotalBar label="Total" amount={rangeTotal} />
@@ -371,12 +374,10 @@ export default function ReportsScreen({ userId, onLogout, userEmail }) {
         ariaLabel="Report period"
       />
 
-      {/* Tab content — Card default (p-4 sm:p-6) */}
-      <Card>
-        {activeTab === 'daily'  && <DailyTab       userId={userId} />}
-        {activeTab === 'weekly' && <WeeklyTab      userId={userId} />}
-        {activeTab === 'custom' && <CustomRangeTab userId={userId} />}
-      </Card>
+      {/* Tab content — each tab renders its own cards (controls card + flush list cards) */}
+      {activeTab === 'daily'  && <DailyTab       userId={userId} />}
+      {activeTab === 'weekly' && <WeeklyTab      userId={userId} />}
+      {activeTab === 'custom' && <CustomRangeTab userId={userId} />}
 
     </div>
   );

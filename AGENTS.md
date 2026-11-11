@@ -131,7 +131,7 @@ Ponytail is installed. "Least code" never overrides this file: still plan first,
 Branch `responsive-foundation` (not yet merged to `main`):
 - [x] 1.1 Logo fix
 - [x] Responsive foundation: `ui/` primitives, modals as bottom sheets (R3a), shared `ExpenseRow`
-- [~] R3b History/Reports mobile pass — groups 2–3 remaining
+- [x] R3b History/Reports mobile pass. Original group list was lost; scope as done: Reports lists moved into flush cards (`DayCard`, `isLast`) so rows aren't double-padded, each tab's controls in its own Card, Filter buttons 44px tall, date inputs use the DESIGN §7 input pattern, History edit in Custom Range now refreshes the range results
 - [ ] R4 responsive QA, then merge to `main`
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
 
@@ -147,4 +147,5 @@ Next up, in order (see handoff for specs):
 - `tipidtech/.gitignore` is saved as **UTF-16**, so git ignores it — that's why `node_modules/` (~13.7k files) and `dist/` are committed. Fix = re-save as UTF-8 and `git rm -r --cached node_modules dist`. Ask before doing it.
 - `ExpensePieChart.jsx` category colors use greens (`#80ed99`, `#57cc99`, `#74c69d`) and a red-orange (`#e76f51`) that clash with status colors. Fix during 2.3/2.4 (see DESIGN.md §4).
 - The brand color is a green (`#80ed99`). It is **not** a status color; keep the two visually distinct.
+- **Expenses are grouped by UTC date, not local date (breaks §7 rule 7).** Being fixed on `fix/local-date-grouping`. In PH (UTC+8), expenses from 00:00–07:59 land on the previous day in History. The Reports Weekly tab shifts day headings by one and leaves Sunday 8am+ expenses out of every heading (they still count in Week Total). Reports Daily defaults to yesterday before 8am, and `getExpensesByDate`/`getExpensesByRange` send timezone-less dates, so a "day" runs 8am–8am PH time.
 - `constants.js` still has a legacy `STORAGE_KEY = 'tipidtech_data'` from the localStorage era.
