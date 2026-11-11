@@ -122,6 +122,10 @@ When a DB change is approved: write the SQL (table + RLS enable + policies scope
 
 If something is ambiguous, ask one specific question rather than guessing. If you spot a bug outside your task, mention it; don't fix it silently.
 
+
+### Ponytail
+Ponytail is installed. "Least code" never overrides this file: still plan first, still reuse ui/ components, and never skip accessibility (icon + word + color, 4.5:1 contrast, 44px tap targets), the QA checklist, or the stop-and-ask gate.
+
 ## 9. Current status (update this section as work lands)
 
 Branch `responsive-foundation` (not yet merged to `main`):
