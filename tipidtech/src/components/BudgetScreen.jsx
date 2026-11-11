@@ -8,9 +8,10 @@ import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { CATEGORIES } from '../utils/constants';
 import { getTotalAllocated, getBudgetDifference, formatPeso } from '../utils/calculations';
-import CategoryIcon  from './CategoryIcon';
-import StepIndicator from './StepIndicator';
-import Card          from './ui/Card';
+import CategoryIcon    from './CategoryIcon';
+import StepIndicator   from './StepIndicator';
+import Card            from './ui/Card';
+import SectionHeader   from './ui/SectionHeader';
 
 export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBack }) {
   // Local copy of category budgets — edited here before being committed
@@ -71,7 +72,7 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
         <StepIndicator current={2} />
       </div>
 
-      {/* Header */}
+      {/* Header — Back button above SectionHeader, outside it per spec */}
       <div className="flex flex-col gap-2">
         <button
           className="flex w-fit cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-sm font-medium text-muted transition-colors duration-150 hover:text-ink hover:underline"
@@ -81,15 +82,18 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back
         </button>
-        <h2 className="text-2xl font-bold text-ink">Suggested Starting Budget</h2>
-        <p className="text-sm leading-relaxed text-muted">
-          This is a general starting point based on your{' '}
-          <strong className="text-ink">{formatPeso(allowance)}</strong> allowance.
-          Adjust the amounts based on your actual needs.
-        </p>
+        <SectionHeader
+          as="h2"
+          title="Suggested Starting Budget"
+          description={
+            <>
+              This is a general starting point based on your{' '}
+              <strong className="text-ink">{formatPeso(allowance)}</strong> allowance.
+              Adjust the amounts based on your actual needs.
+            </>
+          }
+        />
       </div>
-
-      {/* Form card */}
       <Card className="flex flex-col gap-5">
 
         {/* ── Category inputs ───────────────────────────────────

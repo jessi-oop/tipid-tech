@@ -117,8 +117,11 @@ export default function AddExpenseForm({
     }`;
 
   // ─── Render ───────────────────────────────────────────────────
+  // AddExpenseForm renders inside the Dashboard's "Recent Expenses" Card,
+  // so it must NOT add its own card surface (no rounded/border/bg-white).
+  // The parent Card provides the surface; the form provides only layout.
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+    <div className="flex flex-col gap-4">
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -238,7 +241,7 @@ export default function AddExpenseForm({
             <div className="flex flex-wrap gap-2 pt-2">
               <button
                 type="button"
-                className="min-w-[120px] flex-1 cursor-pointer rounded-lg bg-red-600 px-5 py-3 font-semibold text-white transition-colors duration-150 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
+                className="flex-1 cursor-pointer rounded-lg bg-red-600 px-5 py-3 font-semibold text-white transition-colors duration-150 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                 onClick={handleConfirmAnyway}
                 disabled={saving}
               >
@@ -246,7 +249,7 @@ export default function AddExpenseForm({
               </button>
               <button
                 type="button"
-                className="min-w-[120px] flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
+                className="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-5 py-3 font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
                 onClick={onCancel}
                 disabled={saving}
               >

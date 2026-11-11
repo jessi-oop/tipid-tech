@@ -7,7 +7,8 @@
 
 import { useState } from 'react';
 import { Wallet, PieChart, PiggyBank, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../utils/supabase';
+import { supabase }          from '../utils/supabase';
+import SegmentedControl      from './ui/SegmentedControl';
 
 const BRAND_POINTS = [
   { icon: Wallet,   text: 'Track every peso you spend' },
@@ -176,28 +177,19 @@ export default function AuthScreen() {
           {/* Card */}
           <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
 
-            {/* Pill tab toggle */}
-            <div className="flex w-fit self-center rounded-full bg-page p-1" role="tablist">
-              {[
-                { key: 'login',    label: 'Log In' },
-                { key: 'register', label: 'Register' },
-              ].map(({ key, label }) => (
-                <button
-                  key={key}
-                  role="tab"
-                  aria-selected={mode === key}
-                  type="button"
-                  onClick={() => switchMode(key)}
-                  className={`cursor-pointer rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150 ${
-                    mode === key
-                      ? 'bg-brand text-ink'
-                      : 'text-muted hover:text-ink'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {/* Mode toggle — SegmentedControl is w-full on mobile, w-fit from sm up.
+                Replaces the old px-6 pill that overflowed at 320-360px with XL text. */}
+            <SegmentedControl
+              options={[
+                { value: 'login',    label: 'Log In'   },
+                { value: 'register', label: 'Register' },
+              ]}
+              value={mode}
+              onChange={switchMode}
+              ariaLabel="Authentication mode"
+              role="tablist"
+              className="self-center"
+            />
 
             {/* Feedback messages */}
             {error && (

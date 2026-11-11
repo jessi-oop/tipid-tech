@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle2, Plus, Pencil } from 'lucide-react';
 import ProgressBar from './ProgressBar';
+import Card        from './ui/Card';
 import { getTotalSaved, addContribution, markGoalCompleted } from '../utils/storage';
 import {
   getSavingsDailyRequired,
@@ -89,9 +90,8 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
 
   // ── Render ────────────────────────────────────────────────────
   if (completed) {
-    // Muted completed style with checkmark
     return (
-      <div className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-page p-4">
+      <Card tone="page" className="flex flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <button
             type="button"
@@ -119,12 +119,12 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
           <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
           Completed — {formatPeso(totalSaved)} saved
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+    <Card className="flex flex-col gap-3 p-4">
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
         <button
@@ -227,6 +227,6 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
           </div>
         </form>
       )}
-    </div>
+    </Card>
   );
 }

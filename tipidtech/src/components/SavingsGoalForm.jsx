@@ -4,6 +4,7 @@
 // On submit: computes duration_days, inserts into savings_goals via createSavingsGoal().
 
 import { useState } from 'react';
+import Card from './ui/Card';
 import { createSavingsGoal } from '../utils/storage';
 import {
   durationToDays,
@@ -74,11 +75,12 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
 
   // ── Render ────────────────────────────────────────────────────
   return (
-    <form
-      className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-      onSubmit={handleSubmit}
-      noValidate
-    >
+    <Card className="flex flex-col gap-4">
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={handleSubmit}
+        noValidate
+      >
       <h3 className="text-lg font-bold text-ink">New Savings Goal</h3>
 
       {error && (
@@ -187,5 +189,6 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
         )}
       </div>
     </form>
+    </Card>
   );
 }
