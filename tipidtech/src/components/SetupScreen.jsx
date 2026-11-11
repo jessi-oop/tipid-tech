@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { PERIOD_OPTIONS } from '../utils/constants';
+import { toLocalDateKey } from '../utils/calculations';
 import StepIndicator  from './StepIndicator';
 import Card           from './ui/Card';
 import OptionGroup    from './ui/OptionGroup';
@@ -99,7 +100,7 @@ export default function SetupScreen({ onComplete }) {
   function getTomorrowString() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    return toLocalDateKey(tomorrow);
   }
 
   // ── Shared input classes ──────────────────────────────────────

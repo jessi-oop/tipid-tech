@@ -87,6 +87,7 @@ When a DB change is approved: write the SQL (table + RLS enable + policies scope
 - **Budget math lives in `calculations.js`** as pure functions. Extend it; don't rewrite existing functions. Components never compute status themselves.
 - **Database calls live in `storage.js`.** Components never import `supabase` directly.
 - Existing tables: `budgets`, `expenses`, `savings_goals`, `savings_contributions`, `profiles` (has `is_admin`), `login_logs`. RPCs: `get_admin_metrics`, `get_user_login_history`.
+- **Dates:** every "which day?" key comes from `toLocalDateKey()` in `calculations.js`. Never use `toISOString().slice(0, 10)` or `created_at.slice(0, 10)`, which give the UTC day. Day queries in `storage.js` use `[local midnight, next local midnight)`. A budget's `end_date` is the first day of the next period; it resets when local today `>= end_date`.
 - Every expense has a `budget_id` (period isolation). Queries for "this period" filter by it.
 - `App.jsx` owns `budgetId` state and uses it as the Dashboard remount key. `Dashboard.jsx` fetches its own budget — don't pass budget data down as props.
 - `saveBudget()` returns the saved row; use that return value for the id.
@@ -132,6 +133,7 @@ Branch `responsive-foundation` (not yet merged to `main`):
 - [x] 1.1 Logo fix
 - [x] Responsive foundation: `ui/` primitives, modals as bottom sheets (R3a), shared `ExpenseRow`
 - [x] R3b History/Reports mobile pass. Original group list was lost; scope as done: Reports lists moved into flush cards (`DayCard`, `isLast`) so rows aren't double-padded, each tab's controls in its own Card, Filter buttons 44px tall, date inputs use the DESIGN §7 input pattern, History edit in Custom Range now refreshes the range results
+- [x] Local-date fix (`fix/local-date-grouping`): History, Reports, pie chart "Today", budget start/end dates, savings goal start date all use the local day. Needs `docs/sql/2026-11-11-budget-end-date-plus-one.sql` run on both Supabase projects at deploy
 - [ ] R4 responsive QA, then merge to `main`
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
 
@@ -144,8 +146,6 @@ Next up, in order (see handoff for specs):
 
 ## 10. Known issues (don't fix unless asked)
 
-- `tipidtech/.gitignore` is saved as **UTF-16**, so git ignores it — that's why `node_modules/` (~13.7k files) and `dist/` are committed. Fix = re-save as UTF-8 and `git rm -r --cached node_modules dist`. Ask before doing it.
 - `ExpensePieChart.jsx` category colors use greens (`#80ed99`, `#57cc99`, `#74c69d`) and a red-orange (`#e76f51`) that clash with status colors. Fix during 2.3/2.4 (see DESIGN.md §4).
 - The brand color is a green (`#80ed99`). It is **not** a status color; keep the two visually distinct.
-- **Expenses are grouped by UTC date, not local date (breaks §7 rule 7).** Being fixed on `fix/local-date-grouping`. In PH (UTC+8), expenses from 00:00–07:59 land on the previous day in History. The Reports Weekly tab shifts day headings by one and leaves Sunday 8am+ expenses out of every heading (they still count in Week Total). Reports Daily defaults to yesterday before 8am, and `getExpensesByDate`/`getExpensesByRange` send timezone-less dates, so a "day" runs 8am–8am PH time.
 - `constants.js` still has a legacy `STORAGE_KEY = 'tipidtech_data'` from the localStorage era.

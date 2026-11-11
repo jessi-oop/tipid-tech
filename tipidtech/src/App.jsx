@@ -32,7 +32,7 @@ import PeriodSummaryModal from './components/PeriodSummaryModal';
 
 import { supabase }              from './utils/supabase';
 import { getBudget, saveBudget, deleteBudget, getProfile, logLogin } from './utils/storage';
-import { getSuggestedBudgets }   from './utils/calculations';
+import { getSuggestedBudgets, toLocalDateKey } from './utils/calculations';
 
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -84,7 +84,8 @@ function stateToBudgetRow(allowance, periodType, nextAllowanceDate, startDate, c
   };
 }
 
-// Calculate end_date (YYYY-MM-DD) from startDate + periodType
+// Calculate end_date (YYYY-MM-DD) from startDate + periodType.
+// end_date is the FIRST day of the next period (exclusive end); the budget resets when local today >= end_date.
 function calcEndDate(startDate, periodType, nextAllowanceDate, customDays) {
   const start = new Date(startDate + 'T00:00:00');
   if (periodType === 'date') {
@@ -98,7 +99,7 @@ function calcEndDate(startDate, periodType, nextAllowanceDate, customDays) {
   if (!daysToAdd || isNaN(daysToAdd)) return null;
   const end = new Date(start);
   end.setDate(end.getDate() + daysToAdd);
-  return end.toISOString().split('T')[0];
+  return toLocalDateKey(end);
 }
 
 // ─── App ──────────────────────────────────────────────────────────
@@ -169,11 +170,10 @@ export default function App() {
           setCategoryBudgets(state.categoryBudgets);
           setBudgetId(row.id);
 
-          // Auto-reset check: if end_date exists and today is past it,
+          // Auto-reset check: if end_date exists and today has reached it,
           // show the period summary modal before allowing any action.
           if (row.end_date) {
-            const today   = new Date().toISOString().split('T')[0];
-            if (today > row.end_date) {
+            if (toLocalDateKey() >= row.end_date) {
               setPeriodSummary({
                 budgetId:    row.id,
                 budget: {
@@ -215,7 +215,7 @@ export default function App() {
   }
 
   async function handleBudgetStart(finalBudgets) {
-    const today   = new Date().toISOString().split('T')[0];
+    const today   = toLocalDateKey();
     const endDate = calcEndDate(today, periodType, nextAllowanceDate, customDays);
 
     if (session?.user) {

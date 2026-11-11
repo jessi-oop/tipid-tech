@@ -19,14 +19,10 @@ import {
 } from 'recharts';
 
 import { EXPENSE_CATEGORIES } from '../utils/constants';
-import { formatPeso }          from '../utils/calculations';
+import { formatPeso, toLocalDateKey } from '../utils/calculations';
 import { getExpensesByDate, getExpensesByWeek } from '../utils/storage';
 
 // ─── Calendar helpers ─────────────────────────────────────────────
-
-function getTodayString() {
-  return new Date().toISOString().split('T')[0];
-}
 
 function getCurrentCalendarWeek() {
   const now  = new Date();
@@ -98,7 +94,7 @@ export default function ExpensePieChart({ userId, refreshKey, budgetId }) {
     try {
       let expenses = [];
       if (view === 'today') {
-        expenses = await getExpensesByDate(userId, getTodayString(), budgetId);
+        expenses = await getExpensesByDate(userId, toLocalDateKey(), budgetId);
       } else {
         const { monday, sunday } = getCurrentCalendarWeek();
         expenses = await getExpensesByWeek(userId, monday, sunday, budgetId);

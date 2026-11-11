@@ -14,7 +14,7 @@ import { ChevronDown, ChevronUp }  from 'lucide-react';
 
 import ExpenseRow              from './ExpenseRow';
 import { getAllExpenses, getExpensesByRange } from '../utils/storage';
-import { formatPeso }          from '../utils/calculations';
+import { formatPeso, toLocalDateKey } from '../utils/calculations';
 import EditExpenseModal        from './EditExpenseModal';
 import SectionHeader           from './ui/SectionHeader';
 import Card                    from './ui/Card';
@@ -34,15 +34,14 @@ function groupExpensesByTime(expenses) {
   if (!expenses || expenses.length === 0) return result;
 
   const now           = new Date();
-  const todayStr      = now.toISOString().split('T')[0];
+  const todayStr      = toLocalDateKey(now);
   const weekStart     = new Date(now);
   weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  weekStart.setHours(0, 0, 0, 0);
-  const weekStartStr  = weekStart.toISOString().split('T')[0];
+  const weekStartStr  = toLocalDateKey(weekStart);
   const monthStartStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 
   for (const expense of expenses) {
-    const dateStr = expense.created_at.slice(0, 10);
+    const dateStr = toLocalDateKey(expense.created_at);
     if (dateStr === todayStr)                                     result.today.push(expense);
     else if (dateStr >= weekStartStr && dateStr <= todayStr)      result.thisWeek.push(expense);
     else if (dateStr >= monthStartStr && dateStr <= todayStr)     result.thisMonth.push(expense);
@@ -58,7 +57,7 @@ function sumExpenses(list) {
 function groupByDate(expenses) {
   const map = new Map();
   for (const expense of expenses) {
-    const dateStr = expense.created_at.slice(0, 10);
+    const dateStr = toLocalDateKey(expense.created_at);
     if (!map.has(dateStr)) map.set(dateStr, []);
     map.get(dateStr).push(expense);
   }

@@ -11,17 +11,13 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import ExpenseRow             from './ExpenseRow';
-import { formatPeso }         from '../utils/calculations';
+import { formatPeso, toLocalDateKey } from '../utils/calculations';
 import { getExpensesByDate, getExpensesByWeek, getExpensesByRange } from '../utils/storage';
 import SectionHeader          from './ui/SectionHeader';
 import Card                   from './ui/Card';
 import SegmentedControl       from './ui/SegmentedControl';
 
 // ─── Calendar helpers ─────────────────────────────────────────────
-
-function getTodayString() {
-  return new Date().toISOString().split('T')[0];
-}
 
 function getCurrentCalendarWeek() {
   const now = new Date();
@@ -89,7 +85,7 @@ const dateCls = 'w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 t
 // ─── Daily Tab ────────────────────────────────────────────────────
 
 function DailyTab({ userId }) {
-  const [selectedDate, setSelectedDate] = useState(getTodayString());
+  const [selectedDate, setSelectedDate] = useState(toLocalDateKey());
   const [expenses,     setExpenses]     = useState([]);
   const [loading,      setLoading]      = useState(false);
   const [error,        setError]        = useState('');
@@ -128,7 +124,7 @@ function DailyTab({ userId }) {
             className={dateCls}
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            max={getTodayString()}
+            max={toLocalDateKey()}
           />
         </div>
       </Card>
@@ -180,7 +176,7 @@ function WeeklyTab({ userId }) {
 
   const grouped = {};
   expenses.forEach((e) => {
-    const dateKey = e.created_at.split('T')[0];
+    const dateKey = toLocalDateKey(e.created_at);
     if (!grouped[dateKey]) grouped[dateKey] = [];
     grouped[dateKey].push(e);
   });
@@ -215,7 +211,7 @@ function WeeklyTab({ userId }) {
       {!loading && !error && expenses.length > 0 && (
         <>
           {weekDays.map((day) => {
-            const dateKey     = day.toISOString().split('T')[0];
+            const dateKey     = toLocalDateKey(day);
             const dayExpenses = grouped[dateKey] || [];
             if (dayExpenses.length === 0) return null;
             return (
@@ -234,7 +230,7 @@ function WeeklyTab({ userId }) {
 function groupByDate(expenses) {
   const map = new Map();
   for (const expense of expenses) {
-    const dateStr = expense.created_at.slice(0, 10);
+    const dateStr = toLocalDateKey(expense.created_at);
     if (!map.has(dateStr)) map.set(dateStr, []);
     map.get(dateStr).push(expense);
   }

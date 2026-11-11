@@ -8,8 +8,10 @@ import { SUGGESTED_PERCENTAGES, STATUS, STATUS_THRESHOLDS } from './constants';
 
 // Convert a date string or Date object to a plain calendar date (no time).
 // Using noon UTC avoids daylight-saving edge cases when comparing dates.
+// 'YYYY-MM-DD' is parsed as LOCAL midnight (bare date strings parse as UTC,
+// which shifts the day back in UTC-negative timezones).
 function toCalendarDate(date) {
-  const d = new Date(date);
+  const d = typeof date === 'string' && date.length === 10 ? new Date(date + 'T00:00:00') : new Date(date);
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12));
 }
 
@@ -18,6 +20,18 @@ function daysBetween(dateA, dateB) {
   const a = toCalendarDate(dateA);
   const b = toCalendarDate(dateB);
   return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+}
+
+// ─── Local dates ──────────────────────────────────────────────────
+
+/**
+ * 'YYYY-MM-DD' for a Date or ISO timestamp, in the user's LOCAL timezone.
+ * Use this for every "which day is this?" key — never toISOString().slice(0, 10),
+ * which gives the UTC day (an expense at 6am in PH would land on the day before).
+ */
+export function toLocalDateKey(dateOrIso = new Date()) {
+  const d = new Date(dateOrIso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 // ─── Period / Days ────────────────────────────────────────────────

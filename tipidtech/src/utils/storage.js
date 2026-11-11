@@ -5,6 +5,14 @@
 
 import { supabase } from './supabase';
 
+// UTC timestamp of LOCAL midnight on dateKey ('YYYY-MM-DD') plus addDays.
+// Day queries use [midnight, next midnight) so they match the user's local day.
+function localMidnightISO(dateKey, addDays = 0) {
+  const d = new Date(dateKey + 'T00:00:00');
+  d.setDate(d.getDate() + addDays);
+  return d.toISOString();
+}
+
 // ─── Budget ───────────────────────────────────────────────────────
 
 /**
@@ -140,8 +148,8 @@ export async function getExpensesByDate(userId, date, budgetId = null) {
     .from('expenses')
     .select('*')
     .eq('user_id', userId)
-    .gte('created_at', `${date}T00:00:00`)
-    .lte('created_at', `${date}T23:59:59`)
+    .gte('created_at', localMidnightISO(date))
+    .lt('created_at',  localMidnightISO(date, 1))
     .order('created_at', { ascending: false });
 
   if (budgetId) query = query.eq('budget_id', budgetId);
@@ -205,8 +213,8 @@ export async function getExpensesByRange(userId, startDate, endDate) {
     .from('expenses')
     .select('*')
     .eq('user_id', userId)
-    .gte('created_at', `${startDate}T00:00:00`)
-    .lte('created_at', `${endDate}T23:59:59`)
+    .gte('created_at', localMidnightISO(startDate))
+    .lt('created_at',  localMidnightISO(endDate, 1))
     .order('created_at', { ascending: false });
 
   if (error) throw error;

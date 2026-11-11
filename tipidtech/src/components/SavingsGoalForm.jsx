@@ -11,6 +11,7 @@ import {
   getSavingsDailyRequired,
   getSavingsWeeklyRequired,
   formatPeso,
+  toLocalDateKey,
 } from '../utils/calculations';
 
 const DURATION_OPTIONS = [
@@ -49,7 +50,7 @@ export default function SavingsGoalForm({ userId, onCreated, onCancel }) {
       return;
     }
 
-    const today        = new Date().toISOString().split('T')[0];
+    const today        = toLocalDateKey();
     const durationDays = durationToDays(duration, parsedCustom);
 
     setSubmitting(true);
