@@ -33,6 +33,7 @@ import LearnScreen     from './components/LearnScreen';
 import AboutScreen     from './components/AboutScreen';
 import AppLayout       from './components/AppLayout';
 import PeriodSummaryModal from './components/PeriodSummaryModal';
+import { isGuideSeen, markGuideSeen } from './components/FirstTimeGuide';
 
 import { supabase }              from './utils/supabase';
 import { getBudget, saveBudget, deleteBudget, getProfile, logLogin } from './utils/storage';
@@ -234,7 +235,11 @@ export default function App() {
       }
     }
 
-    navigate('/dashboard');
+    // First-time guide: show once per user on this device; AppLayout opens it.
+    const userId = session?.user?.id;
+    const showGuide = !!userId && !isGuideSeen(userId);
+    if (showGuide) markGuideSeen(userId);
+    navigate('/dashboard', { state: { showGuide } });
   }
 
   function handleBudgetBack() {
@@ -270,6 +275,7 @@ export default function App() {
   // Called by PeriodSummaryModal's "Start New Period" button.
   async function doActualReset() {
     setPeriodSummary(null);
+    if (session?.user) markGuideSeen(session.user.id); // finished a period → not a new user; don't auto-show the guide after re-setup
     if (session?.user) {
       try {
         await deleteBudget(session.user.id);

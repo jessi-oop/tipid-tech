@@ -6,7 +6,7 @@
 // Text Size control so it works identically in both places.
 
 import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   History,
@@ -19,8 +19,10 @@ import {
   ALargeSmall,
   BookOpen,
   Info,
+  HelpCircle,
 } from 'lucide-react';
 import { TEXT_SIZE_OPTIONS, useTextSize } from '../utils/textSize';
+import FirstTimeGuide from './FirstTimeGuide';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard },
@@ -31,7 +33,7 @@ const NAV_ITEMS = [
   { to: '/about',     label: 'About',        icon: Info            },
 ];
 
-function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
+function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin, onOpenGuide }) {
   const [textSize, setTextSize] = useTextSize();
 
   return (
@@ -81,6 +83,14 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
             Admin
           </NavLink>
         )}
+        <button
+          type="button"
+          onClick={() => { onNavigate?.(); onOpenGuide(); }}
+          className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent px-4 py-2.5 text-left text-sm font-medium text-muted transition-colors duration-150 hover:bg-gray-50 hover:text-ink"
+        >
+          <HelpCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+          How it works
+        </button>
       </nav>
 
       {/* Text size + user email + logout */}
@@ -146,7 +156,17 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
 export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
+  // false | 'welcome' (auto, after first setup) | 'menu' (How it works).
+  // App.jsx sets state.showGuide only for a user who hasn't seen it yet.
+  const [guideOpen, setGuideOpen] = useState(() => (state?.showGuide ? 'welcome' : false));
+  const openGuide = () => setGuideOpen('menu');
+
+  // Drop the flag from history so a refresh or Back doesn't reopen it.
+  useEffect(() => {
+    if (state?.showGuide) navigate(pathname, { replace: true, state: null });
+  }, [state, pathname, navigate]);
 
   // SPA navigation keeps the old scroll position; start each page at the top.
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
@@ -156,7 +176,7 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
 
       {/* Desktop sidebar — fixed, always visible */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 overflow-y-auto border-r border-gray-200 bg-white lg:block">
-        <SidebarContent onLogout={onLogout} userEmail={userEmail} isAdmin={isAdmin} />
+        <SidebarContent onLogout={onLogout} userEmail={userEmail} isAdmin={isAdmin} onOpenGuide={openGuide} />
       </aside>
 
       {/* Mobile top bar with hamburger */}
@@ -208,6 +228,7 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
                 userEmail={userEmail}
                 onNavigate={closeDrawer}
                 isAdmin={isAdmin}
+                onOpenGuide={openGuide}
               />
             </div>
           </div>
@@ -220,6 +241,8 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
           {children}
         </div>
       </main>
+
+      {guideOpen && <FirstTimeGuide welcome={guideOpen === 'welcome'} onClose={() => setGuideOpen(false)} />}
 
     </div>
   );
