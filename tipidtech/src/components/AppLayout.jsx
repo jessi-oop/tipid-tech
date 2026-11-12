@@ -17,6 +17,7 @@ import {
   X,
   ShieldCheck,
   ALargeSmall,
+  BookOpen,
 } from 'lucide-react';
 import { TEXT_SIZE_OPTIONS, useTextSize } from '../utils/textSize';
 
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { to: '/history',   label: 'History',      icon: History         },
   { to: '/reports',   label: 'Reports',      icon: BarChart3       },
   { to: '/savings',   label: 'Savings Goals', icon: PiggyBank      },
+  { to: '/learn',     label: 'Learn',        icon: BookOpen        },
 ];
 
 function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {

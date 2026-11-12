@@ -137,9 +137,10 @@ Branch `responsive-foundation` (merged into `main` on 2026-11-12):
 - [x] Merge `responsive-foundation` to `main`
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
 - [x] 1.4 Feature labels (`feat/1.4-feature-labels`): one-line `SectionHeader` subtitles on History, Reports, Savings Goals; History title now matches the menu; History/Reports titles are `h1`. Dashboard intentionally has no page title. Reports subtitle adds "separate from your budget period" (user-approved). Checked in browser at 320–768 and all text sizes; still needs real-phone check
+- [x] 1.6 Learn reading list (`feat/1.6-learn-read`): logged-in `/learn` route, "Learn" menu item (`BookOpen`), `LearnScreen.jsx`, static data in `src/data/readingList.js` (6 free sources, links checked 2026-11-12). Read only, no Read/Practice switcher until 2.5 has a spec. Free resources only (no books, user decision). **Summaries are unreviewed drafts:** team to check them against each source, then delete the DRAFT note at the top of `readingList.js`. Approved by the user in the dev server; still needs real-phone check
 
 Next up, in order (see handoff for specs; every item is Confirmed by the team):
-- Release 1: 1.3 First-time guide · 1.5 About page *(new route)* · 1.6 Learn/Read *(new route, book icon)*
+- Release 1: 1.3 First-time guide · 1.5 About page *(new route)*
 - Release 2: 2.1 Notification bell · 2.2 Reminder card · 2.3 Theme system (step 1 palette tokens, step 2 gallery) · 2.4 History bar chart
 - Release 3: 3.1 Add money mid-period *(new table)*
 
