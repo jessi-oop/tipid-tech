@@ -138,9 +138,11 @@ Branch `responsive-foundation` (merged into `main` on 2026-11-12):
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
 - [x] 1.4 Feature labels (`feat/1.4-feature-labels`): one-line `SectionHeader` subtitles on History, Reports, Savings Goals; History title now matches the menu; History/Reports titles are `h1`. Dashboard intentionally has no page title. Reports subtitle adds "separate from your budget period" (user-approved). Checked in browser at 320–768 and all text sizes; still needs real-phone check
 - [x] 1.6 Learn reading list (`feat/1.6-learn-read`): logged-in `/learn` route, "Learn" menu item (`BookOpen`), `LearnScreen.jsx`, static data in `src/data/readingList.js` (6 free sources, links checked 2026-11-12). Read only, no Read/Practice switcher until 2.5 has a spec. Free resources only (no books, user decision). **Summaries are unreviewed drafts:** team to check them against each source, then delete the DRAFT note at the top of `readingList.js`. Approved by the user in the dev server; still needs real-phone check
+- [x] 1.5 About page (`feat/1.5-about`): public `/about` route (logged out: standalone page with "Back to log in"; logged in: inside the menu), "About" menu item (`Info`), "What is TipidTech?" link on the login screen. All copy in `src/data/aboutContent.js`; split and thresholds read from `constants.js`. Data/visibility text written from `storage.js` and the admin screens. Still needs real-phone check
+- [ ] **Open:** Fill About page placeholders (team, purpose). Search `TODO(about)`. Contact is filled (email, Facebook name, GitHub); Facebook shows as plain text until its profile URL is added. Also confirm RLS is on for `budgets`, `expenses`, `savings_goals`, `savings_contributions` so "Other users can't see your data" holds
 
 Next up, in order (see handoff for specs; every item is Confirmed by the team):
-- Release 1: 1.3 First-time guide · 1.5 About page *(new route)*
+- Release 1: 1.3 First-time guide
 - Release 2: 2.1 Notification bell · 2.2 Reminder card · 2.3 Theme system (step 1 palette tokens, step 2 gallery) · 2.4 History bar chart
 - Release 3: 3.1 Add money mid-period *(new table)*
 

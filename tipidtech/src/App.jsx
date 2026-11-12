@@ -13,6 +13,7 @@
 //   /reports    → ReportsScreen     (protected, inside AppLayout)
 //   /savings    → SavingsScreen     (protected, inside AppLayout)
 //   /learn      → LearnScreen       (protected, inside AppLayout)
+//   /about      → AboutScreen       (public; inside AppLayout when logged in)
 
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
@@ -29,6 +30,7 @@ import HistoryScreen   from './components/HistoryScreen';
 import ReportsScreen   from './components/ReportsScreen';
 import SavingsScreen   from './components/SavingsScreen';
 import LearnScreen     from './components/LearnScreen';
+import AboutScreen     from './components/AboutScreen';
 import AppLayout       from './components/AppLayout';
 import PeriodSummaryModal from './components/PeriodSummaryModal';
 
@@ -424,6 +426,27 @@ export default function App() {
                 <LearnScreen />
               </AppLayout>
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/about"
+          element={
+            !authChecked ? null : session ? (
+              <AppLayout
+                onLogout={handleLogout}
+                userEmail={session?.user?.email ?? ''}
+                isAdmin={isAdmin}
+              >
+                <AboutScreen loggedIn />
+              </AppLayout>
+            ) : (
+              <main className="min-h-dvh bg-page">
+                <div className="p-4 sm:p-6">
+                  <AboutScreen />
+                </div>
+              </main>
+            )
           }
         />
 

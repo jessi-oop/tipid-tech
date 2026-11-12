@@ -6,6 +6,7 @@
 // Wired to Supabase email+password auth.
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Wallet, PieChart, PiggyBank, Eye, EyeOff } from 'lucide-react';
 import { supabase }          from '../utils/supabase';
 import SegmentedControl      from './ui/SegmentedControl';
@@ -120,10 +121,14 @@ export default function AuthScreen() {
     <div className="flex min-h-dvh flex-col bg-page lg:flex-row">
 
       {/* ─── Desktop: left branded panel ─────────────────────── */}
-      <div className="hidden w-1/2 flex-col justify-between bg-brand p-12 lg:flex">
-        <img src="/logo-mark.png" alt="TipidTech" className="h-20 w-auto max-w-[200px] object-contain" />
+      <div className="relative hidden w-1/2 flex-col justify-between gap-10 overflow-hidden bg-brand p-12 lg:flex">
+        {/* decorative circles, behind content (same style as the About hero) */}
+        <div className="pointer-events-none absolute -right-40 -top-40 h-[28rem] w-[28rem] rounded-full bg-white/25" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-36 -left-28 h-64 w-64 rounded-full bg-brand-dark/30" aria-hidden="true" />
 
-        <div className="flex flex-col gap-6">
+        <img src="/logo-mark.png" alt="TipidTech" className="relative h-20 w-auto max-w-[200px] self-start object-contain" />
+
+        <div className="relative flex flex-col gap-6">
           <h2 className="text-5xl font-extrabold leading-tight text-ink">
             Plan. Track.<br />Understand.
           </h2>
@@ -146,7 +151,7 @@ export default function AuthScreen() {
           </p>
         </div>
 
-        <p className="text-sm font-medium text-ink/60">
+        <p className="relative text-sm font-medium text-ink/60">
           A simple spending-awareness tool for Filipino students.
         </p>
       </div>
@@ -154,11 +159,11 @@ export default function AuthScreen() {
       {/* ─── Mobile: green header band ────────────────────────── */}
       {/* Hidden on desktop — desktop uses the left panel above.   */}
       <div className="bg-brand px-6 pb-10 pt-8 lg:hidden">
-        <div className="mx-auto flex w-full max-w-md flex-col gap-3">
+        <div className="mx-auto flex w-full max-w-md flex-col gap-3 text-center">
           <img
             src="/logo-mark.png"
             alt="TipidTech"
-            className="h-12 w-auto max-w-[140px] object-contain"
+            className="h-12 w-auto max-w-[140px] self-end object-contain"
           />
           <h1 className="text-[1.75rem] font-extrabold leading-tight text-ink">
             Plan. Track. Understand.
@@ -362,6 +367,15 @@ export default function AuthScreen() {
               )}
             </p>
           </div>
+
+          <p className="-mt-2 text-center text-sm">
+            <Link
+              to="/about"
+              className="inline-flex min-h-11 items-center px-1 font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
+            >
+              What is TipidTech?
+            </Link>
+          </p>
 
           {/* ─── Mobile: feature bullets + tagline ─────────────── */}
           {/* Shown only on mobile; desktop sees these in the left panel. */}
