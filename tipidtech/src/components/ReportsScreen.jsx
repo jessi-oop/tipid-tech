@@ -355,9 +355,9 @@ export default function ReportsScreen({ userId, onLogout, userEmail }) {
 
       {/* Page header */}
       <SectionHeader
-        as="h2"
+        as="h1"
         title="Reports"
-        description="Calendar-based spending reports. These are independent of your budget period — use them to look up any date."
+        description="Daily and weekly totals by calendar day, separate from your budget period."
       />
 
       {/* Tab toggle — SegmentedControl is w-full on mobile (no overflow),

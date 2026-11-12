@@ -55,7 +55,7 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
       <SectionHeader
         as="h1"
         title="Savings Goals"
-        description="Tap a goal card to see your contribution history. Tap the pencil icon to edit or delete a goal."
+        description="Save toward something specific."
         action={
           !showForm && (
             <button

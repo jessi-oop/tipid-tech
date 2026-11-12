@@ -136,9 +136,10 @@ Branch `responsive-foundation` (merged into `main` on 2026-11-12):
 - [x] R4 responsive QA (`fix/r4-responsive-qa`): automated pass over 16 screens/states × 320/360/390/768 × Normal/Large/XL — no sideways scroll, nothing cut off, all tap targets ≥44px. Fixed: pie legend overlapping the ring (legend is now an HTML list), scroll reset on page change, Dashboard expense rows double padding + date under edit button, tap targets, `text-gray-400` contrast, "/day" wrapping, reload of a protected page redirecting to `/dashboard` (route guards now wait for `authChecked`). Also on this branch: Dashboard no longer flashes the full allowance before expenses load, and Budget Categories bars count the whole period (they only counted the 5 most recent expenses). Still needs: real-phone check (iPhone input zoom, Safari/Chrome hyphenation of "Transportation" at 320px XL)
 - [x] Merge `responsive-foundation` to `main`
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
+- [x] 1.4 Feature labels (`feat/1.4-feature-labels`): one-line `SectionHeader` subtitles on History, Reports, Savings Goals; History title now matches the menu; History/Reports titles are `h1`. Dashboard intentionally has no page title. Reports subtitle adds "separate from your budget period" (user-approved). Checked in browser at 320–768 and all text sizes; still needs real-phone check
 
 Next up, in order (see handoff for specs; every item is Confirmed by the team):
-- Release 1: 1.3 First-time guide · 1.4 Feature labels · 1.5 About page *(new route)* · 1.6 Learn/Read *(new route, book icon)*
+- Release 1: 1.3 First-time guide · 1.5 About page *(new route)* · 1.6 Learn/Read *(new route, book icon)*
 - Release 2: 2.1 Notification bell · 2.2 Reminder card · 2.3 Theme system (step 1 palette tokens, step 2 gallery) · 2.4 History bar chart
 - Release 3: 3.1 Add money mid-period *(new table)*
 

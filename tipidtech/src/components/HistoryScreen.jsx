@@ -222,9 +222,9 @@ export default function HistoryScreen({ userId, budgetId, onLogout, userEmail })
 
       {/* ── Page header ──────────────────────────────────────── */}
       <SectionHeader
-        as="h2"
-        title="Expense History"
-        description="Your expenses for this budget period, grouped by time. Use Custom Range to look up specific dates."
+        as="h1"
+        title="History"
+        description="See everything you've spent."
       />
 
       {/* ── Tab toggle ─────────────────────────────────────────
