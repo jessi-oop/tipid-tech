@@ -127,7 +127,7 @@ export default function AddExpenseForm({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-ink">Add Expense</h3>
         <button
-          className="cursor-pointer rounded-lg border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
+          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
           onClick={onCancel}
           aria-label="Cancel"
         >
@@ -234,7 +234,7 @@ export default function AddExpenseForm({
               </p>
             )}
 
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted">
               {warning.daysRemaining} day{warning.daysRemaining !== 1 ? 's' : ''} remaining in your budget period.
             </p>
 

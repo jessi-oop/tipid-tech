@@ -9,13 +9,14 @@ export default function ExpenseList({ expenses, onEdit }) {
     return (
       <div className="flex flex-col gap-1 py-4 text-center">
         <p className="text-sm text-muted">No expenses recorded yet.</p>
-        <p className="text-xs text-gray-400">Add your first expense to start tracking.</p>
+        <p className="text-xs text-muted">Add your first expense to start tracking.</p>
       </div>
     );
   }
 
   return (
-    <ul className="flex flex-col" aria-label="Recent expenses">
+    // Negative margin cancels the Dashboard Card's padding (p-4 sm:p-6); rows bring their own.
+    <ul className="-mx-4 flex flex-col sm:-mx-6" aria-label="Recent expenses">
       {expenses.map((expense, idx) => (
         <ExpenseRow
           key={expense.id}

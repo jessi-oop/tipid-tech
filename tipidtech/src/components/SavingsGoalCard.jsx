@@ -86,7 +86,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
   }
 
   // ── Shared input class ────────────────────────────────────────
-  const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
+  const inputCls = 'w-full px-4 py-2.5 border border-gray-200 rounded-lg text-base text-ink bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors duration-150 appearance-none';
 
   // ── Render ────────────────────────────────────────────────────
   if (completed) {
@@ -96,7 +96,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
           <button
             type="button"
             onClick={() => onCardTap && onCardTap(goal)}
-            className="min-w-0 flex-1 cursor-pointer border-none bg-transparent p-0 text-left"
+            className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center border-none bg-transparent p-0 text-left"
             aria-label={`View ${goal.name} contributions`}
           >
             <h3 className="text-base font-semibold text-muted">{goal.name}</h3>
@@ -107,7 +107,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onEdit(goal); }}
-                className="cursor-pointer rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-200 hover:text-ink"
+                className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-200 hover:text-ink"
                 aria-label={`Edit ${goal.name}`}
               >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
@@ -130,7 +130,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
         <button
           type="button"
           onClick={() => onCardTap && onCardTap(goal)}
-          className="min-w-0 flex-1 cursor-pointer border-none bg-transparent p-0 text-left"
+          className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center border-none bg-transparent p-0 text-left"
           aria-label={`View ${goal.name} contributions`}
         >
           <h3 className="text-base font-semibold text-ink">{goal.name}</h3>
@@ -141,7 +141,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onEdit(goal); }}
-              className="cursor-pointer rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
+              className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-1.5 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
               aria-label={`Edit ${goal.name}`}
             >
               <Pencil className="h-4 w-4" aria-hidden="true" />
@@ -160,7 +160,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
           : `${formatPeso(totalSaved)} saved of ${formatPeso(targetAmount)} (${Math.round(percentage)}%)`
         }
       </p>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted">
         Save {formatPeso(dailyRequired)}/day or {formatPeso(weeklyRequired)}/week
       </p>
 
@@ -169,7 +169,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
         <button
           type="button"
           onClick={() => setShowForm(true)}
-          className="flex w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-brand bg-brand px-3 py-1.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"        >
+          className="flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded-lg border border-brand bg-brand px-3 py-1.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"        >
           <Plus className="h-3.5 w-3.5" aria-hidden="true" />
           Add Contribution
         </button>
@@ -207,7 +207,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+              className="min-h-11 flex-1 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
             >
               {submitting ? 'Saving…' : 'Save'}
             </button>
@@ -220,7 +220,7 @@ export default function SavingsGoalCard({ goal, userId, onGoalUpdated, onEdit, o
                 setContribNote('');
                 setFormError('');
               }}
-              className="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
+              className="min-h-11 flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
             >
               Cancel
             </button>

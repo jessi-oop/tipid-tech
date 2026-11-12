@@ -226,7 +226,7 @@ export default function AuthScreen() {
                     <input
                       id="login-password"
                       type={showLoginPassword ? 'text' : 'password'}
-                      className={`${inputCls} pr-10`}
+                      className={`${inputCls} pr-12`}
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -236,7 +236,7 @@ export default function AuthScreen() {
                     <button
                       type="button"
                       onClick={() => setShowLoginPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors duration-150 hover:text-ink"
+                      className="absolute right-0 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors duration-150 hover:text-ink"
                       aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
                     >
                       {showLoginPassword
@@ -279,7 +279,7 @@ export default function AuthScreen() {
                     <input
                       id="reg-password"
                       type={showRegPassword ? 'text' : 'password'}
-                      className={`${inputCls} pr-10`}
+                      className={`${inputCls} pr-12`}
                       placeholder="At least 6 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -289,7 +289,7 @@ export default function AuthScreen() {
                     <button
                       type="button"
                       onClick={() => setShowRegPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors duration-150 hover:text-ink"
+                      className="absolute right-0 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors duration-150 hover:text-ink"
                       aria-label={showRegPassword ? 'Hide password' : 'Show password'}
                     >
                       {showRegPassword
@@ -305,7 +305,7 @@ export default function AuthScreen() {
                     <input
                       id="reg-confirm"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      className={`${inputCls} pr-10`}
+                      className={`${inputCls} pr-12`}
                       placeholder="Repeat your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -315,7 +315,7 @@ export default function AuthScreen() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors duration-150 hover:text-ink"
+                      className="absolute right-0 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors duration-150 hover:text-ink"
                       aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                     >
                       {showConfirmPassword
@@ -343,7 +343,7 @@ export default function AuthScreen() {
                   <button
                     type="button"
                     onClick={() => switchMode('register')}
-                    className="cursor-pointer border-none bg-transparent font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
+                    className="inline-flex min-h-11 cursor-pointer items-center border-none bg-transparent px-1 font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
                   >
                     Register
                   </button>
@@ -354,7 +354,7 @@ export default function AuthScreen() {
                   <button
                     type="button"
                     onClick={() => switchMode('login')}
-                    className="cursor-pointer border-none bg-transparent font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
+                    className="inline-flex min-h-11 cursor-pointer items-center border-none bg-transparent px-1 font-semibold text-ink underline underline-offset-2 hover:text-brand-dark"
                   >
                     Log In
                   </button>

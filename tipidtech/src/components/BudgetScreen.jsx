@@ -75,7 +75,7 @@ export default function BudgetScreen({ allowance, categoryBudgets, onStart, onBa
       {/* Header — Back button above SectionHeader, outside it per spec */}
       <div className="flex flex-col gap-2">
         <button
-          className="flex w-fit cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-sm font-medium text-muted transition-colors duration-150 hover:text-ink hover:underline"
+          className="flex min-h-11 w-fit cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-sm font-medium text-muted transition-colors duration-150 hover:text-ink hover:underline"
           onClick={onBack}
           aria-label="Go back"
         >

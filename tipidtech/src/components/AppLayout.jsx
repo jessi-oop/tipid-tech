@@ -5,8 +5,8 @@
 // Both sidebar and drawer share SidebarContent, which includes the
 // Text Size control so it works identically in both places.
 
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   History,
@@ -50,7 +50,7 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
             to={to}
             onClick={onNavigate}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors duration-150 no-underline ${
+              `flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors duration-150 no-underline ${
                 isActive
                   ? 'bg-brand font-semibold text-ink'
                   : 'font-medium text-muted hover:bg-gray-50 hover:text-ink'
@@ -66,7 +66,7 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
             to="/admin"
             onClick={onNavigate}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors duration-150 no-underline ${
+              `flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors duration-150 no-underline ${
                 isActive
                   ? 'bg-brand font-semibold text-ink'
                   : 'font-medium text-muted hover:bg-gray-50 hover:text-ink'
@@ -106,7 +106,7 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
                 type="button"
                 onClick={() => setTextSize(key)}
                 aria-pressed={textSize === key}
-                className={`flex-1 cursor-pointer rounded-lg border py-3 text-xs font-semibold transition-colors duration-150 leading-none ${
+                className={`min-h-11 flex-1 cursor-pointer rounded-lg border py-3 text-xs font-semibold transition-colors duration-150 leading-none ${
                   textSize === key
                     ? 'border-brand bg-brand text-ink'
                     : 'border-gray-200 bg-white text-muted hover:border-gray-300 hover:text-ink'
@@ -127,7 +127,7 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
           <button
             type="button"
             onClick={onLogout}
-            className="flex cursor-pointer items-center gap-2 rounded-xl border border-brand bg-brand px-4 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"
+            className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-brand bg-brand px-4 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"
           >
             <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
             Log Out
@@ -142,6 +142,10 @@ function SidebarContent({ onLogout, userEmail, onNavigate, isAdmin }) {
 export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
+  const { pathname } = useLocation();
+
+  // SPA navigation keeps the old scroll position; start each page at the top.
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
 
   return (
     <div className="min-h-dvh bg-page">
@@ -156,7 +160,7 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="cursor-pointer rounded-lg p-2 text-ink transition-colors duration-150 hover:bg-gray-100"
+          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg p-2 text-ink transition-colors duration-150 hover:bg-gray-100"
           aria-label="Open navigation menu"
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
@@ -187,7 +191,7 @@ export default function AppLayout({ children, onLogout, userEmail, isAdmin }) {
               <button
                 type="button"
                 onClick={closeDrawer}
-                className="cursor-pointer rounded-lg p-2 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
+                className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg p-2 text-muted transition-colors duration-150 hover:bg-gray-100 hover:text-ink"
                 aria-label="Close navigation menu"
               >
                 <X className="h-5 w-5" aria-hidden="true" />

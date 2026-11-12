@@ -61,7 +61,7 @@ export default function SavingsScreen({ userId, onLogout, userEmail }) {
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark sm:w-auto sm:justify-start"
+              className="flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark sm:w-auto sm:justify-start"
             >
               <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
               Add New Goal

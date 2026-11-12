@@ -14,9 +14,9 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
+import SegmentedControl from './ui/SegmentedControl';
 
 import { EXPENSE_CATEGORIES } from '../utils/constants';
 import { formatPeso, toLocalDateKey } from '../utils/calculations';
@@ -120,29 +120,16 @@ export default function ExpensePieChart({ userId, refreshKey, budgetId }) {
       {/* Header + toggle */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-ink">Spending Breakdown</h2>
-        <div
-          className="flex rounded-full bg-page p-1"
-          role="group"
-          aria-label="Chart period"
-        >
-          {[
-            { key: 'today', label: 'Today' },
-            { key: 'week',  label: 'This Week' },
-          ].map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setView(key)}
-              className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-150 ${
-                view === key
-                  ? 'bg-brand text-ink'
-                  : 'text-muted hover:text-ink'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          options={[
+            { value: 'today', label: 'Today' },
+            { value: 'week',  label: 'This Week' },
+          ]}
+          value={view}
+          onChange={setView}
+          ariaLabel="Chart period"
+          role="radiogroup"
+        />
       </div>
 
       {/* Chart area */}
@@ -153,31 +140,37 @@ export default function ExpensePieChart({ userId, refreshKey, budgetId }) {
           No expenses recorded {view === 'today' ? 'today' : 'this week'}.
         </p>
       ) : (
-        <ResponsiveContainer width="100%" height={260}>
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={100}
-              paddingAngle={2}
-              dataKey="value"
-            >
-              {chartData.map((entry) => (
-                <Cell key={entry.key} fill={getColor(entry)} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              formatter={(value, entry) =>
-                `${value}: ${formatPeso(entry.payload.value)}`
-              }
-              iconType="circle"
-              iconSize={10}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <>
+          {/* Ring only; the legend is the HTML list below so it scales with text size
+              and never overlaps the chart on narrow phones. */}
+          <ResponsiveContainer width="100%" height={210}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {chartData.map((entry) => (
+                  <Cell key={entry.key} fill={getColor(entry)} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <ul className="grid grid-cols-1 gap-x-4 gap-y-2 xs:grid-cols-2" aria-label="Spending by category">
+            {chartData.map((entry) => (
+              <li key={entry.key} className="flex min-w-0 items-center gap-2 text-sm">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: getColor(entry) }} aria-hidden="true" />
+                <span className="min-w-0 flex-1 break-words hyphens-auto text-ink">{entry.name}</span>
+                <span className="shrink-0 font-semibold text-ink">{formatPeso(entry.value)}</span>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

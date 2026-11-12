@@ -312,7 +312,7 @@ export default function App() {
         <Route
           path="/setup"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute session={session} authChecked={authChecked}>
               <SetupScreen onComplete={handleSetupComplete} />
             </ProtectedRoute>
           }
@@ -320,7 +320,7 @@ export default function App() {
         <Route
           path="/budget"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute session={session} authChecked={authChecked}>
               <BudgetScreen
                 allowance={allowance}
                 categoryBudgets={categoryBudgets}
@@ -334,7 +334,7 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute session={session} authChecked={authChecked}>
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
@@ -355,7 +355,7 @@ export default function App() {
         <Route
           path="/history"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute session={session} authChecked={authChecked}>
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
@@ -375,7 +375,7 @@ export default function App() {
         <Route
           path="/reports"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute session={session} authChecked={authChecked}>
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
@@ -394,7 +394,7 @@ export default function App() {
         <Route
           path="/savings"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute session={session} authChecked={authChecked}>
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}
@@ -415,7 +415,7 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            <AdminRoute session={session} isAdmin={isAdmin} adminChecked={adminChecked}>
+            <AdminRoute session={session} authChecked={authChecked} isAdmin={isAdmin} adminChecked={adminChecked}>
               <AppLayout
                 onLogout={handleLogout}
                 userEmail={session?.user?.email ?? ''}

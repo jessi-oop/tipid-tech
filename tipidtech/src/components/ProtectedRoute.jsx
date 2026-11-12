@@ -4,7 +4,9 @@
 
 import { Navigate } from 'react-router-dom';
 
-export default function ProtectedRoute({ session, children }) {
+// Waits for authChecked so a page reload doesn't redirect before the session is restored.
+export default function ProtectedRoute({ session, authChecked, children }) {
+  if (!authChecked) return null;
   if (!session) {
     return <Navigate to="/login" replace />;
   }

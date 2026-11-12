@@ -169,7 +169,7 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
             <button
               type="button"
               onClick={handleResetClick}
-              className="cursor-pointer rounded-full border border-brand bg-brand px-3 py-1.5 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"
+              className="min-h-11 cursor-pointer rounded-full border border-brand bg-brand px-4 py-1.5 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark hover:border-brand-dark"
             >
               Reset Budget
             </button>
@@ -204,7 +204,10 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
         <UiStatCard
           icon={<Wallet className="h-4 w-4" />}
           label="Available per Day"
-          value={periodEnded || daysRemaining <= 0 ? '—' : `${formatPeso(currentDaily)}/day`}
+          value={periodEnded || daysRemaining <= 0 ? '—' : (
+            // <wbr> + nowrap: if it must wrap, "/day" moves down whole instead of splitting after "/"
+            <>{formatPeso(currentDaily)}<wbr /><span className="whitespace-nowrap">/day</span></>
+          )}
           helper="Approximate amount you can spend per day"
         />
         <StatusBadge statusResult={statusResult} daysRemaining={daysRemaining} />
@@ -253,7 +256,7 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
                 <button
                   type="button"
                   onClick={() => setShowExpenseForm(true)}
-                  className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand px-3.5 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark sm:flex-none"
+                  className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand px-3.5 py-2 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-brand-dark sm:flex-none"
                 >
                   <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
                   Add Expense
@@ -261,7 +264,7 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
               )}
               <Link
                 to="/history"
-                className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
+                className="inline-flex min-h-11 items-center text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
               >
                 View All
               </Link>
@@ -301,7 +304,7 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
           action={
             <Link
               to="/savings"
-              className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
+              className="inline-flex min-h-11 items-center text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-ink hover:underline"
             >
               See All Goals
             </Link>

@@ -10,8 +10,8 @@
 //                Joined inside a flex-wrap row so the break happens BETWEEN them,
 //                never inside a date or time string. " · " is attached to the END
 //                of the date span so a wrapped line never starts with a dot.
-//   "combined" — single formatExpenseDateTime string ("Oct 25, 2026, 11:43 PM"),
-//                rendered as one nowrap span. Used by ExpenseList (Dashboard).
+//   "combined" — "Oct 25, " + "11:43 PM" (no year), two nowrap pieces that wrap
+//                like dateTime. Used by ExpenseList (Dashboard).
 //   "timeOnly" — time string only, one nowrap span. Used by ReportsScreen.
 //
 // onEdit (optional): if provided, renders a Pencil button in the right column.
@@ -46,12 +46,9 @@ function formatTime(isoString) {
   });
 }
 
-// Used by dateMode="combined" (ExpenseList). Short month+day, no year, comma join.
-function formatExpenseDateTime(isoString) {
-  const date     = new Date(isoString);
-  const datePart = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
-  const timePart = date.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true });
-  return `${datePart}, ${timePart}`;
+// Used by dateMode="combined" (ExpenseList). Short month+day, no year.
+function formatShortDate(isoString) {
+  return new Date(isoString).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
 }
 
 // ─── Component ────────────────────────────────────────────────────
@@ -76,9 +73,11 @@ export default function ExpenseRow({
       </span>
     );
   } else if (dateMode === 'combined') {
+    // Same wrap rule as dateTime: break between date and time, never under the edit button.
     dateLine = (
-      <span className="whitespace-nowrap text-xs text-muted">
-        {formatExpenseDateTime(expense.created_at)}
+      <span className="flex flex-wrap text-xs text-muted">
+        <span className="whitespace-nowrap">{formatShortDate(expense.created_at)},&nbsp;</span>
+        <span className="whitespace-nowrap">{formatTime(expense.created_at)}</span>
       </span>
     );
   } else {
@@ -103,7 +102,7 @@ export default function ExpenseRow({
       <span className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
 
         {/* Category name — wraps onto 2 lines max, never overflows */}
-        <span className="line-clamp-2 min-w-0 break-words text-sm font-semibold text-ink">
+        <span className="line-clamp-2 min-w-0 break-words hyphens-auto text-sm font-semibold text-ink">
           {categoryLabel}
         </span>
 

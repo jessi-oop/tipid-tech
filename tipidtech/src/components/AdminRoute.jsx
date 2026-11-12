@@ -6,7 +6,8 @@
 
 import { Navigate } from 'react-router-dom';
 
-export default function AdminRoute({ session, isAdmin, adminChecked, children }) {
+export default function AdminRoute({ session, authChecked, isAdmin, adminChecked, children }) {
+  if (!authChecked)  return null;
   if (!session)      return <Navigate to="/login"     replace />;
   if (!adminChecked) return null;
   if (!isAdmin)      return <Navigate to="/dashboard" replace />;
