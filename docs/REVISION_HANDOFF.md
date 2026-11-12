@@ -1,13 +1,14 @@
 # TipidTech Prototype: Revision Handoff
 
 > Converted from the team's `TipidTech Prototype Revision Handoff.odt` (Nov 2026). Content unchanged except formatting.
+> **Status update (2026-11-12):** the team approved every item. 1.3, 1.4, 1.5 and 3.1 moved from Proposed to Confirmed.
 > **Section 6 (Open decisions) is referenced below but was missing from the source doc.** Ask the user before deciding anything that points to it.
 
 ## 1. Read this first
 
 - This document lists the changes the team agreed to (or proposes) for the TipidTech prototype, in build order, with what each should do and how to tell it is finished.
 - It was written from the project context document (PROJECT_CONTEXT.md) and the team's discussion, not from the code. Check the repo before building each item: don't assume something is missing just because it isn't listed. File names below (App.jsx, storage.js, calculations.js, constants.js) are the likely places, so confirm them.
-- Each item is marked **Confirmed** (the team decided it) or **Proposed** (recommended, waiting for the team's yes). Check with the team before building a Proposed item.
+- Each item is marked **Confirmed** (the team decided it). As of 2026-11-12 every item is Confirmed; there are no Proposed items left.
 - Open decisions are listed in Section 6, each with a recommended default. Use a default only if the team has not answered.
 - **Flag, don't slip in:** any new table, column, route, or dependency must be raised for review before it goes in.
 
@@ -69,20 +70,20 @@ Why this order: the small items cover the feedback most people gave, the engagem
 - **Done when:** readable at 320, 360, 390 px and on a tablet; all three sizes work on every main screen with nothing cut off or overlapping; tapping an input on iPhone doesn't zoom; choice survives refresh and logout.
 - Size: Small to Medium.
 
-#### 1.3 First-time guide — Proposed
+#### 1.3 First-time guide — Confirmed
 - Behavior: after the first budget setup, show 3–4 skippable cards: (1) Plan, Track, Understand; (2) what Green, Yellow, and Red mean, stated as guides and not professional advice; (3) Savings category versus Savings Goals; (4) how to add your first expense. A "How it works" link in the menu reopens it.
 - Buttons: Next, Skip, Done.
 - "Seen" flag: device first.
 - **Done when:** a new user sees it once, can skip it, and can reopen it; readable on mobile.
 - Size: Small to Medium.
 
-#### 1.4 Clearer feature labels — Proposed
+#### 1.4 Clearer feature labels — Confirmed
 - Behavior: a one-line subtitle under each page title and clear menu labels. Examples: History — see everything you've spent; Reports — daily and weekly totals by calendar day; Savings Goals — save toward something specific. *(Source doc has a stray "(bar chart breakdown)" here; meaning unclear.)*
 - Before building, confirm with P11 and P12 what "distinction of features" meant.
 - **Done when:** a new user can say what each page is for.
 - Size: Small.
 
-#### 1.5 About and credibility page — Proposed
+#### 1.5 About and credibility page — Confirmed
 - Content: who made TipidTech and why; a plain-language note on what data is stored and who can see it; an honest note that the suggested percentages and color thresholds are prototype guides; a contact or feedback link.
 - Only claim what is true. No "bank-level security" or "proven" wording unless it can be backed up.
 - New public route (flag it). Link from the login screen and the menu.
@@ -151,7 +152,7 @@ Layout comes from a screenshot of another expense app. Take the layout only, not
 
 ### Release 3: Core change
 
-#### 3.1 Add money mid-period — Proposed ("done changes"; confirm status with the team)
+#### 3.1 Add money mid-period — Confirmed
 - Why: P10's allowance isn't fixed; current setup assumes one allowance per period.
 - Flow: from the dashboard tap "Add money", enter amount, date, optional note. Balance and daily amount update right away. Top-up history shown and included in the period summary.
 - Recommended design: top-ups as separate records (editable/deletable). Balance = allowance + top-ups − expenses. Decide explicitly how the planned daily amount and the Green/Yellow/Red ratio are calculated after a top-up.

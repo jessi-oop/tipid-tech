@@ -73,7 +73,6 @@ Stop, explain, and wait for a yes before you:
 - add a **Supabase table, column, RPC, or policy change**
 - add a **route** in `App.jsx`
 - add a new file in `src/utils/`
-- build an item marked **Proposed** in the handoff (1.3, 1.4, 1.5, 3.1) unless the user says the team approved it
 - change `calculations.js` behavior (not just add a new function)
 - change how an existing screen looks, outside the scope of the current task
 - delete files, rename exported functions, or do a large refactor
@@ -110,7 +109,7 @@ When a DB change is approved: write the SQL (table + RLS enable + policies scope
 
 ## 8. How to work a task
 
-1. **Branch.** One branch per feature, off `main` (or off `responsive-foundation` until it's merged): `feat/<handoff-id>-<slug>`, e.g. `feat/1.6-learn-read`. Never commit to `main` directly. Never merge or push unless asked.
+1. **Branch.** One branch per feature, off `main`: `feat/<handoff-id>-<slug>`, e.g. `feat/1.6-learn-read`. Never commit to `main` directly. Never merge or push unless asked.
 2. **Read** the handoff section, `DESIGN.md`, and every file you'll touch.
 3. **Plan first.** Before editing, post a short plan: files to create/change, any §5 flags, open questions. Wait for a go-ahead on anything Medium or bigger.
 4. **Implement in small steps.** Reuse `ui/` primitives. Keep diffs focused on the task.
@@ -129,19 +128,19 @@ Ponytail is installed. "Least code" never overrides this file: still plan first,
 
 ## 9. Current status (update this section as work lands)
 
-Branch `responsive-foundation` (not yet merged to `main`):
+Branch `responsive-foundation` (merged into `main` on 2026-11-12):
 - [x] 1.1 Logo fix
 - [x] Responsive foundation: `ui/` primitives, modals as bottom sheets (R3a), shared `ExpenseRow`
 - [x] R3b History/Reports mobile pass. Original group list was lost; scope as done: Reports lists moved into flush cards (`DayCard`, `isLast`) so rows aren't double-padded, each tab's controls in its own Card, Filter buttons 44px tall, date inputs use the DESIGN §7 input pattern, History edit in Custom Range now refreshes the range results
 - [x] Local-date fix (merged from `fix/local-date-grouping`): History, Reports, pie chart "Today", budget start/end dates, savings goal start date all use the local day. **Deploy step:** run `docs/sql/2026-11-11-budget-end-date-plus-one.sql` once on both Supabase projects (main and v1-demo) when this reaches production
 - [x] R4 responsive QA (`fix/r4-responsive-qa`): automated pass over 16 screens/states × 320/360/390/768 × Normal/Large/XL — no sideways scroll, nothing cut off, all tap targets ≥44px. Fixed: pie legend overlapping the ring (legend is now an HTML list), scroll reset on page change, Dashboard expense rows double padding + date under edit button, tap targets, `text-gray-400` contrast, "/day" wrapping, reload of a protected page redirecting to `/dashboard` (route guards now wait for `authChecked`). Also on this branch: Dashboard no longer flashes the full allowance before expenses load, and Budget Categories bars count the whole period (they only counted the 5 most recent expenses). Still needs: real-phone check (iPhone input zoom, Safari/Chrome hyphenation of "Transportation" at 320px XL)
-- [ ] Merge `responsive-foundation` to `main`
+- [x] Merge `responsive-foundation` to `main`
 - [x] 1.2 Text size setting (Normal / Large / XL) — implemented (`textSize.js`, `index.css`, `index.html` script, control in `AppLayout`); still needs QA against its done-criteria
 
-Next up, in order (see handoff for specs):
-- Release 1: 1.3 First-time guide *(Proposed)* · 1.4 Feature labels *(Proposed)* · 1.5 About page *(Proposed, new route)* · 1.6 Learn/Read *(Confirmed, new route, book icon)*
+Next up, in order (see handoff for specs; every item is Confirmed by the team):
+- Release 1: 1.3 First-time guide · 1.4 Feature labels · 1.5 About page *(new route)* · 1.6 Learn/Read *(new route, book icon)*
 - Release 2: 2.1 Notification bell · 2.2 Reminder card · 2.3 Theme system (step 1 palette tokens, step 2 gallery) · 2.4 History bar chart
-- Release 3: 3.1 Add money mid-period *(Proposed, new table)*
+- Release 3: 3.1 Add money mid-period *(new table)*
 
 **Open decisions:** handoff Section 6 is missing from the doc. Ask the user before deciding: History chart style, the dashboard "latest message" line, per-category budget comparison on This Period view.
 
