@@ -142,7 +142,7 @@ Next up, in order (see handoff for specs; every item is Confirmed by the team):
 - Release 2: 2.1 Notification bell · 2.2 Reminder card · 2.3 Theme system (step 1 palette tokens, step 2 gallery) · 2.4 History bar chart
 - Release 3: 3.1 Add money mid-period *(new table)*
 
-**Open decisions:** handoff Section 6 is missing from the doc. Ask the user before deciding: History chart style, the dashboard "latest message" line, per-category budget comparison on This Period view.
+**Open decisions:** resolved. Handoff Section 6 now holds the decided defaults (2026-11-12): 2.4 chart style, the 2.1 dashboard line (yes), per-category budget on This Period (no), and 1.4 built as written. There is no 2.4 reference screenshot; follow the layout text in 2.4.
 
 ## 10. Known issues (don't fix unless asked)
 

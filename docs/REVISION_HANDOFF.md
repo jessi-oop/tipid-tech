@@ -2,14 +2,14 @@
 
 > Converted from the team's `TipidTech Prototype Revision Handoff.odt` (Nov 2026). Content unchanged except formatting.
 > **Status update (2026-11-12):** the team approved every item. 1.3, 1.4, 1.5 and 3.1 moved from Proposed to Confirmed.
-> **Section 6 (Open decisions) is referenced below but was missing from the source doc.** Ask the user before deciding anything that points to it.
+> **Section 6 was missing from the source doc and the team couldn't provide it.** It has been replaced (2026-11-12) with decided defaults; see Section 6.
 
 ## 1. Read this first
 
 - This document lists the changes the team agreed to (or proposes) for the TipidTech prototype, in build order, with what each should do and how to tell it is finished.
 - It was written from the project context document (PROJECT_CONTEXT.md) and the team's discussion, not from the code. Check the repo before building each item: don't assume something is missing just because it isn't listed. File names below (App.jsx, storage.js, calculations.js, constants.js) are the likely places, so confirm them.
 - Each item is marked **Confirmed** (the team decided it). As of 2026-11-12 every item is Confirmed; there are no Proposed items left.
-- Open decisions are listed in Section 6, each with a recommended default. Use a default only if the team has not answered.
+- Section 6 lists the decisions for questions the specs below leave open. They are decided; follow them.
 - **Flag, don't slip in:** any new table, column, route, or dependency must be raised for review before it goes in.
 
 ## 2. What participants asked for
@@ -79,7 +79,7 @@ Why this order: the small items cover the feedback most people gave, the engagem
 
 #### 1.4 Clearer feature labels — Confirmed
 - Behavior: a one-line subtitle under each page title and clear menu labels. Examples: History — see everything you've spent; Reports — daily and weekly totals by calendar day; Savings Goals — save toward something specific. *(Source doc has a stray "(bar chart breakdown)" here; meaning unclear.)*
-- Before building, confirm with P11 and P12 what "distinction of features" meant.
+- ~~Before building, confirm with P11 and P12 what "distinction of features" meant.~~ No clarification came back; build as written (Section 6).
 - **Done when:** a new user can say what each page is for.
 - Size: Small.
 
@@ -108,7 +108,7 @@ Why this order: the small items cover the feedback most people gave, the engagem
 - Rules: red-status messages are kind and supportive, never scolding (e.g. "Kaya pa 'yan, bantayan lang natin", not "You're overspending"); at least 3 messages per situation, rotated; no same message back to back; at most one or two new messages a day by the user's local day; original messages only; the expense warning stays in the add-expense flow and does not move to the bell.
 - The bell works only while the app is open. It is not a phone notification.
 - Accessibility: readable label such as "Notifications, 2 new", keyboard friendly, unread state not by color alone.
-- Option (Section 6): one extra line on the dashboard showing the latest message.
+- Dashboard line (decided, Section 6): yes. One small muted line under the status card showing the latest unread message.
 - **Done when:** each status change produces a fitting message; nothing repeats back to back; read state survives refresh; works on a small phone and with a keyboard.
 - Size: Small to Medium.
 
@@ -136,14 +136,14 @@ Covers the whole website, in the style of a Messenger-like theme gallery.
 - **Done when:** default looks identical to today; 5 themes work on every main screen; status colors and warnings clear in every theme; contrast passes in every theme at all sizes on a small phone; choice survives refresh and logout with no flash; Reset works.
 - Size: Medium to Large, mostly the color cleanup.
 
-#### 2.4 History bar chart (expense flow) — Confirmed (chart style still open, Section 6)
-Layout comes from a screenshot of another expense app. Take the layout only, not its look.
+#### 2.4 History bar chart (expense flow) — Confirmed (chart style decided, Section 6)
+The layout originally came from a screenshot of another expense app. The screenshot isn't available, so follow the layout description below only.
 - Layout, top to bottom: header with back arrow, range label, forward arrow (e.g. Oct 6 – Oct 12) plus Week/Month toggle; summary row with Spent and Daily average; dropdown for chart view ("Spending over time" or "By category"); the chart; a day-by-day strip; the History list.
 - Day strip (week view): Monday to Sunday, each with date and the day's amount. Exact numbers without tapping; the text alternative to the chart. Month view: small calendar grid or a row of weekly totals.
 - Tapping a bar, point, or day shows its amount and filters the list below to that day. Tapping again clears.
 - "By category" view: horizontal bars, category name left, peso amount and share of total right, largest first, for the selected week/month. Plain HTML/CSS bars are fine. Tapping a bar filters the list to that category.
 - Rules: weeks Mon–Sun, calendar months, matching Reports. Partial weeks/months labeled ("so far"). Zero-spend days show zero. Future days show nothing. Positive peso amounts (don't copy the reference's negative numbers / flipped axis). Y-axis starts at zero, round numbers, short labels on small screens (1.2k). Group by user's local date. Update immediately after add/edit/delete. Include "Other" in totals.
-- No budget line on calendar weeks/months. A per-category budget comparison may appear only on the This Period view, and only if the team asks (Section 6).
+- No budget line on calendar weeks/months. No per-category budget comparison on the This Period view either (decided, Section 6).
 - Use the theme accent for bars/line, not status red/green. Category colors consistent and labeled.
 - Chart library: reuse the one the dashboard pie chart uses (recharts). No new dependency without flagging.
 - Data: no new table/column. Use the existing expense fetch in storage.js; grouping math in calculations.js.
@@ -168,12 +168,18 @@ Layout comes from a screenshot of another expense app. Take the layout only, not
 - "Over time" view stacked by category in History.
 - Preset avatars, custom background photos, a theme per shared space.
 
-## 6. Open decisions
+## 6. Decisions
 
-*Missing from the source document.* Known open questions referenced above:
-- History chart style (2.4)
-- Dashboard line showing the latest bell message (2.1)
-- Per-category budget comparison on the This Period view (2.4)
+*The original Section 6 was missing and the team couldn't provide it or the 2.4 reference screenshot. These defaults were decided on 2026-11-12 and replace it.*
+
+- **2.4 History chart style:**
+  - "Spending over time": simple vertical bars in recharts, rounded tops, theme accent color, light gridlines. No 3D, no gradients.
+  - "By category": plain HTML horizontal bars.
+  - The chart opens on the Week view.
+  - No reference screenshot: follow the layout description in 2.4 only.
+- **2.1 Dashboard line:** yes. One small muted line under the status card showing the latest unread bell message. Tapping it opens the bell. Hidden when nothing is unread.
+- **2.4 Per-category budget comparison on This Period:** no.
+- **1.4 Feature labels:** no clarification came from P11/P12, so build the subtitles and menu labels as written in 1.4.
 
 ## Reminders
 - Check the repo before assuming something is missing or present.
