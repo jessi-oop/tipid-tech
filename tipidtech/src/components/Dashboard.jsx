@@ -19,7 +19,7 @@ import Card             from './ui/Card';
 import SectionHeader    from './ui/SectionHeader';
 import UiStatCard       from './ui/StatCard';
 
-import { CATEGORIES, PERIOD_OPTIONS } from '../utils/constants';
+import { CATEGORIES, PERIOD_OPTIONS, MAX_RECENT_EXPENSES } from '../utils/constants';
 import {
   getRemainingBalance,
   getDaysRemaining,
@@ -31,7 +31,7 @@ import {
   getSpendingStatus,
   formatPeso,
 } from '../utils/calculations';
-import { getRecentExpenses, getTotalExpenses, getBudget, getSavingsGoals } from '../utils/storage';
+import { getAllExpenses, getBudget, getSavingsGoals } from '../utils/storage';
 
 // Return a human-readable period label, e.g. "Weekly (7 days)"
 function getPeriodLabel(periodType, nextAllowanceDate, startDate) {
@@ -49,8 +49,11 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
   const navigate = useNavigate();
 
   // ── Expense state ─────────────────────────────────────────────
-  const [expenses,        setExpenses]        = useState([]);
-  const [totalSpent,      setTotalSpent]      = useState(0);
+  // Every expense in this budget period (newest first). Recent list, total and
+  // category bars all derive from it, so the bars count the whole period.
+  const [periodExpenses,  setPeriodExpenses]  = useState([]);
+  // True until the first expense load finishes, so the page never renders with 0 spent.
+  const [expensesLoading, setExpensesLoading] = useState(true);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [refreshKey,      setRefreshKey]      = useState(0);
   const [editingExpense,  setEditingExpense]  = useState(null);
@@ -62,18 +65,15 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
   const [activeGoals,  setActiveGoals]  = useState([]);
   const [goalsLoading, setGoalsLoading] = useState(true);
 
-  // ─── Load recent expenses + total spent ───────────────────────
+  // ─── Load this period's expenses ──────────────────────────────
   const loadExpenses = useCallback(async () => {
     if (!userId || !budget?.id) return;
     try {
-      const [recent, total] = await Promise.all([
-        getRecentExpenses(userId, 5, budget.id),
-        getTotalExpenses(userId, budget.id),
-      ]);
-      setExpenses(recent);
-      setTotalSpent(total);
+      setPeriodExpenses(await getAllExpenses(userId, budget.id));
     } catch (err) {
       console.error('TipidTech: failed to load expenses', err);
+    } finally {
+      setExpensesLoading(false);
     }
   }, [userId, budget?.id]);
 
@@ -132,14 +132,16 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
   }
 
   // ─── Calculated values ────────────────────────────────────────
+  const expenses         = periodExpenses.slice(0, MAX_RECENT_EXPENSES);
+  const totalSpent       = periodExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
   const expensesForCalc  = totalSpent > 0 ? [{ amount: totalSpent }] : [];
   const remainingBalance = getRemainingBalance(budget?.allowance, expensesForCalc);
   const daysRemaining    = getDaysRemaining(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
   const totalDays        = getTotalDays(budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
   const plannedDaily     = getPlannedDailyAmount(budget?.allowance, totalDays);
   const currentDaily     = getCurrentDailyAmount(remainingBalance, daysRemaining);
-  const categorySpending = getCategorySpending(expenses);
-  const otherSpending    = getOtherSpending(expenses);
+  const categorySpending = getCategorySpending(periodExpenses);
+  const otherSpending    = getOtherSpending(periodExpenses);
   const statusResult     = getSpendingStatus(budget?.allowance, expensesForCalc, budget?.periodType, budget?.nextAllowanceDate, budget?.startDate, budget?.endDate);
   const periodEnded      = daysRemaining <= 0;
 
@@ -148,6 +150,7 @@ export default function Dashboard({ userId, onReset, onLogout, userEmail }) {
   // ─── Render ───────────────────────────────────────────────────
   if (budgetLoading) return <p className="py-10 text-center text-sm text-muted">Loading…</p>;
   if (!budget)       return <p className="py-10 text-center text-sm text-muted">No budget found.</p>;
+  if (expensesLoading) return <p className="py-10 text-center text-sm text-muted">Loading…</p>;
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
