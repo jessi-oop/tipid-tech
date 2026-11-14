@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#f9f9ff;}body{overscroll-behavior:none;font-family:'Plus Jakarta Sans',sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-fixed-variant": "#004f51", "primary": "#006d32", "on-secondary": "#ffffff", "on-secondary-fixed-variant": "#005236", "on-secondary-fixed": "#002114", "surface": "#f9f9ff", "surface-variant": "#dce2f7", "background": "#f9f9ff", "surface-container-low": "#f1f3ff", "secondary-fixed-dim": "#67dca7", "on-error-container": "#93000a", "outline-variant": "#bdcabb", "surface-container": "#e9edff", "surface-tint": "#006d32", "error": "#ba1a1a", "error-container": "#ffdad6", "tertiary": "#00696b", "inverse-surface": "#293040", "on-error": "#ffffff", "on-surface": "#141b2b", "on-tertiary-fixed": "#002020", "on-primary-fixed-variant": "#005224", "on-background": "#141b2b", "primary-fixed-dim": "#70dc8a", "primary-fixed": "#8cf9a4", "surface-container-lowest": "#ffffff", "on-primary-container": "#006c31", "tertiary-fixed": "#8ff3f4", "secondary-container": "#82f6bf", "on-primary": "#ffffff", "outline": "#6e7a6e", "secondary": "#006c49", "secondary-fixed": "#85f8c2", "on-tertiary": "#ffffff", "surface-bright": "#f9f9ff", "on-secondary-container": "#00714d", "tertiary-fixed-dim": "#72d6d8", "on-tertiary-container": "#006769", "surface-container-high": "#e1e8fd", "inverse-primary": "#70dc8a", "surface-container-highest": "#dce2f7", "inverse-on-surface": "#edf0ff", "tertiary-container": "#82e6e8", "on-surface-variant": "#3e4a3f", "on-primary-fixed": "#00210b", "primary-container": "#80ed99", "surface-dim": "#d3daef" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "1rem", "margin": "1rem", "space-md": "1rem", "space-xs": "0.25rem", "gutter-tablet": "1.5rem", "margin-desktop": "3rem", "margin-tablet": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-xl": "2rem", "space-2xl": "3rem" }, "fontFamily": { "body-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "currency-display": ["Plus Jakarta Sans"], "currency-display-mobile": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"] }, "fontSize": { "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "500" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "currency-display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "currency-display-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }], "headline-xl-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface flex flex-col min-h-screen relative"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Open Navigation Menu" class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface hover:bg-surface-container-low transition-colors" id="menu-open-btn" onclick="document.getElementById('side-nav-drawer').classList.remove('-translate-x-full');document.getElementById('side-nav-backdrop').classList.remove('opacity-0','pointer-events-none');"><span class="material-symbols-outlined text-[24px]">menu</span></button><div class="flex items-center gap-space-xs"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md text-headline-md leading-none">₱</div><span class="font-headline-md text-headline-md text-primary tracking-tight">Tipid<span class="text-on-surface">Tech</span></span></div></div><div class="flex items-center gap-space-sm"><button aria-label="Notifications" class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors relative"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-error"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><div class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" id="side-nav-backdrop" onclick="document.getElementById('side-nav-drawer').classList.add('-translate-x-full');this.classList.add('opacity-0','pointer-events-none');"></div><aside class="fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[80vw] bg-surface-container-lowest shadow-[0_8px_24px_-4px_rgba(17,24,39,0.06)] -translate-x-full transition-transform duration-300 ease-out flex flex-col pt-safe pb-safe" id="side-nav-drawer"><div class="h-16 px-space-md flex items-center justify-between"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md text-headline-md leading-none">₱</div><span class="font-headline-md text-headline-md text-primary tracking-tight">Tipid<span class="text-on-surface">Tech</span></span></div><button aria-label="Close Navigation Menu" class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors" onclick="document.getElementById('side-nav-drawer').classList.add('-translate-x-full');document.getElementById('side-nav-backdrop').classList.add('opacity-0','pointer-events-none');"><span class="material-symbols-outlined text-[22px]">close</span></button></div><div class="p-space-md mx-space-md rounded-xl bg-surface-container flex items-center gap-space-md"><div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">person</span></div><div class="flex flex-col min-w-0"><span class="font-label-lg text-label-lg text-on-surface truncate">Iska Iskolar</span><span class="font-label-sm text-label-sm text-primary font-bold truncate">Daily Baon Mode</span></div></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md flex flex-col gap-space-xs"><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-primary text-[22px]">dashboard</span><span class="font-label-lg text-label-lg">Overview</span></a><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="budget-allocations" href="#"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">account_balance_wallet</span><span class="font-label-lg text-label-lg">Baon Allocations</span></a><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="savings-goals" href="#"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">savings</span><span class="font-label-lg text-label-lg">Savings Jars</span></a><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="analytics" href="#"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">bar_chart</span><span class="font-label-lg text-label-lg">Spending Trends</span></a><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="community-tips" href="#"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">forum</span><span class="font-label-lg text-label-lg">Student Tipid Hacks</span></a><div class="h-px bg-outline-variant/30 my-space-xs"></div><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="app-settings" href="#"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">settings</span><span class="font-label-lg text-label-lg">Preferences</span></a><a class="flex items-center gap-space-md px-space-md h-12 rounded-xl text-on-surface hover:bg-surface-container transition-colors" data-path="help-support" href="#"><span class="material-symbols-outlined text-on-surface-variant text-[22px]">help_center</span><span class="font-label-lg text-label-lg">Help &amp; FAQ</span></a></div><div class="p-space-md bg-surface-container-low flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">TipidTech v1.0 • PH</span><button class="flex items-center gap-space-xs text-error font-label-md text-label-md"><span class="material-symbols-outlined text-[18px]">logout</span><span>Log Out</span></button></div></aside><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface"><div class="flex flex-col w-full relative">
+<!-- Dimmed & Blurred Dashboard Background Simulation -->
+<div class="w-full px-margin flex flex-col gap-space-md opacity-45 blur-[3px] pointer-events-none select-none">
+<!-- Quick Stat Header behind -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Weekly Baon Balance</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">On Track</span>
+</div>
+<div class="font-currency-display-mobile text-currency-display-mobile text-primary">₱1,840.00</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[65%] rounded-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">₱660 spent of ₱2,500 weekly allowance</span>
+</div>
+<!-- Quick Actions Preview behind -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="bg-surface-container-lowest p-space-md rounded-2xl flex items-center gap-space-sm shadow-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">fastfood</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate">Food &amp; Snacks</span>
+<span class="font-label-sm text-label-sm text-outline truncate">₱340 spent</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-2xl flex items-center gap-space-sm shadow-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[20px]">directions_bus</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate">Jeepney &amp; LRT</span>
+<span class="font-label-sm text-label-sm text-outline truncate">₱120 spent</span>
+</div>
+</div>
+</div>
+<!-- Savings Jar Preview behind -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold">
+          🎓
+        </div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Graduation Fund</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">₱4,500 saved of ₱10,000</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-secondary font-bold">45%</span>
+</div>
+</div>
+<!-- Modal Backdrop Overlay for realistic depth -->
+<div class="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm z-30 transition-opacity" id="drawer-overlay"></div>
+<!-- Navigation Drawer (Taking 82% width, rounded right 24px) -->
+<aside class="absolute top-0 left-0 w-[84%] max-w-[340px] z-40 bg-surface-container-lowest shadow-[0_8px_32px_rgba(20,27,43,0.18)] rounded-r-[28px] overflow-hidden flex flex-col transition-transform duration-300" id="main-nav-drawer">
+<!-- Drawer Header Section -->
+<div class="p-space-md bg-gradient-to-b from-surface-container-low to-surface-container-lowest flex flex-col gap-space-sm relative">
+<!-- Close Button Top-Right -->
+<button aria-label="Close Navigation Menu" class="absolute top-3 right-3 w-10 h-10 rounded-full bg-surface-container-high/60 hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors active:scale-95" id="close-drawer-btn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<!-- Brand Logo & Motto -->
+<div class="flex items-center gap-2.5 pt-0.5">
+<div class="relative w-9 h-9 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm">
+<span class="material-symbols-outlined text-[22px]">savings</span>
+<span class="absolute -top-1 -right-1 text-[13px] leading-none">🌱</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-primary tracking-tight leading-tight">Tipid<span class="text-on-surface">Tech</span></span>
+</div>
+<span class="font-label-sm text-label-sm text-outline tracking-normal">Be Money Wise.</span>
+</div>
+</div>
+<!-- Student Profile Card -->
+<div class="mt-2 bg-surface-container-low p-3 rounded-2xl flex items-center gap-3">
+<div class="w-12 h-12 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center text-[22px] shrink-0 shadow-sm">
+          🎓
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Iskolar ng Bayan</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">iskolar@up.edu.ph</span>
+<div class="mt-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">
+              UP Diliman · BS CS
+            </span>
+</div>
+</div>
+</div>
+<!-- Active Baon Pill -->
+<div class="bg-primary-container/30 px-3 py-2 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-primary-container font-semibold uppercase">Weekly Cycle</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold">₱1,840.00 left</span>
+</div>
+</div>
+<!-- Scrollable Drawer Body -->
+<div class="flex-1 overflow-y-auto px-space-sm py-space-sm flex flex-col gap-space-xs max-h-[calc(100vh-280px)]">
+<!-- Navigation Section Label -->
+<div class="px-space-sm pt-1">
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">Menu Navigation</span>
+</div>
+<!-- 1. Dashboard (Active Pill) -->
+<a class="flex items-center justify-between px-3 h-12 rounded-xl bg-primary-container text-on-primary-container shadow-sm transition-transform active:scale-[0.99]" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-lg text-label-lg font-bold">Dashboard</span>
+</div>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</a>
+<!-- 2. History -->
+<a class="flex items-center justify-between px-3 h-12 rounded-xl text-on-surface hover:bg-surface-container-low transition-colors" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">receipt_long</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg truncate">History</span>
+<span class="font-body-sm text-body-sm text-outline truncate">View all past expenses</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</a>
+<!-- 3. Reports -->
+<a class="flex items-center justify-between px-3 h-12 rounded-xl text-on-surface hover:bg-surface-container-low transition-colors" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">pie_chart</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg truncate">Reports</span>
+<span class="font-body-sm text-body-sm text-outline truncate">Daily &amp; weekly totals</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</a>
+<!-- 4. Savings Goals -->
+<a class="flex items-center justify-between px-3 h-12 rounded-xl text-on-surface hover:bg-surface-container-low transition-colors" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">savings</span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg truncate">Savings Goals</span>
+<span class="px-1.5 py-0.2 rounded-md bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">3 Active</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">Target funds &amp; pacing</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</a>
+<!-- 5. Learn -->
+<a class="flex items-center justify-between px-3 h-12 rounded-xl text-on-surface hover:bg-surface-container-low transition-colors" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">menu_book</span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg truncate">Learn</span>
+<span class="px-1.5 py-0.2 rounded-md bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm">6 Tips</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">Student money guides</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</a>
+<!-- 6. About -->
+<a class="flex items-center justify-between px-3 h-12 rounded-xl text-on-surface hover:bg-surface-container-low transition-colors" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">info</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg truncate">About</span>
+<span class="font-body-sm text-body-sm text-outline truncate">How TipidTech works &amp; privacy</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</a>
+<!-- Accessibility / Text Size Control Card -->
+<div class="my-space-xs p-3 rounded-2xl bg-surface-container flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">format_size</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wide font-bold">Text Size (Palakihan)</span>
+</div>
+<span class="text-[12px] font-bold text-primary">115%</span>
+</div>
+<!-- Segmented Controls -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-low p-1 rounded-xl" id="text-size-control">
+<button class="py-2 px-1 rounded-lg text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all flex items-center justify-center gap-0.5" type="button">
+            Normal
+          </button>
+<button class="py-2 px-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm font-bold shadow-sm flex items-center justify-center gap-1 text-primary" type="button">
+<span class="material-symbols-outlined text-[15px]">check</span>
+            Large
+          </button>
+<button class="py-2 px-1 rounded-lg text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all flex items-center justify-center gap-0.5" type="button">
+            XL
+          </button>
+</div>
+<p class="font-body-sm text-body-sm text-outline leading-tight mt-0.5">
+          Works up to 125% text size for budget Android &amp; iPhone displays.
+        </p>
+</div>
+<!-- Appearance & Daily Reminders -->
+<div class="p-3 rounded-2xl bg-surface-container-low flex flex-col gap-space-sm">
+<!-- Theme Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">palette</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Light Mode</span>
+<span class="font-body-sm text-body-sm text-outline">Default campus daylight theme</span>
+</div>
+</div>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 hover:bg-surface-container-high transition-colors">
+<span>Switch</span>
+<span class="material-symbols-outlined text-[14px]">sync_alt</span>
+</button>
+</div>
+<!-- Daily Encouragement Notifications Toggle -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2 min-w-0 pr-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">sentiment_satisfied</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate">Daily Baon Support</span>
+<span class="font-body-sm text-body-sm text-outline truncate leading-tight">Reminders: "Kaya pa yan! 🌟"</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" id="daily-notif-toggle" type="checkbox"/>
+<div class="w-10 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface-container-lowest peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-surface-container-lowest after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Drawer Footer -->
+<div class="p-space-md bg-surface-container-low flex flex-col gap-space-xs mt-auto">
+<button class="w-full h-11 rounded-xl bg-error-container/60 hover:bg-error-container text-on-error-container flex items-center justify-center gap-2 transition-colors active:scale-98">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="font-label-lg text-label-lg font-bold">Log Out</span>
+</button>
+<div class="flex flex-col items-center text-center gap-0.5 pt-1">
+<span class="font-label-sm text-label-sm text-outline font-semibold">TipidTech v1.2</span>
+<span class="font-body-sm text-body-sm text-outline text-[12px] leading-tight">
+          100% Free &amp; Private for Students · No bank credentials stored
+        </span>
+</div>
+</div>
+</aside>
+</div>
+<script>
+  // Simple Drawer Dismiss and micro-interaction handling
+  const closeBtn = document.getElementById('close-drawer-btn');
+  const overlay = document.getElementById('drawer-overlay');
+  const drawer = document.getElementById('main-nav-drawer');
+
+  function closeMenu() {
+    if (drawer && overlay) {
+      drawer.style.transform = 'translateX(-100%)';
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      setTimeout(() => {
+        // Fallback open via shell drawer trigger if user taps again
+      }, 300);
+    }
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+  if (overlay) overlay.addEventListener('click', closeMenu);
+
+  // Segmented control size switcher simulation
+  const sizeButtons = document.querySelectorAll('#text-size-control button');
+  sizeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      sizeButtons.forEach(b => {
+        b.className = 'py-2 px-1 rounded-lg text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all flex items-center justify-center gap-0.5';
+        const check = b.querySelector('.material-symbols-outlined');
+        if (check) check.remove();
+      });
+      btn.className = 'py-2 px-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm font-bold shadow-sm flex items-center justify-center gap-1 text-primary';
+      const icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined text-[15px]';
+      icon.textContent = 'check';
+      btn.prepend(icon);
+    });
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary font-bold"><div class="flex justify-around items-center h-16 px-space-xs"><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-12 transition-colors text-primary font-bold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[22px]">grid_view</span><span class="font-label-sm text-label-sm">Dashboard</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="budget-allocations" href="#"><span class="material-symbols-outlined text-[22px]">receipt_long</span><span class="font-label-sm text-label-sm">Expenses</span></a><div class="flex items-center justify-center -mt-5"><a aria-label="Quick Log Expense" class="w-14 h-14 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_8px_24px_-4px_rgba(17,24,39,0.06)] hover:bg-secondary-container transition-transform active:scale-95" data-path="quick-log-expense" href="#"><span class="material-symbols-outlined text-[28px] font-bold">add</span></a></div><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="savings-goals" href="#"><span class="material-symbols-outlined text-[22px]">savings</span><span class="font-label-sm text-label-sm">Goals</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="analytics" href="#"><span class="material-symbols-outlined text-[22px]">insights</span><span class="font-label-sm text-label-sm">Insights</span></a></div></nav></body></html>
