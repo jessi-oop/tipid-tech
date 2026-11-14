@@ -106,6 +106,7 @@ When a DB change is approved: write the SQL (table + RLS enable + policies scope
 9. Pop-ups and reminders: dismissible, never blocking, one at a time, in-app only.
 10. **No franchise material** anywhere: no Barbie/Marvel/Avatar-type names, logos, characters, or signature fonts. Reference screenshots are layout inspiration only. Don't copy other apps' colors, icons, or branding.
 11. Only claim what's true on the About page (no "bank-level security", no "proven").
+12. **Public pages (landing / About) are held to the honesty rules hardest.** No invented stats, user counts, testimonials, ratings, "trusted by" logos, or "secure / bank-level / proven" claims. UI previews use clearly example data. Placeholders are never shown; hide a section until it has real content. All landing/About copy lives in `src/data/aboutContent.js`.
 
 ## 8. How to work a task
 
@@ -125,6 +126,8 @@ If something is ambiguous, ask one specific question rather than guessing. If yo
 
 ### Ponytail
 Ponytail is installed. "Least code" never overrides this file: still plan first, still reuse ui/ components, and never skip accessibility (icon + word + color, 4.5:1 contrast, 44px tap targets), the QA checklist, or the stop-and-ask gate.
+### Design skills (Hallmark)
+Hallmark is installed. It never overrides DESIGN.md: keep the brand (mint accent, ink text, logo, Light theme), status colors/icons/words are fixed, no new fonts or dependencies without asking, and only touch the screens the task names. On existing app screens use `hallmark audit` (review only); don't let it pick a new theme or layout for them.
 
 ## 9. Current status (update this section as work lands)
 

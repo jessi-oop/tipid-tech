@@ -160,3 +160,13 @@ Rules:
 - Plain words over finance jargon. "Allowance", "spent", "left", "per day".
 - Anywhere showing status meaning, thresholds, suggested percentages, or learning content: include a short note that it's **general guidance, not professional financial advice**.
 - No fake claims ("proven", "bank-level security").
+
+## 12. Landing page (public)
+
+- Purpose: explain TipidTech to a first-time visitor on a phone, then get them to Get started or Log in.
+- Same brand as the app: mint accent, ink text, logo. It may be more spacious and expressive than app screens, but logging in must not feel like a different product.
+- Hero: one-line value statement, short subline, Get started + Log in buttons visible without scrolling at 320–390px.
+- Show the real product: small previews built from existing components with clearly example data. No stock photos, no AI-generated people, no franchise imagery.
+- Status shown on the landing page follows §3 (icon + word + color, labelled as prototype guides).
+- Motion: subtle CSS only (fades, small translate), max ~300ms, disabled under prefers-reduced-motion. No scroll-jacking, parallax, or animation libraries.
+- Logged-in users visiting / go straight to /dashboard.
