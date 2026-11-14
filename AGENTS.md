@@ -60,8 +60,9 @@ Never edit `dist/` or `node_modules/`.
 1. The user's current instruction
 2. `AGENTS.md` and `DESIGN.md`
 3. `docs/REVISION_HANDOFF.md` (feature specs, done-criteria)
-4. The actual code — always check it before assuming something exists or is missing
-5. `tipidtech/.kiro/**` — **historical only.** Its steering says "no Tailwind" and "Router v6"; both are outdated. Ignore any rule there that conflicts with this file.
+4. `docs/design/stitch/**` — UI redesign references (layout and visual style only). `notes.md` there is the user's instruction per screen. How to use them: DESIGN.md §13. Their text, numbers and features are **mock content**: every one must pass §6a and §7 before it ships.
+5. The actual code — always check it before assuming something exists or is missing
+6. `tipidtech/.kiro/**` — **historical only.** Its steering says "no Tailwind" and "Router v6"; both are outdated. Ignore any rule there that conflicts with this file.
 
 If the handoff and the code disagree, trust the code for *what exists* and the handoff for *what should be built*, and tell the user about the mismatch.
 
@@ -93,6 +94,19 @@ When a DB change is approved: write the SQL (table + RLS enable + policies scope
 - Device-first preferences (text size, theme, guide-seen, notification read state) go in `localStorage` through a small dedicated module like `textSize.js`, with a pre-paint script in `index.html` when it affects visuals. Keys use the `tipidtech-` prefix. Saving any of them to the account needs a `profiles` column → §5.
 - Static content (Learn reading list, notification message text) goes in data files / `constants.js`, not the DB.
 
+## 6a. Data fidelity rule (user rule, applies to all development)
+
+Every field, number, label and action on screen must come from what exists today: the Supabase tables/columns in §6 (read through `storage.js`), the functions in `calculations.js`, and `constants.js`. Design references and specs don't change that.
+
+- **Build on existing logic.** Reuse the existing `storage.js` and `calculations.js` functions for core behavior (status, remaining, per-day, warnings, period reset). Don't re-derive them in components.
+- **Flag every mismatch, every time, and ask what to do.** Before building it, list each thing a design or request shows that the data or logic doesn't support yet. One short entry each:
+  - **What:** the element (e.g. "user's name in the header")
+  - **Why it doesn't match:** what's missing (e.g. "`profiles` has no name column")
+  - **Options:** e.g. hide it / use existing data instead / add it (and what that costs: new column, new function, §5 gate)
+- **Flag every change or addition to logic** (new `calculations.js` function, new query, changed behavior), even small ones, and say what it computes from which existing data.
+- Never fill a gap with invented data, hard-coded sample values, or a non-working control. Don't show a button for a feature that doesn't exist, except the user-approved "shown now, wired later" list in §9.
+- A previously answered flag stays answered for that element; record decisions in §9 so they aren't asked twice.
+
 ## 7. Product rules (never break these)
 
 1. **Warn, never block.** A warning can say an expense pushes the user to Yellow; the save still goes through.
@@ -110,10 +124,13 @@ When a DB change is approved: write the SQL (table + RLS enable + policies scope
 
 ## 8. How to work a task
 
-1. **Branch.** One branch per feature, off `main`: `feat/<handoff-id>-<slug>`, e.g. `feat/1.6-learn-read`. Never commit to `main` directly. Never merge or push unless asked.
+1. **Branch.** One branch per feature, off `main`: `feat/<handoff-id>-<slug>`, e.g. `feat/1.6-learn-read`. Never commit to `main` directly. Never merge or push unless asked. The UI redesign is built in its own branch **and git worktree** (the user creates or approves it). A new worktree needs `tipidtech/.env` copied in, or the dev server shows a white screen.
 2. **Read** the handoff section, `DESIGN.md`, and every file you'll touch.
 3. **Plan first.** Before editing, post a short plan: files to create/change, any §5 flags, open questions. Wait for a go-ahead on anything Medium or bigger.
 4. **Implement in small steps.** Reuse `ui/` primitives. Keep diffs focused on the task.
+   - **Logic before UI.** Build and hand-verify new `calculations.js` / `storage.js` functions first, then the UI that uses them.
+   - **Modular.** Each new function does one thing, is pure where it can be, and gets a short header comment (inputs, output, example). New feature UI goes in its own component files, not inside a big screen file.
+   - **Keep `docs/FILE_MAP.md` current.** It lists each source file, the main things it exports, and their purpose (one line each). Update it in the same commit as any new file or export.
 5. **Verify:**
    - `npm run build` passes
    - Logic: write out 2–3 hand-calculated examples (incl. edge cases: zero spend, period boundary, month/year rollover, late-night expense) and show they match
@@ -143,6 +160,24 @@ Branch `responsive-foundation` (merged into `main` on 2026-11-12):
 - [x] 1.6 Learn reading list (`feat/1.6-learn-read`): logged-in `/learn` route, "Learn" menu item (`BookOpen`), `LearnScreen.jsx`, static data in `src/data/readingList.js` (6 free sources, links checked 2026-11-12). Read only, no Read/Practice switcher until 2.5 has a spec. Free resources only (no books, user decision). **Summaries are unreviewed drafts:** team to check them against each source, then delete the DRAFT note at the top of `readingList.js`. Approved by the user in the dev server; still needs real-phone check
 - [x] 1.5 About page (`feat/1.5-about`): public `/about` route (logged out: standalone page with "Back to log in"; logged in: inside the menu), "About" menu item (`Info`), "What is TipidTech?" link on the login screen. All copy in `src/data/aboutContent.js`; split and thresholds read from `constants.js`. Data/visibility text written from `storage.js` and the admin screens. Still needs real-phone check
 - [ ] **Open:** Fill About page placeholders (team, purpose). Search `TODO(about)`. Contact is filled (email, Facebook name, GitHub); Facebook shows as plain text until its profile URL is added. (RLS confirmed on all tables by the user, 2026-11-12, so "Other users can't see your data" holds.)
+
+**UI redesign (Stitch), not started.** References in `docs/design/stitch/` (desktop: login, dashboard, setup steps 1–2, add/edit expense; mobile folders also present). Assessed and all 29 flags answered 2026-11-14. Branch + worktree: `feat/ui-redesign`. New flags found while building still follow §6a; record answers here:
+Decisions (user, 2026-11-14; numbers = assessment flags):
+- **Approved dependencies:** Plus Jakarta Sans font, Material Symbols icons (both via Google Fonts link, see DESIGN.md §13).
+- **DB change approved:** `profiles` name column (for the header/greeting and future Profile page). Write the SQL per §5, run on both projects.
+- **New `calculations.js` functions approved** (pure, added beside existing ones, existing functions unchanged): (13) per-category ₱/day for the setup Daily Pacing Guide; (17) yesterday's total vs planned daily for the dashboard; (26) per-category impact/overspend check for Add Expense, using the budget's `*_budget` columns (Other has no budget, so it's skipped). Plus whatever query (23) Month view needs in `storage.js`.
+- **Keep, labels/colors:** `CATEGORIES` labels, all 6 + Other (3); Savings category labeled "Savings", never "Savings Goal" (4); new non-red Emergency color (8); status amber `#d97706` (9).
+- **Login:** keep the Stitch layout, rewrite every claim with true copy from `aboutContent.js` (10). Show "Forgot password?" but wire it later (11). Drop Help & FAQ, EN/FIL, Privacy/Terms/Security links (11).
+- **Setup:** "Exit/Cancel to dashboard" only when a budget already exists (12); no slider limits (14); category descriptions as static text in `constants.js` (16); keep the "adjust / shield" UI for the future Add money feature (3.1), wired later, copy must stay true (15).
+- **Dashboard:** "+ Add Savings" becomes a goal-contribution action with clearer wording, e.g. "Add to a goal" (20); Breakdown gets Today / Week / Month (23); Category Budgets shows all 6 + Other (24). **Dropped:** projected cushion (18), "Baon Period N" (19), Adjust limits / Filter / Export CSV (21), Tip of the Day card (22).
+- **Add/Edit Expense:** opens as a dialog/sheet over the Dashboard; per-category checks in the warning (26); overspend shows as an **At risk** inline warning with one normal Save, no "DANGER" state or extra confirmation (27); no date/time editing (28); no offline/RA 10173 claims (29).
+- **Amounts:** lists may show `−₱` outflows; totals, charts, inputs stay positive (25).
+- **Shown now, wired later** (exception to §6a, marked `TODO(later)` in code): theme switcher in sidebar (6), notification bell (7), Forgot password link (11), Add money / adjust UI on setup (15). Track them here as they're built:
+  - (none built yet)
+- **Process:** logic first, then UI (see §8).
+- **Scope: desktop first** (user, 2026-11-14). Build from the `docs/design/stitch/desktop/` references only; ignore the `*-mobile` folders for now. Phone widths must still work (no sideways scroll, nothing cut off, 44px taps): the desktop layout simply stacks into one column. Mobile-specific polish comes in a later pass.
+
+Planned, not in the handoff yet (need specs + §5 approval): Settings page (Manage profile, Theme, Log out), Profile page (name, email, password, delete account), admin-managed Learn content.
 
 Next up, in order (see handoff for specs; every item is Confirmed by the team):
 - Release 1: 1.3 First-time guide

@@ -1,8 +1,8 @@
 # DESIGN.md — TipidTech UI rules
 
-The look today is **minimal, clean, mobile-first**: white cards on a light gray page, a mint-green brand accent, dark ink text, lucide icons. Keep it that way. New features should feel like they were always there.
+The look today is **minimal, clean, mobile-first**: white cards on a light gray page, a mint-green brand accent, dark ink text, lucide icons (moving to Material Symbols in the redesign, §13). New features should feel like they were always there.
 
-**The default theme must look exactly like today** until a user picks another theme.
+**A UI redesign is planned** from the Stitch references in `docs/design/stitch/` (see §13). Until its decisions are approved and recorded in §13, the rules below still describe the app. Once the redesign lands, the **Light (default) theme is the redesigned look**, and the other themes (§9) build on it. (This replaces "default looks identical to today" in handoff 2.3.)
 
 ## 1. Tokens
 
@@ -48,14 +48,14 @@ Implementation pattern: declare the tokens in `@theme` pointing at CSS variables
 - Inputs/selects/textareas are forced to `max(1rem, 16px)` so iOS doesn't zoom. Don't override that.
 - Hierarchy in use: page title `text-2xl font-bold text-ink` · section/card heading `text-sm font-semibold` · body `text-sm` · helper/meta `text-xs text-muted` · stat label `text-xs uppercase`.
 - Chart labels (recharts) take px numbers. Derive them from the root size (e.g. read `getComputedStyle(document.documentElement).fontSize`) so they scale too. Check them at XL.
-- No new web fonts without asking (§5 in AGENTS.md). A theme font must be checked for license, weight, and small-size readability.
+- Approved for the redesign: **Plus Jakarta Sans** (UI font) and **Material Symbols Outlined** (icons), §13. Any other new web font needs asking (§5 in AGENTS.md). A theme font must be checked for license, weight, and small-size readability.
 
 ## 3. Status system (fixed, never themed)
 
 | Status | Key | Icon (lucide) | Word | Color |
 |---|---|---|---|---|
 | Green | `STATUS.GREEN` | `CheckCircle2` | **On track** | `text-green-600`, `border-green-200` |
-| Yellow | `STATUS.YELLOW` | `AlertTriangle` | **Careful** | `text-amber-500`, `border-amber-200` |
+| Yellow | `STATUS.YELLOW` | `AlertTriangle` | **Careful** | `text-amber-600` (`#d97706`), `border-amber-200` |
 | Red | `STATUS.RED` | `XCircle` | **At risk** | `text-red-600`, `border-red-200` |
 | Ended | `STATUS.ENDED` | `CalendarDays` | **Period ended** | `text-muted` |
 
@@ -170,3 +170,32 @@ Rules:
 - Status shown on the landing page follows §3 (icon + word + color, labelled as prototype guides).
 - Motion: subtle CSS only (fades, small translate), max ~300ms, disabled under prefers-reduced-motion. No scroll-jacking, parallax, or animation libraries.
 - Logged-in users visiting / go straight to /dashboard.
+
+## 13. Stitch redesign references
+
+**Current scope: desktop references only** (`docs/design/stitch/desktop/`). The `*-mobile` folders are for a later pass. Until then, phone widths just stack the desktop layout into one column and must still pass §10 at 320–390px.
+
+Files: `docs/design/stitch/<screen>/` (`code.html`, `screen.png`, Stitch's own `DESIGN.md`), user notes in `docs/design/stitch/notes.md`. Every Stitch `DESIGN.md` is the same "Warm Student Mint" system.
+
+**How to use them**
+- Take **layout, hierarchy, spacing, card structure, and component shapes** from them. Where `notes.md` says "copy everything", that means the full layout and every visual element, still subject to the filters below.
+- Never paste Stitch HTML into the app. Rebuild with `ui/` primitives, Tailwind classes and `@theme` tokens. New shared patterns become `ui/` components (§6).
+- This file wins over Stitch's `DESIGN.md`. Its token values are proposals until approved and copied into §1.
+- Stitch renders are mock-ups: overlapping text, serif fallback fonts and wrapped labels in the screenshots are render bugs, not intent.
+
+**Filter every reference through these before building**
+1. **Data fidelity (AGENTS.md §6a):** every field, number and action must exist in the DB or existing logic. Mock names ("Juan D."), counts ("Baon Period 1"), projections, and features that don't exist are flagged, not built.
+2. **Honesty (AGENTS.md §7.11–12):** drop or rewrite claims that aren't true: "encrypted on your device", "offline-ready / offline cache / auto-synced", ".edu.ph verified", "compliant with RA 10173", "Security Center", invented money rules and savings figures.
+3. **Category labels** come from `CATEGORIES` (`constants.js`), all 6 + Other. No renamed categories ("Food & Dining", "Buffer & Meds"), and never label the Savings category as a Savings Goal (§7.3).
+4. **Status** stays icon + word + color with the words in §3 ("On track", "Careful", "At risk", "Period ended"). No "DANGER", "Budget depleted", or scolding copy.
+5. **Add Expense stays 3 fields and one tap to save** (§7.2). Visual extras (quick-add chips, category tiles) are fine; extra steps or confirmations are not. Opening it as a sheet/dialog over the Dashboard is fine.
+6. **Fonts and icons:** Stitch uses Plus Jakarta Sans and Material Symbols. Both are new dependencies (AGENTS.md §5). Map icons to lucide unless approved otherwise.
+
+**Decisions (user, 2026-11-14).** Numbers match the assessment flags; AGENTS.md §9 has the full list.
+- **Font:** Plus Jakarta Sans (approved dependency). Load from Google Fonts in `index.html` with only the weights used (400–800). Keep rem sizes so text size scaling still works (§2).
+- **Icons:** Material Symbols Outlined (approved dependency). Load from Google Fonts with `&icon_names=` listing only the icons used, so the file stays small. Wrap it in one small icon component; decorative icons `aria-hidden`. Status icons: `check_circle` (On track), `warning` (Careful), `cancel` (At risk), `calendar_today` (Period ended). Don't uninstall `lucide-react` without asking; remove it only after nothing imports it.
+- **Category colors:** Stitch palette (§13 refs) except **Emergency**, which gets a new hue that isn't red, amber, or green (pick one, check 4.5:1, flag the value). One shared `CATEGORY_COLORS` map in `constants.js`, also used by the pie chart.
+- **Status amber:** `#d97706` (amber-600) replaces amber-500. Status pills follow Stitch's schema (icon + word, tinted background) with the §3 words.
+- **Category labels:** always `CATEGORIES` labels; the budget's Savings category is labeled "Savings".
+- **Amounts:** transaction lists may show spending as `−₱189.00` (outflow). Totals, remaining, charts, and inputs stay positive.
+- **Shown now, wired later** (user-approved exception to AGENTS.md §6a): theme switcher in the sidebar, notification bell, "Forgot password?" link on login, budget-split "adjust/add money" UI. Mark each in code with `TODO(later): <what it needs>` and list them in AGENTS.md §9. They must not pretend to do something: no fake success messages or fake data.
